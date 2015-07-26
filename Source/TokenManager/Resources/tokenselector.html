@@ -1,0 +1,45 @@
+﻿<div ng-controller="tokenselectorcontroller as vm">
+	<div class="tokenForm">
+		<ul ng-if="!vm.selectedToken">
+			<p ng-if="!master.isRTE">Select a token to view token statistics.</p>
+			<li ng-repeat="category in vm.categories">
+				<span ng-click="vm.loadTokens(category);">
+					<strong ng-hide="category == vm.category">&#9655;</strong>
+					<strong ng-hide="category != vm.category">&#9661;</strong>
+					{{category}}
+				</span>
+				<ul ng-hide="category != vm.category">
+					<li ng-repeat="token in vm.tokens">
+						<span ng-click="vm.returnToken(category, token);"><strong>&#9654;</strong> {{token}}</span>
+					</li>
+				</ul>
+			</li>
+		</ul>
+		<div ng-if="vm.selectedToken" class="response">
+			<h4><strong>&#9655;</strong> {{vm.tokenStats.TokenCategory}} <strong>&#9654;</strong> {{vm.tokenStats.Token}} <strong>=</strong> {{vm.tokenStats.TokenValue}}</h4>
+			<a href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{vm.tokenStats.TokenCollectionItemId}}" class="btn fancybox fancybox.iframe">Edit Token Collection</a>
+			<a ng-if="vm.tokenStats.TokenItemId !== null" href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{vm.tokenStats.TokenItemId}}" class="btn fancybox fancybox.iframe">Edit Token</a>
+			<p>Token is used {{vm.tokenStats.Uses}} times.</p>
+			<table>
+				<tr>
+					<th></th>
+					<th>Display Name</th>
+					<th>Times Used</th>
+					<th>Item Id</th>
+					<th>Item Path</th>
+					<th>Field Name</th>
+				</tr>
+				<tr ng-repeat="(id, stats) in vm.tokenStats.ByItem" ng-class="{even: $even, odd: $odd}">
+					<td><a href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{id}}" class="btn fancybox fancybox.iframe">Edit Item</a></td>
+					<td>{{stats.DisplayName}}</td>
+					<td>{{stats.Count}}</td>
+					<td>{{id}}</td>
+					<td>{{stats.Path}}</td>
+					<td>{{stats.FieldName}}</td>
+				</tr>
+			</table>
+			<p><a class="btn" ng-click="vm.reset()">Select another token</a>
+			</p>
+		</div>
+	</div>
+</div>

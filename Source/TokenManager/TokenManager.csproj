@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B830F6F0-D43A-4FA5-9B94-AB87991029B7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TokenManager</RootNamespace>
+    <AssemblyName>TokenManager</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Spectrum\Source\Spectrum.Web\bin\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Sitecore.ContentSearch">
+      <HintPath>..\Dependencies\Libraries\Sitecore\Sitecore.ContentSearch.dll</HintPath>
+    </Reference>
+    <Reference Include="Sitecore.ContentSearch.Linq, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\Libraries\Sitecore\Sitecore.ContentSearch.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="Sitecore.Kernel">
+      <HintPath>..\Dependencies\Libraries\Sitecore\Sitecore.Kernel.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Development\Synthesis\Source\Synthesis.Mvc\bin\Debug\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Constants.cs" />
+    <Compile Include="ContentSearch\ContentSearchTokens.cs" />
+    <Compile Include="ContentSearch\Tokens.cs" />
+    <Compile Include="Data\BasicToken.cs" />
+    <Compile Include="Data\DynamicToken.cs" />
+    <Compile Include="Data\Interfaces\IToken.cs" />
+    <Compile Include="Data\Interfaces\ITokenCollection.cs" />
+    <Compile Include="Data\SitecoreToken.cs" />
+    <Compile Include="Handlers\BaseHttpHandler.cs" />
+    <Compile Include="Handlers\TokenConverter.cs" />
+    <Compile Include="Handlers\TokenIncorporator.cs" />
+    <Compile Include="Handlers\TokenManagerHandler.cs" />
+    <Compile Include="Handlers\TokenStats.cs" />
+    <Compile Include="Handlers\TokenUnzipper.cs" />
+    <Compile Include="Pipelines\Deleting\TokenDeleting.cs" />
+    <Compile Include="Pipelines\GetTokenCollectionTypeArgs.cs" />
+    <Compile Include="Pipelines\GetTokenGroup\GetDynamicGroup.cs" />
+    <Compile Include="Pipelines\GetTokenGroup\GetSitecoreGroup.cs" />
+    <Compile Include="Pipelines\Initialize\InitializeTokenManager.cs" />
+    <Compile Include="Pipelines\Moved\TokenMoved.cs" />
+    <Compile Include="Pipelines\RenderField\RenderFieldExpandTokens.cs" />
+    <Compile Include="Management\SitecoreTokenCollection.cs" />
+    <Compile Include="Management\TokenCollection.cs">
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
+    <Compile Include="Management\TokenKeeper.cs" />
+    <Compile Include="Pipelines\Saved\TokenSaved.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TemplateExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Speak\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\app.js" />
+    <EmbeddedResource Include="Resources\index.html" />
+    <EmbeddedResource Include="Resources\tokenselectorcommand.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\angular.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\tokenselectorcontroller.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\tokenfactory.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\tokenstyle.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\tokenselectordirective.js" />
+    <EmbeddedResource Include="Resources\tokenselector.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\master.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\tokenconverter.html" />
+    <EmbeddedResource Include="Resources\tokenconverterdirective.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\tokenconvertercontroller.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\spinner.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\tokenincorporator.html" />
+    <EmbeddedResource Include="Resources\tokenincorporatorcontroller.js" />
+    <EmbeddedResource Include="Resources\tokenincorporatordirective.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\tokenunzipper.html" />
+    <EmbeddedResource Include="Resources\tokenunzippercontroller.js" />
+    <EmbeddedResource Include="Resources\tokenunzipperdirective.js" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

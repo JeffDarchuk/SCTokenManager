@@ -1,0 +1,114 @@
+﻿@import "https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css";
+
+h3, h1 {
+	color: white;
+	background-color: #2b2b2b;
+	margin: 0px;
+	padding: 20px;
+
+}
+
+body {
+	margin: 0px;
+	font-size: large;
+	color: white;
+	background-color: #356;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+ul {
+	list-style-type: none;
+	padding-left: 20px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+li {
+	cursor: pointer;
+}
+
+.close {
+	background: url(/sitecore/shell/themes/standard/Images/Window%20Management/dialog_close.png) no-repeat center center;
+	float: right;
+	cursor: pointer;
+}
+
+h1 .close {
+	width: 50px;
+	height: 50px;
+}
+
+h3 .close {
+	width: 30px;
+	height: 30px;
+}
+
+.tab {
+	background-color: #666;
+	border-top-right-radius: 5px;
+	border-top-left-radius: 5px;
+	padding: 5px;
+	cursor: pointer;
+	border: thin solid black;
+}
+
+.tabPane {
+	background-color: #2b2b2b;
+	height: 25px;
+}
+
+.selected {
+	background-color: #356;;
+	border-bottom: thin solid #356;;
+}
+#functional {
+  
+	border-top: thin solid black;
+	padding: 15px;
+}
+.fullheight {
+	height: 100%;
+}
+table {
+	border-collapse: collapse;
+	width: 100%;
+	background-color: #2b2b2b;
+}
+td {
+	border: thin solid black;
+}
+th {
+	background-color: #2b2b2b;
+	color: white;
+	border: thin solid black;
+}
+.response {
+	margin-top: 15px;
+}
+.even td {
+	background-color: #222;
+}
+.tokenForm {
+	border-radius: 5px;
+	padding: 15px;
+	background-color: #2b2b2b;
+	border: thin solid #008b8b;
+}
+strong {
+	  color: greenyellow;
+}
+
+.btn {
+	  border: 1px solid #555;
+	  padding: 0.3em;
+	  text-decoration: none;
+	  color: #008b8b;
+	  cursor: pointer;
+	  text-align: center;
+	  font-weight: 600;
+	  font-size: 1.1em;
+	  display: inline-block;
+}
+td .btn {
+	display: block;
+}

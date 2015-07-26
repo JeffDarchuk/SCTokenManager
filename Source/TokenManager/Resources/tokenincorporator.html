@@ -1,0 +1,55 @@
+﻿<div ng-controller="tokenincorporatorcontroller as vm">
+	<h4>Wish you had used a token for a particular value?</h4>
+	<p>By filling out this form a token will be created for you and replace the existing values.</p>
+	<p>Note: Adding new tokens is only possible on sitecore controlled token collections.</p>
+	<p>Note: Token changes are applied to the master database, a publish is then required.</p>
+	<div ng-if="!vm.spinner" class="tokenForm">
+		<span>Select a token category: </span><select ng-model="vm.selectedTokenCategory" ng-options="item for item in vm.tokenCategories" ng-change="vm.loadTokens()"></select>
+		<div ng-if="vm.selectedTokenCategory !=''">
+			<div ng-if="vm.sitecoreBasedTokenCollection">
+				<input type="radio" ng-model="vm.existingToken" ng-value="true">Existing token
+				<span ng-if="vm.sitecoreBasedTokenCollection"><input type="radio" ng-model="vm.existingToken" ng-value="false">New token</span>
+
+			</div>
+			<div ng-if="vm.existingTokenSelected()">
+				<input ng-if="!vm.existingToken" ng-model="vm.tokenName" placeholder="New token name"/>
+				<select ng-if="vm.existingToken" ng-model="vm.tokenName" ng-options="item for item in vm.tokens">
+					<option selected value="">-- Select a token --</option>
+				</select>
+
+				<input size="50" ng-model="vm.tokenValue" placeholder="Existing value you would like transformed to a token"/>
+				<a class="btn" ng-if="vm.formFilled()" ng-click="vm.incorporateToken()">Submit</a>
+			</div>
+			<p ng-if="(vm.existingToken && vm.formFilled())">This will find all occurances of the text <strong>{{vm.tokenValue}} </strong>and set it to use the token <strong>{{vm.tokenName}}</strong> under token collection <strong>{{vm.selectedTokenCategory}}</strong>
+			</p>
+			<p ng-if="(!vm.existingToken && vm.formFilled())">This will find all occurances of the text <strong>{{vm.tokenValue}} </strong> and add a new token under token collection <strong>{{vm.selectedTokenCategory}}</strong> with a token name of <strong>{{vm.tokenName}}</strong> and a value of <strong>{{vm.tokenValue}}</strong>
+			</p>
+		</div>
+	</div>
+	<div ng-if="vm.response" class="response">
+		Number of rich text fields modified: {{vm.response.Count}}
+		<table>
+			<tr>
+				<th></th>
+				<th>Item Display Name</th>
+				<th>Item ID</th>
+				<th>Item Path</th>
+				<th>Field Name</th>
+				<th>Instances Replaced</th>
+			</tr>
+			<tr ng-repeat="converted in vm.response.Converted" ng-class="{even: $even, odd: $odd}">
+				<td><a href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{converted.ID}}" class="btn fancybox fancybox.iframe">Edit Item</a></td>
+				<td>{{converted.DisplayName}}</td>
+				<td>{{converted.ID}}</td>
+				<td>{{converted.Path}}</td>
+				<td>{{converted.FieldName}}</td>
+				<td>{{converted.InstancesReplaced}}</td>
+			</tr>
+		</table>
+
+	</div>
+	<div ng-if="vm.spinner">
+		<img src="tokenmanager/spinner.gif" />
+	</div>
+
+</div>
