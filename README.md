@@ -11,9 +11,13 @@ A TokenManager sitecore item is added as a child item of sitecore/Content.
 
 A token is identified by two strings, category name and token name.  
 i.e.
+
 Date > Now
+
 Date > First of next month
+
 Session > User name
+
 Phone Numbers > Customer service number
 
 each token category has an item representation in the TokenManager item. OOTB there is a dynamic token collection (run code snippet to get value) or general token collection (get value from rich text field).  
