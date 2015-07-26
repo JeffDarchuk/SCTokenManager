@@ -4,6 +4,9 @@ Token Manager for Sitecore
 
 Generic rich text token management system.  Easilly inject dynamic content into rich text fields, that is fully tracked, managed, and analyzed.
 # The basics
+TokenManager sitecore items are required.  Package here:
+https://onedrive.live.com/redir?resid=A4BC37C253DAEF6A!153&authkey=!AGy8WoWZQOS36lE&ithint=file%2czip
+
 A TokenManager sitecore item is added as a child item of sitecore/Content.  
 
 A token is identified by two strings, category name and token name (i.e. Date > Now | Session > User Name).  
