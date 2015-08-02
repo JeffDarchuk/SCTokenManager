@@ -1,4 +1,8 @@
-﻿using TokenManager.Management;
+﻿using Sitecore.Data;
+using TokenManager.Collections;
+using TokenManager.Data;
+using TokenManager.Data.Interfaces;
+using TokenManager.Management;
 
 namespace TokenManager.Pipelines.GetTokenGroup
 {
@@ -13,7 +17,7 @@ namespace TokenManager.Pipelines.GetTokenGroup
 		{
 			if (args.GroupItem.TemplateID.ToString() == Constants._tokenGroupTemplateId)
 			{
-				args.Collection = new SitecoreTokenCollection(args.GroupItem);
+				args.Collection = new SimpleSitecoreTokenCollection(args.GroupItem, new ID(Constants._tokenTemplateId));
 				args.AbortPipeline();
 			}
 		}

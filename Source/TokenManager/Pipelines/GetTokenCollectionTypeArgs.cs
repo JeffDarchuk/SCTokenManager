@@ -9,6 +9,6 @@ namespace TokenManager.Pipelines
 	public class GetTokenCollectionTypeArgs : PipelineArgs
 	{
 		public Item GroupItem { get; set; }
-		public ITokenCollection Collection { get; set; }
+		public ITokenCollection<IToken> Collection { get; set; }
 	}
 }

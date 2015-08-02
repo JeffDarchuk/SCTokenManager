@@ -29,7 +29,7 @@ namespace TokenManager.Pipelines.Saved
 			{
 				// if it's a specific token that's changed
 				if (TemplateManager.GetTemplate(item).IsDerived(new ID(Constants._tokenTemplateBaseId)))
-					foreach (ITokenCollection tokenCollection in TokenKeeper.CurrentKeeper.GetTokenCollections()
+					foreach (ITokenCollection<IToken> tokenCollection in TokenKeeper.CurrentKeeper.GetTokenCollections()
 						.Where(x => x.GetBackingItemId() == item.ParentID))
 					{
 						foreach (FieldChange change in changes.FieldChanges)
@@ -61,7 +61,7 @@ namespace TokenManager.Pipelines.Saved
 					{
 						if (change.FieldID.ToString() == Constants._tokenGroupCategoryFieldId)
 						{
-							var tokenCollection = TokenKeeper.CurrentKeeper.GetTokenCollection(change.OriginalValue);
+							var tokenCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(change.OriginalValue);
 							if (tokenCollection != null)
 							{
 								TokenKeeper.CurrentKeeper.LoadTokenGroup(TokenKeeper.CurrentKeeper.GetCollectionFromItem(item));

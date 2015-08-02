@@ -28,7 +28,7 @@ namespace TokenManager.Pipelines.GetTokenGroup
 				ConstructorInfo ctor = t.GetConstructor(new[] { typeof(Item) });
 				if (ctor != null)
 				{
-					args.Collection= (ITokenCollection)ctor.Invoke(new object[] { args.GroupItem });
+					args.Collection= (ITokenCollection<IToken>)ctor.Invoke(new object[] { args.GroupItem });
 					args.AbortPipeline();
 				}
 			}

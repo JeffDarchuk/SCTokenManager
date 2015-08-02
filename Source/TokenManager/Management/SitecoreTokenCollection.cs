@@ -6,11 +6,13 @@ using Sitecore.Data;
 using Sitecore.Data.Items;
 
 using TokenManager.Data;
+using TokenManager.Data.Interfaces;
 
 namespace TokenManager.Management
 {
 
-	public class SitecoreTokenCollection : TokenCollection<SitecoreToken>
+	public abstract class SitecoreTokenCollection<T> : TokenCollection<T>
+		where T : IToken
 	{
 		private readonly ID _backingItemId;
 		private readonly string _collectionLabel;
@@ -18,13 +20,15 @@ namespace TokenManager.Management
 		private readonly string _templateId;
 		private bool _initialized;
 		private readonly object _locker = new object();
+	    private ID _tokenTemplateID;
 
 		/// <summary>
 		/// constructs the sitecore token collection based on the specific item
 		/// </summary>
 		/// <param name="tokenGroup"></param>
-		public SitecoreTokenCollection(Item tokenGroup):base(tokenGroup)
+		public SitecoreTokenCollection(Item tokenGroup, ID tokenTemplateID):base(tokenGroup)
 		{
+		    _tokenTemplateID = tokenTemplateID;
 			_backingItemId = tokenGroup.ID;
 			_collectionLabel = tokenGroup["Category Label"];
 			var tmp = tokenGroup.Database.GetItem(tokenGroup["Item Ancestor"]);
@@ -42,20 +46,6 @@ namespace TokenManager.Management
 		public override string GetCollectionLabel()
 		{
 			return _collectionLabel;
-		}
-
-		/// <summary>
-		/// loads in the token to the collection
-		/// </summary>
-		/// <param name="token"></param>
-		/// <returns></returns>
-		public override SitecoreToken InitiateToken(string token)
-		{
-			Database db = GetDatabase();
-			Item tokenItem = db.GetItem(_backingItemId).Children.FirstOrDefault(i => i["Token"] == token);
-			if (tokenItem == null)
-				return null;
-			return new SitecoreToken(token, tokenItem.ID);
 		}
 
 		/// <summary>
@@ -82,7 +72,7 @@ namespace TokenManager.Management
 						_initialized = true;
 						Database db = GetDatabase();
 						var item = db.GetItem(_backingItemId);
-						foreach (string key in item.Children.Where(c => c.TemplateID.ToString() == "{87BFAA2C-2E2F-42C6-A135-9F2AE7D32807}" || c.TemplateID.ToString() == "{D2C980F1-DD2A-4444-AC67-EC6D282B5879}").Select(c => c["Token"]))
+						foreach (string key in item.Children.Where(c => c.TemplateID == _tokenTemplateID).Select(c => c["Token"]))
 						{
 							AddOrUpdateToken(InitiateToken(key));
 						}

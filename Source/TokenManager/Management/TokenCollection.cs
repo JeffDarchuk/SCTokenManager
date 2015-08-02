@@ -11,7 +11,7 @@ using TokenManager.Data.Interfaces;
 namespace TokenManager.Management
 {
 
-	public abstract class TokenCollection<T> : ITokenCollection
+	public abstract class TokenCollection<T> : ITokenCollection<T>
 		where T : IToken
 	{
 		private readonly string _ancestorPath;
@@ -81,7 +81,7 @@ namespace TokenManager.Management
 		/// </summary>
 		/// <param name="token"></param>
 		/// <returns>token object</returns>
-		public virtual IToken GetToken(string token)
+		public virtual T GetToken(string token)
 		{
 			if (_tokens.ContainsKey(token)) return _tokens[token];
 			var newToken = InitiateToken(token);
@@ -94,12 +94,11 @@ namespace TokenManager.Management
 		/// </summary>
 		/// <param name="oldToken"></param>
 		/// <param name="newToken"></param>
-		public virtual void AddOrUpdateToken(string oldToken, IToken newToken)
+		public virtual void AddOrUpdateToken(string oldToken, T newToken)
 		{
-			var tmp = (T) newToken;
-			if (oldToken != null && oldToken != tmp.Token)
+			if (oldToken != null && oldToken != newToken.Token)
 				RemoveToken(oldToken);
-			_tokens[newToken.Token] = tmp;
+			_tokens[newToken.Token] = newToken;
 		}
 
 		/// <summary>

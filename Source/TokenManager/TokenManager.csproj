@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\SimpleSitecoreTokenCollection.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="ContentSearch\ContentSearchTokens.cs" />
     <Compile Include="ContentSearch\Tokens.cs" />
@@ -89,7 +90,7 @@
     <Compile Include="Management\TokenKeeper.cs" />
     <Compile Include="Pipelines\Saved\TokenSaved.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-	<Compile Include="..\SharedAssemblyInfo.cs">
+    <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="TemplateExtensions.cs" />

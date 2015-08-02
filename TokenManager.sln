@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TokenManager", "Source\TokenManager\TokenManager.csproj", "{B830F6F0-D43A-4FA5-9B94-AB87991029B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TokenTestProject", "Source\TokenTestProject\TokenTestProject.csproj", "{AB8F5E7D-D418-40AB-896C-61F70D86BDDF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TokenManager.Tests", "Source\TokenTestProject\TokenManager.Tests.csproj", "{AB8F5E7D-D418-40AB-896C-61F70D86BDDF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

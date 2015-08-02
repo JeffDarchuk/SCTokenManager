@@ -6,6 +6,7 @@ using Sitecore.Data;
 using Sitecore.Data.Fields;
 
 using TokenManager.ContentSearch;
+using TokenManager.Data.Interfaces;
 using TokenManager.Management;
 
 namespace TokenManager.Handlers
@@ -46,7 +47,7 @@ namespace TokenManager.Handlers
 			ret.Token = _token;
 			ret.TokenValue = TokenKeeper.CurrentKeeper.GetTokenValue(_category, _token);
 			ret.ByItem = new Dictionary<ID, ExpandoObject>();
-			ret.TokenCollectionItemId = TokenKeeper.CurrentKeeper.GetTokenCollection(_category).GetBackingItemId();
+			ret.TokenCollectionItemId = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(_category).GetBackingItemId();
 			ret.TokenItemId = TokenKeeper.CurrentKeeper.GetToken(_category, _token).GetBackingItemId();
 			CrunchStats(ret);
 			return ret;

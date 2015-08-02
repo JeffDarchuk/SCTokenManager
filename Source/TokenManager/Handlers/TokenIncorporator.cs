@@ -25,15 +25,15 @@ namespace TokenManager.Handlers
 		private string _category;
 		private string _tokenName;
 		private string _tokenValue;
-		private ITokenCollection _tokenCollection;
+		private ITokenCollection<IToken> _tokenCollection;
 		private string _tokenIdentifier;
-		public ITokenCollection TokenCollection
+		public ITokenCollection<IToken> TokenCollection
 		{
 			get
 			{
 				if (_tokenCollection != null)
 					return _tokenCollection;
-				_tokenCollection = TokenKeeper.CurrentKeeper.GetTokenCollection(_category);
+				_tokenCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(_category);
 				return _tokenCollection;
 			}
 		}
@@ -64,14 +64,14 @@ namespace TokenManager.Handlers
 			ret.Converted = new List<ExpandoObject>();
 			using (new SecurityDisabler())
 			{
-				if (!TokenCollection.HasToken(_tokenName) && TokenCollection is SitecoreTokenCollection)
+				if (!TokenCollection.HasToken(_tokenName) && TokenCollection is SitecoreTokenCollection<IToken>)
 				{
 					Item newToken = _item.Add(_tokenName, new TemplateID(new ID("{87BFAA2C-2E2F-42C6-A135-9F2AE7D32807}")));
 					newToken.Editing.BeginEdit();
 					newToken["Token"] = _tokenName;
 					newToken["Value"] = _tokenValue;
 					newToken.Editing.EndEdit();
-					var collection = TokenKeeper.CurrentKeeper.GetTokenCollection(_category) as TokenCollection<IToken>;
+					var collection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(_category) as TokenCollection<IToken>;
 					if (collection != null)
 						collection.AddOrUpdateToken(collection.InitiateToken(_tokenName));
 				}

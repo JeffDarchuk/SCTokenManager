@@ -8,7 +8,7 @@ using System.Web;
 using Newtonsoft.Json;
 
 using Sitecore.Configuration;
-
+using TokenManager.Data.Interfaces;
 using TokenManager.Management;
 
 namespace TokenManager.Handlers
@@ -128,7 +128,7 @@ namespace TokenManager.Handlers
 		{
 			var data = GetPostData(context);
 			return
-				TokenKeeper.CurrentKeeper.GetTokenCollection(data.category) is SitecoreTokenCollection;
+				TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(data.category) is SitecoreTokenCollection<IToken>;
 		}
 
 		/// <summary>
@@ -140,7 +140,7 @@ namespace TokenManager.Handlers
 		{
 			var data = GetPostData(context);
 			string database = data.database;
-			return TokenKeeper.CurrentKeeper.GetTokenCollections().Where(c => c is SitecoreTokenCollection && ((SitecoreTokenCollection) c).IsAvailableOnDatabase(database) ).Select(c=>c.GetCollectionLabel());
+			return TokenKeeper.CurrentKeeper.GetTokenCollections().Where(c => c is SitecoreTokenCollection<IToken> && ((SitecoreTokenCollection<IToken>) c).IsAvailableOnDatabase(database) ).Select(c=>c.GetCollectionLabel());
 		}
 
 		/// <summary>

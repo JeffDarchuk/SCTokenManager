@@ -27,7 +27,7 @@ namespace TokenManager.Management
 		public string TokenPrefix { get; set; }
 		public string TokenSuffix { get; set; }
 		public string Delimiter { get; set; }
-		private static readonly ConcurrentDictionary<string, ITokenCollection> TokenGroups = new ConcurrentDictionary<string, ITokenCollection>();
+		private static readonly ConcurrentDictionary<string, ITokenCollection<IToken>> TokenGroups = new ConcurrentDictionary<string, ITokenCollection<IToken>>();
 		private static readonly ConcurrentDictionary<string, List<Tuple<int, int>>> TokenLocations = new ConcurrentDictionary<string, List<Tuple<int, int>>>();
 		public TokenKeeper() { }
 		public TokenKeeper(string tokenPrefix, string tokenSuffix, string delimiter)
@@ -37,9 +37,9 @@ namespace TokenManager.Management
 			Delimiter = HttpUtility.HtmlEncode(delimiter);
 		}
 
-		public ITokenCollection this[string tokenCollection]
+		public ITokenCollection<IToken> this[string tokenCollection]
 		{
-			get { return GetTokenCollection(tokenCollection); }
+			get { return GetTokenCollection<IToken>(tokenCollection); }
 			set { LoadTokenGroup(value);}
 		}
 
@@ -47,7 +47,7 @@ namespace TokenManager.Management
 		/// Inserts a token collection into the keeper
 		/// </summary>
 		/// <param name="collection"></param>
-		public virtual void LoadTokenGroup(ITokenCollection collection)
+		public virtual void LoadTokenGroup(ITokenCollection<IToken> collection)
 		{
 			TokenGroups[collection.GetCollectionLabel()] = collection;
 		}
@@ -243,7 +243,7 @@ namespace TokenManager.Management
 		/// gets all the token collections
 		/// </summary>
 		/// <returns>token collections</returns>
-		public virtual IEnumerable<ITokenCollection> GetTokenCollections()
+		public virtual IEnumerable<ITokenCollection<IToken>> GetTokenCollections()
 		{
 			return TokenGroups.Values.Where(c=>c.IsCurrentContextValid());
 		} 
@@ -253,10 +253,11 @@ namespace TokenManager.Management
 		/// </summary>
 		/// <param name="collectionName"></param>
 		/// <returns>token collection</returns>
-		public virtual ITokenCollection GetTokenCollection(string collectionName)
+		public virtual ITokenCollection<T> GetTokenCollection<T>(string collectionName)
+			where T : IToken
 		{
 			if (TokenGroups.ContainsKey(collectionName) && TokenGroups[collectionName].IsCurrentContextValid())
-				return TokenGroups[collectionName];
+				return TokenGroups[collectionName] as ITokenCollection<T>;
 			return null;
 		}
 
@@ -267,7 +268,7 @@ namespace TokenManager.Management
 		/// <returns></returns>
 		public virtual IEnumerable<string> GetTokens(string category)
 		{
-			var collection = GetTokenCollection(category);
+			var collection = GetTokenCollection<IToken>(category);
 			if (collection != null)
 				return collection.GetTokens();
 			return null;
@@ -281,7 +282,7 @@ namespace TokenManager.Management
 		/// <returns>token object</returns>
 		public virtual IToken GetToken(string category, string token)
 		{
-			var collection = GetTokenCollection(category);
+			var collection = GetTokenCollection<IToken>(category);
 			if (collection != null)
 				return collection.GetToken(token);
 			return null;
@@ -292,9 +293,9 @@ namespace TokenManager.Management
 		/// </summary>
 		/// <param name="collectionLabel"></param>
 		/// <returns>the collection removed</returns>
-		public virtual ITokenCollection RemoveGroup(string collectionLabel)
+		public virtual ITokenCollection<IToken> RemoveGroup(string collectionLabel)
 		{
-			ITokenCollection ret;
+			ITokenCollection<IToken> ret;
 			TokenGroups.TryRemove(collectionLabel, out ret);
 			return ret;
 		}
@@ -317,7 +318,7 @@ namespace TokenManager.Management
 		/// </summary>
 		/// <param name="item"></param>
 		/// <returns>token collection</returns>
-		public virtual ITokenCollection GetCollectionFromItem(Item item)
+		public virtual ITokenCollection<IToken> GetCollectionFromItem(Item item)
 		{
 			var args = new GetTokenCollectionTypeArgs()
 			{

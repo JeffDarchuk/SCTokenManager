@@ -6,7 +6,8 @@ using Sitecore.Data;
 namespace TokenManager.Data.Interfaces
 {
 
-	public interface ITokenCollection
+	public interface ITokenCollection<T>
+        where T : IToken
 	{
 		string this[string token] { get; }
 
@@ -14,8 +15,8 @@ namespace TokenManager.Data.Interfaces
 		IEnumerable<string> GetTokens(); 
 		void RemoveToken(string token);
 		bool HasToken(string token);
-		IToken GetToken(string token);
-		void AddOrUpdateToken(string oldToken, IToken newToken);
+		T GetToken(string token);
+		void AddOrUpdateToken(string oldToken, T newToken);
 		void ResetTokenCache();
 		ID GetBackingItemId();
 		bool IsCurrentContextValid(Item item = null);

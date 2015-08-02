@@ -48,7 +48,7 @@ namespace TokenManager.Pipelines.Initialize
 				while (curItems.Any())
 				{
 					Item cur = curItems.Pop();
-					ITokenCollection col = Tokens.GetCollectionFromItem(cur);
+					ITokenCollection<IToken> col = Tokens.GetCollectionFromItem(cur);
 					if (col != null)
 						Tokens.LoadTokenGroup(col);
 					else
