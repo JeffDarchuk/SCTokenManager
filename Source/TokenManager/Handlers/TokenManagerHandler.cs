@@ -6,10 +6,12 @@ using System.Linq;
 using System.Web;
 
 using Newtonsoft.Json;
-
+using Sitecore;
 using Sitecore.Configuration;
+using Sitecore.Data;
 using TokenManager.Data.Interfaces;
 using TokenManager.Management;
+using TokenManager.Collections;
 
 namespace TokenManager.Handlers
 {
@@ -128,7 +130,7 @@ namespace TokenManager.Handlers
 		{
 			var data = GetPostData(context);
 			return
-				TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(data.category) is SitecoreTokenCollection<IToken>;
+                TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(data.category) is SimpleSitecoreTokenCollection;
 		}
 
 		/// <summary>
@@ -204,6 +206,21 @@ namespace TokenManager.Handlers
 		/// <returns></returns>
 		private static object GetTokenCategories()
 		{
+            var db = Context.ContentDatabase ?? Context.Database ?? Database.GetDatabase("master");
+            var item = Context.Item;
+            if (item == null)
+            {
+                var itemId = HttpContext.Current.Request.QueryString.Get("sc_itemid");
+                if (string.IsNullOrWhiteSpace(itemId))
+                    return null;
+                item = db.GetItem(itemId);
+                if (item != null)
+                {
+                    Context.Item = item;
+                    if (item.IsTokenMangerItem())
+                        return null;
+                }
+            }
 			return TokenKeeper.CurrentKeeper.GetTokenCollectionNames();
 		}
 

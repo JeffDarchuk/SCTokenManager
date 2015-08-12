@@ -16,7 +16,6 @@ namespace TokenManager.Pipelines.Initialize
 
 	public class InitializeTokenManager
 	{
-		private const string _tokenManagerGuid = "{AC075339-E1DD-424C-9EFB-FD47CCEB6FD9}";
 		private TokenKeeper Tokens { get; set; }
 		/// <summary>
 		/// Starts up a new tokenkeeper that will be set up as a singleton
@@ -39,7 +38,7 @@ namespace TokenManager.Pipelines.Initialize
 		/// </summary>
 		private void RegisterSitecoreTokens()
 		{
-			Item tokenManagerItem = Database.GetDatabase("master").GetItem(_tokenManagerGuid);
+			Item tokenManagerItem = Database.GetDatabase("master").GetItem(Constants._tokenManagerGuid);
 			if (tokenManagerItem != null)
 			{
 

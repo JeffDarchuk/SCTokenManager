@@ -1,37 +1,40 @@
 ﻿<div ng-controller="tokenunzippercontroller as vm">
 	<h4>Decided that you didn't want a token anymore?</h4>
 	<p>This form is for undoing a token, it will replace the token in the rich text field with it's value.</p>
-	<div ng-if="!vm.spinner" class="tokenForm">
-		<span>Select a token category: </span><select ng-model="vm.selectedTokenCategory" ng-options="item for item in vm.tokenCategories" ng-change="vm.loadTokens()"></select>
-		<div ng-if="vm.selectedTokenCategory !=''">
-			Select a token: <select ng-model="vm.selectedToken" ng-options="item for item in vm.tokens">
-				<option selected value="">-- Select a token --</option>
-			</select>
-		</div>
-		<div><a class="btn" ng-if="vm.formFilled()" ng-click="vm.unzipToken()" >Submit</a></div>
-	</div>
-	<div ng-if="vm.response" class="response">
-		Number of rich text fields modified: {{vm.response.Count}}
-		<table>
-			<tr>
-				<th></th>
-				<th>Item Display Name</th>
-				<th>Item ID</th>
-				<th>Item Path</th>
-				<th>Field Name</th>
-				<th>Instances Replaced</th>
-			</tr>
-			<tr ng-repeat="converted in vm.response.Converted" ng-class="{even: $even, odd: $odd}">
-				<td><a href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{converted.ID}}" class="btn fancybox fancybox.iframe">Edit Item</a></td>
-				<td>{{converted.DisplayName}}</td>
-				<td>{{converted.ID}}</td>
-				<td>{{converted.Path}}</td>
-				<td>{{converted.FieldName}}</td>
-				<td>{{converted.InstancesReplaced}}</td>
-			</tr>
-		</table>
+    <div ng-if="!vm.spinner" class="tokenForm">
+        <span>Select a token category: </span><select ng-model="vm.selectedTokenCategory" ng-options="item for item in vm.tokenCategories" ng-change="vm.loadTokens()"></select>
+        <div ng-if="vm.selectedTokenCategory !=''">
+            Select a token: <select ng-model="vm.selectedToken" ng-options="item for item in vm.tokens">
+                <option selected value="">-- Select a token --</option>
+            </select>
+        </div>
+        <div><a class="btn" ng-if="vm.formFilled()" ng-click="vm.unzipToken()">Submit</a></div>
 
-	</div>
+        <div ng-if="vm.response" class="response">
+            Number of rich text fields modified: {{vm.response.Count}}
+            <dir-pagination-controls pagination-id="pagination" template-url="/tokenmanager/dirpagination.html">
+            </dir-pagination-controls>
+            <table>
+                <tr>
+                    <th></th>
+                    <th>Item Display Name</th>
+                    <th>Item ID</th>
+                    <th>Item Path</th>
+                    <th>Field Name</th>
+                    <th>Instances Replaced</th>
+                </tr>
+                <tr dir-paginate="converted in vm.response.Converted | itemsPerPage:20" pagination-id="pagination" ng-class="{even: $even, odd: $odd}">
+                    <td><a href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{converted.ID}}" class="btn fancybox fancybox.iframe">Edit Item</a></td>
+                    <td>{{converted.DisplayName}}</td>
+                    <td>{{converted.ID}}</td>
+                    <td>{{converted.Path}}</td>
+                    <td>{{converted.FieldName}}</td>
+                    <td>{{converted.InstancesReplaced}}</td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
 	<div ng-if="vm.spinner">
 		<img src="tokenmanager/spinner.gif" />
 	</div>

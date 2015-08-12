@@ -49,7 +49,8 @@ namespace TokenManager.Management
 		/// <param name="collection"></param>
 		public virtual void LoadTokenGroup(ITokenCollection<IToken> collection)
 		{
-			TokenGroups[collection.GetCollectionLabel()] = collection;
+			if (collection != null)
+				TokenGroups[collection.GetCollectionLabel()] = collection;
 		}
 
 		/// <summary>

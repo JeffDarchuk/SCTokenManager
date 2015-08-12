@@ -1,2 +1,2 @@
 ﻿'use strict';
-angular.module('app', []);
+angular.module('app', ['angularUtils.directives.dirPagination']);

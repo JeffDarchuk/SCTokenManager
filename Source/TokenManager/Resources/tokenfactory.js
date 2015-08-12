@@ -24,8 +24,8 @@
         		var data = { "category": category, "token": token };
         		return $http.post("tokenmanager/tokenidentifier.json", data);
 			},
-        	tokenConvert: function (prefix, suffix, delimiter) {
-        		var data = { "prefix": prefix, "suffix": suffix, "delimiter": delimiter };
+        	tokenConvert: function (prefix, delimiter, suffix) {
+        		var data = { "prefix": prefix, "delimiter": delimiter, "suffix": suffix };
         		return $http.post("tokenmanager/tokenconvert.json", data);
 			},
 			databases: function() {

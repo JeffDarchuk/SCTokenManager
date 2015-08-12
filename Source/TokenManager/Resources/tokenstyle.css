@@ -112,3 +112,12 @@ strong {
 td .btn {
 	display: block;
 }
+.pagination li {
+    display: inline;
+}
+.pagination {
+    margin-bottom: 20px;
+}
+.pagination .active a {
+    border: 2px solid white;
+}

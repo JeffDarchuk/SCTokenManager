@@ -3,11 +3,13 @@
 	<p>If you changed the token identifying parameters in the config file, you'll need to run this utility to re-capture the existing tokens.</p>
 	<div ng-hide="vm.spinner" class="tokenForm">
 		<input ng-model="vm.prefix" placeholder="Former token prefix" />
-		<input ng-model="vm.suffix" placeholder="Former token suffix" />
-		<input ng-model="vm.delimiter" placeholder="Former token delimiter" />
+	    <input ng-model="vm.delimiter" placeholder="Former token delimiter"/>
+        <input ng-model="vm.suffix" placeholder="Former token suffix" />
 		<a class="btn" ng-click="vm.convertToken()" >Submit</a>
 		<div ng-hide="vm.response.Count === 0">
-			<p>Total fields modified: {{vm.response.Count}}</p>
+		    <p>Total fields modified: {{vm.response.Count}}</p>
+            <dir-pagination-controls pagination-id="pagination" template-url="/tokenmanager/dirpagination.html">
+            </dir-pagination-controls>
 			<table>
 				<tr>
 					<th></th>
@@ -17,14 +19,14 @@
 					<th>Database</th>
 					<th>Field</th>
 				</tr>
-				<tr ng-repeat="item in vm.response.Items" ng-class="{even: $even, odd: $odd}">
-					<td><a href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{item.Id}}" class="btn fancybox fancybox.iframe">Edit Item</a></td>
-					<td>{{item.Id}}</td>
-					<td>{{item.DisplayName}}</td>
-					<td>{{item.Path}}</td>
-					<td>{{item.Database}}</td>
-					<td>{{item.Field}}</td>
-				</tr>
+                <tr dir-paginate="item in vm.response.Items | itemsPerPage:20" pagination-id="pagination" ng-class="{even: $even, odd: $odd}">
+                    <td><a href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{item.Id}}" class="btn fancybox fancybox.iframe">Edit Item</a></td>
+                    <td>{{item.Id}}</td>
+                    <td>{{item.DisplayName}}</td>
+                    <td>{{item.Path}}</td>
+                    <td>{{item.Database}}</td>
+                    <td>{{item.Field}}</td>
+                </tr>
 			</table>
 		</div>
 	</div>

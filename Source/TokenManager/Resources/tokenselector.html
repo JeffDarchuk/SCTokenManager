@@ -19,25 +19,28 @@
 			<h4><strong>&#9655;</strong> {{vm.tokenStats.TokenCategory}} <strong>&#9654;</strong> {{vm.tokenStats.Token}} <strong>=</strong> {{vm.tokenStats.TokenValue}}</h4>
 			<a href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{vm.tokenStats.TokenCollectionItemId}}" class="btn fancybox fancybox.iframe">Edit Token Collection</a>
 			<a ng-if="vm.tokenStats.TokenItemId !== null" href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{vm.tokenStats.TokenItemId}}" class="btn fancybox fancybox.iframe">Edit Token</a>
-			<p>Token is used {{vm.tokenStats.Uses}} times.</p>
-			<table>
-				<tr>
-					<th></th>
-					<th>Display Name</th>
-					<th>Times Used</th>
-					<th>Item Id</th>
-					<th>Item Path</th>
-					<th>Field Name</th>
-				</tr>
-				<tr ng-repeat="(id, stats) in vm.tokenStats.ByItem" ng-class="{even: $even, odd: $odd}">
-					<td><a href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{id}}" class="btn fancybox fancybox.iframe">Edit Item</a></td>
-					<td>{{stats.DisplayName}}</td>
-					<td>{{stats.Count}}</td>
-					<td>{{id}}</td>
-					<td>{{stats.Path}}</td>
-					<td>{{stats.FieldName}}</td>
-				</tr>
-			</table>
+		    <p>Token is used {{vm.tokenStats.Uses}} times.</p>
+            <dir-pagination-controls pagination-id="pagination" template-url="/tokenmanager/dirpagination.html">
+            </dir-pagination-controls>
+		    <table>
+		        <tr>
+		            <th></th>
+		            <th>Display Name</th>
+		            <th>Times Used</th>
+		            <th>Item Id</th>
+		            <th>Item Path</th>
+		            <th>Field Name</th>
+		        </tr>
+		        <tr dir-paginate="stats in vm.tokenStats.ByItem | itemsPerPage:20" pagination-id="pagination" ng-class="{even: $even, odd: $odd}">
+		            <td><a href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{stats.ID}}" class="btn fancybox fancybox.iframe">Edit Item</a></td>
+		            <td>{{stats.DisplayName}}</td>
+		            <td>{{stats.Count}}</td>
+		            <td>{{stats.ID}}</td>
+		            <td>{{stats.Path}}</td>
+		            <td>{{stats.FieldName}}</td>
+		        </tr>
+		    </table>
+
 			<p><a class="btn" ng-click="vm.reset()">Select another token</a>
 			</p>
 		</div>

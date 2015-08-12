@@ -2,6 +2,8 @@
 {
 	public static class Constants
 	{
+	    public const string _tokenManagerGuid = "{AC075339-E1DD-424C-9EFB-FD47CCEB6FD9}";
+
 		public const string _tokenFieldId = "{273E8C26-5BF0-4DC1-8430-BDB5C2665853}";
 		public const string _tokenGroupCategoryFieldId = "{81941697-38C9-4B03-A045-EB065A690B9E}";
 

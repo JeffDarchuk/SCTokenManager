@@ -31,12 +31,15 @@ namespace TokenManager.Pipelines.Deleting
 			else if (item.TemplateID.ToString() == Constants._tokenGroupTemplateId || item.TemplateID.ToString() == Constants._tokenMethodGroupTemplateId)
 			{
 				var sitecoreTokenCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(item["Category Label"]);
-				foreach (var token in sitecoreTokenCollection.GetTokens())
-				{
-					TokenUnzipper unzipper = new TokenUnzipper(item["Category Label"], token);
-					unzipper.Unzip();
-				}
-				TokenKeeper.CurrentKeeper.RemoveGroup(item["Category Label"]);
+			    if (sitecoreTokenCollection != null)
+			    {
+			        foreach (var token in sitecoreTokenCollection.GetTokens())
+			        {
+			            TokenUnzipper unzipper = new TokenUnzipper(item["Category Label"], token);
+			            unzipper.Unzip();
+			        }
+			        TokenKeeper.CurrentKeeper.RemoveGroup(item["Category Label"]);
+			    }
 			}
 		}
 	}

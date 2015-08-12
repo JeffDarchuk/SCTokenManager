@@ -76,6 +76,7 @@
     <Compile Include="Handlers\TokenManagerHandler.cs" />
     <Compile Include="Handlers\TokenStats.cs" />
     <Compile Include="Handlers\TokenUnzipper.cs" />
+    <Compile Include="ItemExtensions.cs" />
     <Compile Include="Pipelines\Deleting\TokenDeleting.cs" />
     <Compile Include="Pipelines\GetTokenCollectionTypeArgs.cs" />
     <Compile Include="Pipelines\GetTokenGroup\GetDynamicGroup.cs" />
@@ -144,6 +145,10 @@
     <EmbeddedResource Include="Resources\tokenunzipper.html" />
     <EmbeddedResource Include="Resources\tokenunzippercontroller.js" />
     <EmbeddedResource Include="Resources\tokenunzipperdirective.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\dirpagination.html" />
+    <EmbeddedResource Include="Resources\dirpagination.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

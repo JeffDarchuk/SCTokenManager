@@ -16,8 +16,6 @@ namespace TokenManager.Management
 	{
 		private readonly ID _backingItemId;
 		private readonly string _collectionLabel;
-		private readonly string _ancestorPath;
-		private readonly string _templateId;
 		private bool _initialized;
 		private readonly object _locker = new object();
 	    private ID _tokenTemplateID;
@@ -32,9 +30,6 @@ namespace TokenManager.Management
 			_backingItemId = tokenGroup.ID;
 			_collectionLabel = tokenGroup["Category Label"];
 			var tmp = tokenGroup.Database.GetItem(tokenGroup["Item Ancestor"]);
-			if (tmp != null)
-				_ancestorPath = tmp.Paths.Path;
-			_templateId = tokenGroup["Item Template"];
 			if (string.IsNullOrWhiteSpace(_collectionLabel))
 				throw new ArgumentException("Category labels can not be empty", _backingItemId.ToString());
 		}

@@ -11,7 +11,7 @@ using TokenManager.Management;
 
 namespace TokenManager.Collections
 {
-	class SimpleSitecoreTokenCollection : SitecoreTokenCollection<IToken>
+	public class SimpleSitecoreTokenCollection : SitecoreTokenCollection<IToken>
 	{
 		private readonly ID _backingItemId;
 		public SimpleSitecoreTokenCollection(Item tokenGroup, ID tokenTemplateID)

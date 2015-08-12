@@ -16,7 +16,7 @@
 	    vm.response = { "Count": 0 };
 	    vm.convertToken = function () {
 		    vm.spinner = true;
-			tokenfactory.tokenConvert(vm.prefix, vm.suffix, vm.delimiter).then(function (response) {
+			tokenfactory.tokenConvert(vm.prefix, vm.delimiter, vm.suffix).then(function (response) {
 				vm.response = response.data;
 				vm.spinner = false;
 			});

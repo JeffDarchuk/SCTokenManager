@@ -98,7 +98,7 @@ namespace TokenManager.Handlers
 					si = pi;
 					di = pi;
 				}
-				pi = text.LastIndexOf(_prefix, pi - _suffix.Length, StringComparison.Ordinal);
+				pi = text.LastIndexOf(_prefix, pi, StringComparison.Ordinal);
 			}
 			return sb.ToString();
 		}
@@ -118,6 +118,8 @@ namespace TokenManager.Handlers
 				while (itemStack.Any())
 				{
 					var cur = itemStack.Pop();
+				    if (cur.IsTokenMangerItem())
+				        continue;
 					foreach (var field in cur.Fields.Where(f => f.Type == "Rich Text" && HasOldTokens(f.Value)))
 					{
 						yield return field;

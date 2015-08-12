@@ -143,15 +143,6 @@ namespace TokenManager.Management
 			if (item == null)
 			{
 				item = Context.Item;
-				if (item == null)
-				{
-					var itemId = HttpContext.Current.Request.QueryString.Get("sc_itemid");
-					if (string.IsNullOrWhiteSpace(itemId))
-						return true;
-					item = GetDatabase().GetItem(itemId);
-					if (item == null)
-						return true;
-				}
 			}
 			if ((string.IsNullOrWhiteSpace(_ancestorPath) || item.Paths.Path.StartsWith(_ancestorPath)) &&
 				(string.IsNullOrWhiteSpace(_templateId) || item.TemplateID.ToString() == _templateId))

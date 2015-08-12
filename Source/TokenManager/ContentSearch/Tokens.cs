@@ -29,7 +29,9 @@ namespace TokenManager.ContentSearch
 		/// <returns></returns>
 		public List<string> GetTokens(Item item)
 		{
-			return item.Fields.Where(f => f.Type == "Rich Text").SelectMany(t=>TokenKeeper.CurrentKeeper.ParseTokenIdentifiers(t, true)).ToList();
+            if (!item.IsTokenMangerItem())
+			    return item.Fields.Where(f => f.Type == "Rich Text").SelectMany(t=>TokenKeeper.CurrentKeeper.ParseTokenIdentifiers(t, true)).ToList();
+		    return null;
 		}
 
 		public string FieldName { get; set; }

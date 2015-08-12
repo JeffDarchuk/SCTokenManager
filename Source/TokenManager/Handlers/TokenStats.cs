@@ -50,6 +50,7 @@ namespace TokenManager.Handlers
 			ret.TokenCollectionItemId = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(_category).GetBackingItemId();
 			ret.TokenItemId = TokenKeeper.CurrentKeeper.GetToken(_category, _token).GetBackingItemId();
 			CrunchStats(ret);
+		    ret.ByItem = ret.ByItem.Values;
 			return ret;
 		}
 

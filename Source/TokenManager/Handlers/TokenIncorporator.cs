@@ -83,6 +83,8 @@ namespace TokenManager.Handlers
 					while (itemStack.Any())
 					{
 						var cur = itemStack.Pop();
+					    if (cur.IsTokenMangerItem())
+					        continue;
 						foreach (var field in cur.Fields.Where(f => f.Type == "Rich Text" && f.Value.Contains(_tokenValue)))
 						{
 							ret.Count++;
