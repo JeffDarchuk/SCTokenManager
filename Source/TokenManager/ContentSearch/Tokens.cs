@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-
 using Sitecore.ContentSearch;
 using Sitecore.ContentSearch.ComputedFields;
+using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
-
 using TokenManager.Management;
 
 namespace TokenManager.ContentSearch
@@ -29,13 +28,21 @@ namespace TokenManager.ContentSearch
 		/// <returns></returns>
 		public List<string> GetTokens(Item item)
 		{
-            if (!item.IsTokenMangerItem())
-			    return item.Fields.Where(f => f.Type == "Rich Text").SelectMany(t=>TokenKeeper.CurrentKeeper.ParseTokenIdentifiers(t, true)).ToList();
+            if (!item.IsTokenManagerItem())
+			    return item.Fields.Where(f => f.Type == "Rich Text").SelectMany(GetAllTokenUniqueIds).ToList();
 		    return null;
 		}
 
 		public string FieldName { get; set; }
 
 		public string ReturnType { get; set; }
+
+	    private IEnumerable<string> GetAllTokenUniqueIds(Field f)
+	    {
+	        return
+	            TokenKeeper.CurrentKeeper.ParseTokenIdentifiers(f)
+	                .Select(TokenKeeper.CurrentKeeper.TokenProperties)
+	                .Select(t => t["Category"] + t["Token"]);
+	    }
 	}
 }

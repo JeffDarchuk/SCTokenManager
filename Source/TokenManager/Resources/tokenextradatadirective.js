@@ -3,17 +3,18 @@
 
     angular
         .module('app')
-        .directive('tokenconverter', tokenconverter);
+        .directive('tokenextradata', tokenextradata);
 
-    tokenconverter.$inject = ['tokenfactory'];
+    tokenextradata.$inject = ['tokenfactory'];
     
-    function tokenconverter(tokenfactory) {
+    function tokenextradata(tokenfactory) {
 
         var directive = {
-            templateUrl: "tokenmanager/tokenconverter.html",
+            templateUrl: "tokenmanager/tokenextradata.html",
             restrict: 'EA',
 			scope: {
-				master: '='
+			    master: '=',
+                token: '='
 			}
         };
         return directive;

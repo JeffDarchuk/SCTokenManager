@@ -6,30 +6,37 @@ RadEditorCommandList["TokenSelector"] = function (commandName, editor, args) {
     var d = Telerik.Web.UI.Editor.CommandList._getLinkArgument(editor);
     Telerik.Web.UI.Editor.CommandList._getDialogArguments(d, "A", editor, "DocumentManager");
 
-    //Retrieve the html selected in the editor
-    var html = editor.getSelectionHtml();
-
     scEditor = editor;
 
+    var token = getToken(editor);
     editor.showExternalDialog(
-      "/TokenManager?sc_itemid=" + scItemID,
-      null, //argument
-      500,
-      400,
-      scTokenSelectorCallback,
-      null,
-      "Insert Token",
-      true, //modal
-      Telerik.Web.UI.WindowBehaviors.Close, // behaviors
-      false, //showStatusBar
-      false //showTitleBar
-      );
+        "/TokenManager?sc_itemid=" + scItemID + "&token=" + encodeURIComponent(token),
+        null, //argument
+        600,
+        500,
+        scTokenSelectorCallback,
+        null,
+        "Insert Token",
+        true, //modal
+        Telerik.Web.UI.WindowBehaviors.Close, // behaviors
+        false, //showStatusBar
+        false //showTitleBar
+        );
 };
 
 function scTokenSelectorCallback(sender, returnValue) {
     if (!returnValue || returnValue.text == "") {
         return;
     }
+    if (scEditor.getSelectedElement().className === "token-manager-token") {
+        scEditor.getSelectedElement().outerHTML = returnValue;
+    } else {
+        scEditor.pasteHtml(returnValue, "DocumentManager");
+    }
+}
 
-    scEditor.pasteHtml(returnValue, "DocumentManager");
+function getToken(editor) {
+    if (editor.getSelectedElement().className === "token-manager-token") {
+        return editor.getSelectedElement().outerHTML;
+    }
 }

@@ -1,8 +1,5 @@
 ﻿using Sitecore.Data;
 using TokenManager.Collections;
-using TokenManager.Data;
-using TokenManager.Data.Interfaces;
-using TokenManager.Management;
 
 namespace TokenManager.Pipelines.GetTokenGroup
 {

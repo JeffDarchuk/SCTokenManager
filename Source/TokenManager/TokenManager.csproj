@@ -44,15 +44,19 @@
     <Reference Include="Sitecore.Kernel">
       <HintPath>..\Dependencies\Libraries\Sitecore\Sitecore.Kernel.dll</HintPath>
     </Reference>
+    <Reference Include="Sitecore.Mvc, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\Libraries\Sitecore\Sitecore.Mvc.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="System.Web.Mvc, Version=5.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\Libraries\System.Web.Mvc.dll</HintPath>
+      <HintPath>..\Dependencies\Libraries\Sitecore\System.Web.Mvc.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -61,44 +65,56 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\RenderingTokenCollection.cs" />
+    <Compile Include="Collections\SharedLinkTokenCollection.cs" />
+    <Compile Include="Collections\RulesTokenCollection.cs" />
     <Compile Include="Collections\SimpleSitecoreTokenCollection.cs" />
+    <Compile Include="Collections\SitecoreTokenCollection.cs" />
+    <Compile Include="Collections\TokenCollection.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="ContentSearch\ContentSearchTokens.cs" />
     <Compile Include="ContentSearch\Tokens.cs" />
-    <Compile Include="Data\BasicToken.cs" />
-    <Compile Include="Data\DynamicToken.cs" />
+    <Compile Include="Data\BasicTokenData.cs" />
+    <Compile Include="Data\Interfaces\ITokenData.cs" />
+    <Compile Include="Data\Interfaces\ITokenKeeper.cs" />
+    <Compile Include="Data\Tokens\BasicToken.cs" />
+    <Compile Include="Data\Tokens\DynamicToken.cs" />
     <Compile Include="Data\Interfaces\IToken.cs" />
     <Compile Include="Data\Interfaces\ITokenCollection.cs" />
-    <Compile Include="Data\SitecoreToken.cs" />
+    <Compile Include="Data\Tokens\RenderingToken.cs" />
+    <Compile Include="Data\Tokens\RuleToken.cs" />
+    <Compile Include="Data\Tokens\SitecoreToken.cs" />
+    <Compile Include="Data\Tokens\SharedLinkToken.cs" />
     <Compile Include="Handlers\BaseHttpHandler.cs" />
-    <Compile Include="Handlers\TokenConverter.cs" />
-    <Compile Include="Handlers\TokenIncorporator.cs" />
+    <Compile Include="Handlers\ContentTree\ContentTreeNode.cs" />
     <Compile Include="Handlers\TokenManagerHandler.cs" />
-    <Compile Include="Handlers\TokenStats.cs" />
-    <Compile Include="Handlers\TokenUnzipper.cs" />
+    <Compile Include="Handlers\TokenOperations\TokenIncorporator.cs" />
+    <Compile Include="Handlers\TokenOperations\TokenRootPropertyChanger.cs" />
+    <Compile Include="Handlers\TokenOperations\TokenStats.cs" />
+    <Compile Include="Handlers\TokenOperations\TokenUnzipper.cs" />
     <Compile Include="ItemExtensions.cs" />
+    <Compile Include="Management\DefaultTokenKeeperService.cs" />
     <Compile Include="Pipelines\Deleting\TokenDeleting.cs" />
     <Compile Include="Pipelines\GetTokenCollectionTypeArgs.cs" />
+    <Compile Include="Pipelines\GetTokenGroup\GetRenderingTokenGroup.cs" />
+    <Compile Include="Pipelines\GetTokenGroup\GetSharedLinkGroup.cs" />
     <Compile Include="Pipelines\GetTokenGroup\GetDynamicGroup.cs" />
+    <Compile Include="Pipelines\GetTokenGroup\GetRuleTokenGroup.cs" />
     <Compile Include="Pipelines\GetTokenGroup\GetSitecoreGroup.cs" />
     <Compile Include="Pipelines\Initialize\InitializeTokenManager.cs" />
     <Compile Include="Pipelines\Moved\TokenMoved.cs" />
     <Compile Include="Pipelines\RenderField\RenderFieldExpandTokens.cs" />
-    <Compile Include="Management\SitecoreTokenCollection.cs" />
-    <Compile Include="Management\TokenCollection.cs">
-      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
-    </Compile>
     <Compile Include="Management\TokenKeeper.cs" />
     <Compile Include="Pipelines\Saved\TokenSaved.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Rules\SetTokenValue.cs" />
+    <Compile Include="Rules\TokenRuleContext.cs" />
     <Compile Include="TemplateExtensions.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Speak\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Resources\app.js" />
     <EmbeddedResource Include="Resources\index.html" />
@@ -127,13 +143,6 @@
     <EmbeddedResource Include="Resources\master.js" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\tokenconverter.html" />
-    <EmbeddedResource Include="Resources\tokenconverterdirective.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\tokenconvertercontroller.js" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Resources\spinner.gif" />
   </ItemGroup>
   <ItemGroup>
@@ -149,6 +158,15 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\dirpagination.html" />
     <EmbeddedResource Include="Resources\dirpagination.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\contenttree.html" />
+    <EmbeddedResource Include="Resources\contenttreecontroller.js" />
+    <EmbeddedResource Include="Resources\contenttreedirective.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\tokenextradata.html" />
+    <EmbeddedResource Include="Resources\tokenextradatadirective.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-
 using Sitecore.Data;
 using Sitecore.Data.Fields;
-
+using Sitecore.Data.Items;
+using Sitecore.Data.Managers;
 using TokenManager.ContentSearch;
 using TokenManager.Data.Interfaces;
 using TokenManager.Management;
 
-namespace TokenManager.Handlers
+namespace TokenManager.Handlers.TokenOperations
 {
 
 	/// <summary>
@@ -17,10 +17,9 @@ namespace TokenManager.Handlers
 	/// </summary>
 	class TokenStats
 	{
-		private const string _contentFolderGuid = "{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}";
-		private string _category;
-		private string _token;
-		private Database _database;
+		private readonly string _category;
+		private readonly string _token;
+		private readonly Database _database;
 
 		/// <summary>
 		/// set up stats generator with the specified token identifier
@@ -45,8 +44,7 @@ namespace TokenManager.Handlers
 			ret.Uses = 0;
 			ret.TokenCategory = _category;
 			ret.Token = _token;
-			ret.TokenValue = TokenKeeper.CurrentKeeper.GetTokenValue(_category, _token);
-			ret.ByItem = new Dictionary<ID, ExpandoObject>();
+			ret.ByItem = new Dictionary<string, ExpandoObject>();
 			ret.TokenCollectionItemId = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(_category).GetBackingItemId();
 			ret.TokenItemId = TokenKeeper.CurrentKeeper.GetToken(_category, _token).GetBackingItemId();
 			CrunchStats(ret);
@@ -60,14 +58,14 @@ namespace TokenManager.Handlers
 		/// <param name="ret"></param>
 		public void CrunchStats(dynamic ret)
 		{
-			foreach (ContentSearchTokens currentItem in TokenKeeper.CurrentKeeper.GetTokenOccurances(_category,_token))
+			foreach (ContentSearchTokens current in TokenKeeper.CurrentKeeper.GetTokenOccurances(_category,_token))
 			{
-				var item = _database.GetItem(ID.Parse(currentItem.Id));
-				foreach (var field in item.Fields.Where(f => f.Type == "Rich Text"))
-					ProcessThisToken(currentItem, field, ret);
+                Item item = _database.GetItem(ID.Parse(current.Id), !string.IsNullOrWhiteSpace(current.Language) && LanguageManager.IsValidLanguageName(current.Language) ? LanguageManager.GetLanguage(current.Language) : LanguageManager.DefaultLanguage);
+                foreach (var field in item.Fields.Where(f => f.Type == "Rich Text"))
+					ProcessThisToken(current, field, ret);
 			}
 		}
-		
+
 		/// <summary>
 		/// gathers information about the token usage on a particular field
 		/// </summary>
@@ -79,7 +77,7 @@ namespace TokenManager.Handlers
 			var tokenCount = tokens.Tokens.Count(t => t == _category + _token);
 			if (tokenCount == 0) return;
 			ret.Uses+= tokenCount;
-			if (!ret.ByItem.ContainsKey(f.Item.ID))
+			if (!ret.ByItem.ContainsKey(f.Item.ID+f.Language.Name))
 			{
 				dynamic cur = new ExpandoObject();
 				cur.Count = 0;
@@ -87,10 +85,11 @@ namespace TokenManager.Handlers
 				cur.Path = f.Item.Paths.FullPath;
 				cur.ID = f.Item.ID;
 				cur.FieldName = f.Name;
-				ret.ByItem[f.Item.ID] = cur;
+			    cur.Language = f.Language.Name;
+                ret.ByItem[f.Item.ID + f.Language.Name] = cur;
 			}
-					
-			ret.ByItem[f.Item.ID].Count+=tokenCount;
+
+            ret.ByItem[f.Item.ID + f.Language.Name].Count += tokenCount;
 			
 		}
 	}

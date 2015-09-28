@@ -7,7 +7,6 @@ using System.Net;
 using System.Web;
 using System.Web.Routing;
 using System.Web.SessionState;
-
 using Newtonsoft.Json;
 
 namespace TokenManager.Handlers

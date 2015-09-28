@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Routing;
-
 using Sitecore.Data;
 using Sitecore.Data.Items;
 using Sitecore.Diagnostics;
 using Sitecore.Pipelines;
-
 using TokenManager.Data.Interfaces;
 using TokenManager.Handlers;
 using TokenManager.Management;
@@ -16,7 +14,7 @@ namespace TokenManager.Pipelines.Initialize
 
 	public class InitializeTokenManager
 	{
-		private TokenKeeper Tokens { get; set; }
+		private ITokenKeeperService Tokens { get; set; }
 		/// <summary>
 		/// Starts up a new tokenkeeper that will be set up as a singleton
 		/// </summary>

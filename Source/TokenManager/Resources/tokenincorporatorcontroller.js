@@ -18,7 +18,18 @@
 		vm.response = "";
 		vm.tokenName = "";
 		vm.tokenValue = "";
-		
+		vm.preview = true;
+	    vm.type = "plain";
+		vm.events = {
+		    'click': function (val) {
+		        vm.events.selected = val;
+		    },
+		    'selected': function () {
+		        return vm.events.selected.Id;
+		    }
+		};
+		vm.itemChosen = function () { return typeof (vm.events.selected) != "undefined" }
+
 		tokenfactory.tokenCategories().then(function (response) {
 			vm.tokenCategories = response.data;
 		});
@@ -29,24 +40,25 @@
 		}
 		vm.loadTokens = function () {
 			vm.existingToken = undefined;
-			tokenfactory.isSitecoreBasedCollection(vm.selectedTokenCategory).then(function(response) {
+			tokenfactory.isSitecoreBasedCollection(vm.selectedTokenCategory.Label).then(function(response) {
 				vm.sitecoreBasedTokenCollection = response.data;
 				if (!vm.sitecoreBasedTokenCollection)
 					vm.existingToken = true;
 			});
-			tokenfactory.tokens(vm.selectedTokenCategory).then(function(response) {
+			tokenfactory.tokens(vm.selectedTokenCategory.Label).then(function(response) {
 				vm.tokens = response.data;
 			});
 		}
 		vm.incorporateToken = function () {
 			vm.spinner = true;
-			tokenfactory.incorporateToken(vm.selectedTokenCategory, vm.tokenName, vm.tokenValue).then(function(response) {
+			tokenfactory.incorporateToken(vm.events.selected.Id, vm.preview, vm.type, vm.selectedTokenCategory.Label, vm.tokenName.Label, vm.tokenValue).then(function(response) {
 				vm.response = response.data;
 				vm.spinner = false;
 			});
 		}
 		vm.formFilled = function() {
-			return vm.selectedTokenCategory && vm.tokenName && vm.tokenValue ;
+			return vm.itemChosen() && vm.selectedTokenCategory && vm.tokenName && vm.tokenValue ;
 		}
+
 	}
 })();

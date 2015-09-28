@@ -3,7 +3,6 @@ using Sitecore.Data;
 using Sitecore.Diagnostics;
 using Sitecore.Pipelines.RenderField;
 using Sitecore.WordOCX;
-
 using TokenManager.Management;
 
 namespace TokenManager.Pipelines.RenderField

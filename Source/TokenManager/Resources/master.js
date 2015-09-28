@@ -11,6 +11,11 @@
 		var vm = this;
 		vm.isRTE = typeof (window.parent.scTokenSelectorCallback) !== "undefined";
 		vm.activePage = "selector";
+	    vm.events = {
+	        'click': function(val) {
+	            vm.events.selected = val;
+	        }
+	    };
 		activate();
 
 		function activate() { }

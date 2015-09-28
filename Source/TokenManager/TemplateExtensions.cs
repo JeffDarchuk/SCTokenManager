@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-
 using Sitecore;
 using Sitecore.Data;
 using Sitecore.Data.Templates;

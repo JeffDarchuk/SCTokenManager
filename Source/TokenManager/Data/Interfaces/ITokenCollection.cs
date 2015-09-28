@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-
-using Sitecore.Data.Items;
 using Sitecore.Data;
+using Sitecore.Data.Items;
 
 namespace TokenManager.Data.Interfaces
 {
@@ -9,10 +8,10 @@ namespace TokenManager.Data.Interfaces
 	public interface ITokenCollection<T>
         where T : IToken
 	{
-		string this[string token] { get; }
-
+		T this[string token] { get; }
+        string SitecoreIcon { get; }
 		string GetCollectionLabel();
-		IEnumerable<string> GetTokens(); 
+		IEnumerable<IToken> GetTokens(); 
 		void RemoveToken(string token);
 		bool HasToken(string token);
 		T GetToken(string token);

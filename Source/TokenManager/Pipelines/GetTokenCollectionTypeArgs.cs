@@ -1,6 +1,5 @@
 ﻿using Sitecore.Data.Items;
 using Sitecore.Pipelines;
-
 using TokenManager.Data.Interfaces;
 
 namespace TokenManager.Pipelines

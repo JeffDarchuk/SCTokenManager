@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using Sitecore.Data;
 using TokenManager.Data.Interfaces;
 
-namespace TokenManager.Data
+namespace TokenManager.Data.Tokens
 {
 
 	public class DynamicToken : IToken
@@ -20,17 +22,25 @@ namespace TokenManager.Data
 			_valueFunc = valueFunc;
 		}
 		public string Token { get; set; }
-		string IToken.Value
-		{
-			get
-			{
-				return _valueFunc();
-			}
-		}
 
-		public ID GetBackingItemId()
+	    public string Value(NameValueCollection extraData)
+	    {
+            return _valueFunc();
+	    }
+
+	    public IEnumerable<ITokenData> ExtraData()
+	    {
+	        return null;
+	    }
+
+	    public ID GetBackingItemId()
 		{
 			return null;
 		}
+
+	    public IToken LoadExtraData(NameValueCollection props)
+	    {
+	        return this;
+	    }
 	}
 }

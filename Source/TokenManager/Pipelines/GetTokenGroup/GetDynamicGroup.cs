@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Reflection;
-
 using Sitecore.Data.Items;
-
 using TokenManager.Data.Interfaces;
 
 namespace TokenManager.Pipelines.GetTokenGroup

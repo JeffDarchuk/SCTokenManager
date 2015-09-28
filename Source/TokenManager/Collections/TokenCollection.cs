@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
-using System.Web;
-
 using Sitecore;
 using Sitecore.Data;
 using Sitecore.Data.Items;
-
 using TokenManager.Data.Interfaces;
+using TokenManager.Management;
 
-namespace TokenManager.Management
+namespace TokenManager.Collections
 {
 
 	public abstract class TokenCollection<T> : ITokenCollection<T>
@@ -26,12 +25,14 @@ namespace TokenManager.Management
 		/// <returns>token object</returns>
 		public abstract T InitiateToken(string token);
 
-		public string this[string token]
+		public T this[string token]
 		{
-			get { return GetTokenValue(token); }
+			get { return GetToken(token); }
 		}
 
-		/// <summary>
+	    public string SitecoreIcon { get; set; }
+
+	    /// <summary>
 		/// finds the collection label
 		/// </summary>
 		/// <returns>the collection label</returns>
@@ -116,19 +117,19 @@ namespace TokenManager.Management
 		/// </summary>
 		/// <param name="token"></param>
 		/// <returns>value of given token</returns>
-		public virtual string GetTokenValue(string token)
+		public virtual string GetTokenValue(string token, NameValueCollection extraData)
 		{
 			var ret = GetToken(token);
-			return ret == null ? string.Empty : ret.Value;
+			return ret == null ? string.Empty : ret.Value(extraData);
 		}
 
 		/// <summary>
 		/// get all token names
 		/// </summary>
 		/// <returns></returns>
-		public virtual IEnumerable<string> GetTokens()
+		public virtual IEnumerable<IToken> GetTokens()
 		{
-			return _tokens.Where(x=>x.Value != null).Select(x=>x.Key);
+			return _tokens.Where(x=>x.Value != null).Select(x=> x.Value as IToken);
 		}
 
 		/// <summary>
@@ -138,12 +139,29 @@ namespace TokenManager.Management
 		/// <returns>is the collection valid in the current location</returns>
 		public virtual bool IsCurrentContextValid(Item item = null)
 		{
+            if (item == null)
+            {
+                item = Context.Item;
+            }
+		    if (item == null)
+		        return true;
+		    var collectionItem = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(_itemID);
+		    if (collectionItem != null &&
+		        collectionItem.Parent.TemplateID.ToString() == Constants._tokenCollectionFolderTemplateId)
+		    {
+		        var parent = collectionItem.Parent;
+		        var tmp = parent.Database.GetItem(parent["Item Ancestor"]);
+		        var parentFilterPath = "";
+                if (tmp != null)
+		            parentFilterPath = tmp.Paths.Path;
+		        var parentFilterTemplateId = parent["Item Template"];
+		        if (!string.IsNullOrWhiteSpace(parentFilterPath) && !item.Paths.Path.StartsWith(parentFilterPath))
+		            return false;
+		        if (!string.IsNullOrWhiteSpace(parentFilterTemplateId) && item.TemplateID.ToString() != parentFilterTemplateId)
+		            return false;
+		    }
 			if (string.IsNullOrWhiteSpace(_ancestorPath) && string.IsNullOrWhiteSpace(_templateId))
 				return true;
-			if (item == null)
-			{
-				item = Context.Item;
-			}
 			if ((string.IsNullOrWhiteSpace(_ancestorPath) || item.Paths.Path.StartsWith(_ancestorPath)) &&
 				(string.IsNullOrWhiteSpace(_templateId) || item.TemplateID.ToString() == _templateId))
 				return true;
@@ -166,15 +184,6 @@ namespace TokenManager.Management
 		public virtual void RemoveAllTokens()
 		{
 			_tokens.Clear();
-		}
-
-		/// <summary>
-		/// gets the most appropriate database
-		/// </summary>
-		/// <returns></returns>
-		public virtual Database GetDatabase()
-		{
-			return Context.ContentDatabase ?? Context.Database ?? Database.GetDatabase("master");
 		}
 
 		/// <summary>

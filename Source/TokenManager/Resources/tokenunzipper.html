@@ -1,16 +1,36 @@
 ﻿<div ng-controller="tokenunzippercontroller as vm">
 	<h4>Decided that you didn't want a token anymore?</h4>
 	<p>This form is for undoing a token, it will replace the token in the rich text field with it's value.</p>
-    <div ng-if="!vm.spinner" class="tokenForm">
-        <span>Select a token category: </span><select ng-model="vm.selectedTokenCategory" ng-options="item for item in vm.tokenCategories" ng-change="vm.loadTokens()"></select>
-        <div ng-if="vm.selectedTokenCategory !=''">
-            Select a token: <select ng-model="vm.selectedToken" ng-options="item for item in vm.tokens">
-                <option selected value="">-- Select a token --</option>
-            </select>
-        </div>
-        <div><a class="btn" ng-if="vm.formFilled()" ng-click="vm.unzipToken()">Submit</a></div>
+    <div  class="token-form">
+        <h4>Specify the sitecore root to perform the operation</h4>
+        <contenttree parent="'{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}'" selected="'{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}'" events="vm.events"></contenttree>
+        <div ng-if="vm.itemChosen()">
+            <h4>Specify the token to unzip</h4>
+            <div class="field-row">
+                <span class="field-label">Select a token category: </span>
+                <select ng-model="vm.selectedTokenCategory" ng-options="item.Label for item in vm.tokenCategories" ng-change="vm.loadTokens()"></select>
+            </div>
+            <div ng-if="vm.selectedTokenCategory !=''">
+                <div class="field-row">
+                    <span class="field-label">Select a token: </span> 
+                    <select ng-model="vm.selectedToken" ng-options="item.Label for item in vm.tokens">
+                        <option selected value="">-- Select a token --</option>
+                    </select>
+                </div>
+                <div class="field-row">
+                    <label class="field-label" for="rwv">Replace token with token's value.  Can cause unexpected results with certain tokens.</label>
+                    <input id="rwv" class="field-data" type="checkbox" ng-model="vm.replaceWithValue" selected/>
+                </div>
 
+            </div>
+            <div ng-if="vm.formFilled()">
+                <h4>Submit form</h4>
+                <span><input ng-model="vm.preview" type="checkbox" ng-click="vm.response = false" /> Preview changes</span> <a class="btn" ng-click="vm.unzipToken()">Submit</a>
+            </div>
+        </div>
+        <div>&nbsp;</div>
         <div ng-if="vm.response" class="response">
+            <h4><span ng-if="vm.preview">Preview Of </span>Operation results</h4>
             Number of rich text fields modified: {{vm.response.Count}}
             <dir-pagination-controls pagination-id="pagination" template-url="/tokenmanager/dirpagination.html">
             </dir-pagination-controls>
@@ -22,6 +42,7 @@
                     <th>Item Path</th>
                     <th>Field Name</th>
                     <th>Instances Replaced</th>
+                    <th>Language</th>
                 </tr>
                 <tr dir-paginate="converted in vm.response.Converted | itemsPerPage:20" pagination-id="pagination" ng-class="{even: $even, odd: $odd}">
                     <td><a href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{converted.ID}}" class="btn fancybox fancybox.iframe">Edit Item</a></td>
@@ -30,12 +51,12 @@
                     <td>{{converted.Path}}</td>
                     <td>{{converted.FieldName}}</td>
                     <td>{{converted.InstancesReplaced}}</td>
+                    <td>{{converted.Language}}</td>
                 </tr>
             </table>
 
         </div>
     </div>
-	<div ng-if="vm.spinner">
-		<img src="tokenmanager/spinner.gif" />
-	</div>
+    <div ng-if="vm.spinner" class="spinner-wrapper"></div>
+    <img ng-if="vm.spinner" class="spinner" src="tokenmanager/spinner.gif" />
 </div>

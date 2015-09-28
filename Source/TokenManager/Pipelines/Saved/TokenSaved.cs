@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Linq;
-
 using Sitecore.Data;
 using Sitecore.Data.Items;
 using Sitecore.Data.Managers;
 using Sitecore.Events;
-
 using TokenManager.Data.Interfaces;
-using TokenManager.Handlers;
+using TokenManager.Handlers.TokenOperations;
 using TokenManager.Management;
 
 namespace TokenManager.Pipelines.Saved
@@ -36,9 +34,8 @@ namespace TokenManager.Pipelines.Saved
 						{
 							if (change.FieldID.ToString() == Constants._tokenFieldId && change.OriginalValue != "$name")
 							{
-								var inc = new TokenIncorporator(item.Parent["Category Label"], item["Token"],
-									TokenKeeper.CurrentKeeper.GetTokenIdentifier(item.Parent["Category Label"], change.OriginalValue));
-								inc.Incorporate();
+                                TokenRootPropertyChanger changer = new TokenRootPropertyChanger(item.Parent["Category Label"], change.OriginalValue);
+							    changer.Change(item.Parent["Category Label"], item["Token"]);
 							}
 						}
 						tokenCollection.ResetTokenCache();
@@ -49,7 +46,7 @@ namespace TokenManager.Pipelines.Saved
 					{
 						if (item.Fields[change.FieldID].Type.ToLower() == "rich text")
 						{
-							TokenKeeper.CurrentKeeper.ResetTokenLocations(item.ID, change.FieldID);
+							TokenKeeper.CurrentKeeper.ResetTokenLocations(item.ID, change.FieldID, item.Language);
 						}
 					}
 				}
@@ -59,7 +56,7 @@ namespace TokenManager.Pipelines.Saved
 					string oldCategoryName = item["Category Label"];
 					foreach (FieldChange change in changes.FieldChanges)
 					{
-						if (change.FieldID.ToString() == Constants._tokenGroupCategoryFieldId)
+						if (change.FieldID.ToString() == Constants._tokenGroupCategoryFieldId && change.OriginalValue != "$name")
 						{
 							var tokenCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(change.OriginalValue);
 							if (tokenCollection != null)
@@ -67,9 +64,8 @@ namespace TokenManager.Pipelines.Saved
 								TokenKeeper.CurrentKeeper.LoadTokenGroup(TokenKeeper.CurrentKeeper.GetCollectionFromItem(item));
 								foreach (var token in tokenCollection.GetTokens())
 								{
-									var inc = new TokenIncorporator(item["Category Label"], token,
-										TokenKeeper.CurrentKeeper.GetTokenIdentifier(change.OriginalValue, token));
-									inc.Incorporate();
+                                    TokenRootPropertyChanger changer = new TokenRootPropertyChanger(change.OriginalValue, token.Token);
+                                    changer.Change(item["Category Label"], token.Token);
 								}
 								oldCategoryName = change.OriginalValue;
 

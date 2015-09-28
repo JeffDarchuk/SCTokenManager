@@ -1,11 +1,8 @@
 ﻿using System;
-
 using Sitecore.Data;
 using Sitecore.Data.Items;
 using Sitecore.Events;
-
-using TokenManager.Handlers;
-using TokenManager.Management;
+using TokenManager.Handlers.TokenOperations;
 
 namespace TokenManager.Pipelines.Moved
 {
@@ -27,12 +24,12 @@ namespace TokenManager.Pipelines.Moved
 			if (fromItem.TemplateID.ToString() == Constants._tokenGroupTemplateId &&
 			    toItem.TemplateID.ToString() == Constants._tokenGroupTemplateId)
 			{
-				TokenIncorporator inc = new TokenIncorporator(toItem["Category Label"], item["Token"], TokenKeeper.CurrentKeeper.GetTokenIdentifier(fromItem["Category Label"], item["Token"]));
-				inc.Incorporate();
+                TokenRootPropertyChanger changer = new TokenRootPropertyChanger(fromItem["Category Label"], item["Token"]);
+			    changer.Change(toItem["Category Label"], item["Token"]);
 			}
 			else if (fromItem.TemplateID.ToString() == Constants._tokenGroupTemplateId)
 			{
-				TokenUnzipper unzipper = new TokenUnzipper(fromItem["Category Label"], item["Token"]);
+				TokenUnzipper unzipper = new TokenUnzipper("{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}",fromItem["Category Label"], item["Token"], true);
 				unzipper.Unzip();
 			}
 		}

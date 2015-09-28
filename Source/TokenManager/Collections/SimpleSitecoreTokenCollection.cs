@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Sitecore.Data;
 using Sitecore.Data.Items;
-using TokenManager.Data;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.Tokens;
 using TokenManager.Management;
 
 namespace TokenManager.Collections
@@ -26,7 +22,7 @@ namespace TokenManager.Collections
 		/// <returns></returns>
 		public override IToken InitiateToken(string token)
 		{
-			Database db = GetDatabase();
+            Database db = TokenKeeper.CurrentKeeper.GetDatabase();
 			Item tokenItem = db.GetItem(_backingItemId).Children.FirstOrDefault(i => i["Token"] == token);
 			if (tokenItem == null)
 				return null;

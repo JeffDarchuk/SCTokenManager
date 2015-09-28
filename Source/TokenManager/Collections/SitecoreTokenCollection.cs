@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using Sitecore;
 using Sitecore.Data;
 using Sitecore.Data.Items;
-
-using TokenManager.Data;
 using TokenManager.Data.Interfaces;
+using TokenManager.Management;
 
-namespace TokenManager.Management
+namespace TokenManager.Collections
 {
 
 	public abstract class SitecoreTokenCollection<T> : TokenCollection<T>
@@ -32,6 +31,11 @@ namespace TokenManager.Management
 			var tmp = tokenGroup.Database.GetItem(tokenGroup["Item Ancestor"]);
 			if (string.IsNullOrWhiteSpace(_collectionLabel))
 				throw new ArgumentException("Category labels can not be empty", _backingItemId.ToString());
+            SitecoreIcon = tokenGroup[FieldIDs.Icon];
+            if (string.IsNullOrWhiteSpace(SitecoreIcon))
+            {
+                SitecoreIcon = tokenGroup.Template.Icon;
+            }
 		}
 
 		/// <summary>
@@ -56,7 +60,7 @@ namespace TokenManager.Management
 		/// loads in all tokens, stores them in the cache, and returns them
 		/// </summary>
 		/// <returns>all tokens</returns>
-		public override IEnumerable<string> GetTokens()
+		public override IEnumerable<IToken> GetTokens()
 		{
 			if (!_initialized)
 			{
@@ -65,7 +69,7 @@ namespace TokenManager.Management
 					if (!_initialized)
 					{
 						_initialized = true;
-						Database db = GetDatabase();
+                        Database db = TokenKeeper.CurrentKeeper.GetDatabase(); ;
 						var item = db.GetItem(_backingItemId);
 						foreach (string key in item.Children.Where(c => c.TemplateID == _tokenTemplateID).Select(c => c["Token"]))
 						{
@@ -85,7 +89,7 @@ namespace TokenManager.Management
 		/// <returns>is the backing item available on the database</returns>
 		public bool IsAvailableOnDatabase(string database)
 		{
-			Database db = GetDatabase();
+            Database db = TokenKeeper.CurrentKeeper.GetDatabase(); ;
 			return db != null && db.GetItem(_backingItemId) != null;
 		}
 
