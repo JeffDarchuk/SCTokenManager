@@ -54,16 +54,21 @@ namespace TokenManager.Management
 		{
 			StringBuilder sb = new StringBuilder(text);
 			var current = args.GetField().ID;
-			if (!TrackTokens(args.Item.ID, current, args.Item.Language, text))
+			if (!TrackTokens(args.Item.ID, current, args.Item.Language, args.Item.Version.Number, text))
 				return text;
-			foreach (var location in TokenLocations[args.Item.ID.ToString() + current+args.Item.Language.Name])
+			foreach (var location in TokenLocations[args.Item.ID.ToString() + current+args.Item.Language.Name+args.Item.Version.Number])
 			{
+			    if (location.Item1 + location.Item2 >= text.Length)
+			    {
+			        ResetTokenLocations(args.Item.ID,current, args.Item.Language, args.Item.Version.Number);
+			        return ReplaceRTETokens(args, text);
+			    }
 				string token = sb.ToString(location.Item1, location.Item2);
 				if (token.StartsWith(TokenPrefix) && token.EndsWith(TokenSuffix))
 					sb.Replace(token, ParseTokenValueFromTokenIdentifier(token, args.Item), location.Item1, location.Item2);
 				else
 				{
-                    ResetTokenLocations(args.Item.ID, current, args.Item.Language);
+                    ResetTokenLocations(args.Item.ID, current, args.Item.Language, args.Item.Version.Number);
 				    return ReplaceRTETokens(args, text);
 				}
 			}
@@ -87,7 +92,7 @@ namespace TokenManager.Management
 				    var tokenProps = sb.ToString(location.Item1, location.Item2);
 				    if (!tokenProps.StartsWith(TokenPrefix) || !tokenProps.EndsWith(TokenSuffix))
 				    {
-				        ResetTokenLocations(field.Item.ID, field.ID, field.Language);
+				        ResetTokenLocations(field.Item.ID, field.ID, field.Language, field.Item.Version.Number);
                         return ParseTokenIdentifiers(field);
 				    }
 					ret.Add(tokenProps);
@@ -98,9 +103,9 @@ namespace TokenManager.Management
 		public virtual List<Tuple<int, int>> ParseTokenLocations(Field field)
 		{
 			var text = field.Value;
-			if (TrackTokens(field.Item.ID, field.ID, field.Language, text))
+			if (TrackTokens(field.Item.ID, field.ID, field.Language, field.Item.Version.Number, text))
 			{
-				return TokenLocations[field.Item.ID.ToString() + field.ID+field.Language.Name];
+				return TokenLocations[field.Item.ID.ToString() + field.ID+field.Language.Name+field.Item.Version.Number];
 			}
 			return null;
 		} 
@@ -235,10 +240,10 @@ namespace TokenManager.Management
 			return ret;
 		}
 		
-		public virtual void ResetTokenLocations(ID itemId, ID fieldId, Language language)
+		public virtual void ResetTokenLocations(ID itemId, ID fieldId, Language language, int versionNumber)
 		{
 			List<Tuple<int,int>> ignored;
-			string key = itemId.ToString() + fieldId + language.Name;
+			string key = itemId.ToString() + fieldId + language.Name+versionNumber;
 			if (TokenLocations.ContainsKey(key))
 				TokenLocations.TryRemove(key, out ignored);
 		}
@@ -274,7 +279,7 @@ namespace TokenManager.Management
                 return false;
             foreach (var location in locations)
             {
-                if (location.Item1 > startIndex + length)
+                if (location.Item1+location.Item2 < startIndex)
                     break;
                 if (startIndex < location.Item1 && startIndex + length > location.Item1)
                     return true;
@@ -298,7 +303,7 @@ namespace TokenManager.Management
 		/// <param name="fieldId"></param>
 		/// <param name="text"></param>
 		/// <returns>if there are any tokens found</returns>
-		private bool IdentifyTokenLocations(ID itemId, ID fieldId, Language language, string text)
+		private bool IdentifyTokenLocations(ID itemId, ID fieldId, Language language, int version, string text)
 		{
 			if (TokenPrefix == null || TokenSuffix == null)
 				return false;
@@ -315,7 +320,7 @@ namespace TokenManager.Management
 				locations.Insert(0, new Tuple<int, int>(startIndex, endIndex - startIndex));
 				startIndex = text.IndexOf(TokenPrefix, endIndex);
 			}
-			TokenLocations.AddOrUpdate(itemId + fieldId.ToString()+language.Name, locations, (key, value) => locations);
+			TokenLocations.AddOrUpdate(itemId + fieldId.ToString()+language.Name+version, locations, (key, value) => locations);
 			return locations.Any();
 		}
 
@@ -326,11 +331,11 @@ namespace TokenManager.Management
 		/// <param name="fieldId"></param>
 		/// <param name="text"></param>
 		/// <returns>if there are any tokens</returns>
-		private bool TrackTokens(ID itemId, ID fieldId, Language language, string text)
+		private bool TrackTokens(ID itemId, ID fieldId, Language language, int version, string text)
 		{
-			var key = itemId + fieldId.ToString()+ language.Name;
+			var key = itemId + fieldId.ToString()+ language.Name+version;
 			if (!TokenLocations.ContainsKey(key))
-				if (!IdentifyTokenLocations(itemId, fieldId, language, text))
+				if (!IdentifyTokenLocations(itemId, fieldId, language, version, text))
 					return false;
 			if (!TokenLocations[key].Any())
 				return false;

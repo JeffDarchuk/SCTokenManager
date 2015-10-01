@@ -71,10 +71,11 @@ namespace TokenManager.Collections
 						_initialized = true;
                         Database db = TokenKeeper.CurrentKeeper.GetDatabase(); ;
 						var item = db.GetItem(_backingItemId);
-						foreach (string key in item.Children.Where(c => c.TemplateID == _tokenTemplateID).Select(c => c["Token"]))
-						{
-							AddOrUpdateToken(InitiateToken(key));
-						}
+                        if (item != null)
+						    foreach (string key in item.Children.Where(c => c.TemplateID == _tokenTemplateID).Select(c => c["Token"]))
+						    {
+							    AddOrUpdateToken(InitiateToken(key));
+						    }
 					}
 				}
 

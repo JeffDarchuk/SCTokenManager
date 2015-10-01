@@ -23,7 +23,7 @@ namespace TokenManager.Pipelines.Saved
 			var item = Event.ExtractParameter<Item>(e, 0);
 			var changes = Event.ExtractParameter<ItemChanges>(e, 1);
 
-			if (item != null && changes != null)
+            if (item != null && changes != null && !item.Paths.FullPath.StartsWith("/sitecore/templates"))
 			{
 				// if it's a specific token that's changed
 				if (TemplateManager.GetTemplate(item).IsDerived(new ID(Constants._tokenTemplateBaseId)))
@@ -32,7 +32,7 @@ namespace TokenManager.Pipelines.Saved
 					{
 						foreach (FieldChange change in changes.FieldChanges)
 						{
-							if (change.FieldID.ToString() == Constants._tokenFieldId && change.OriginalValue != "$name")
+							if (change.FieldID.ToString() == Constants._tokenFieldId && change.OriginalValue != "$name" && change.Value !="$name")
 							{
                                 TokenRootPropertyChanger changer = new TokenRootPropertyChanger(item.Parent["Category Label"], change.OriginalValue);
 							    changer.Change(item.Parent["Category Label"], item["Token"]);
@@ -46,7 +46,7 @@ namespace TokenManager.Pipelines.Saved
 					{
 						if (item.Fields[change.FieldID].Type.ToLower() == "rich text")
 						{
-							TokenKeeper.CurrentKeeper.ResetTokenLocations(item.ID, change.FieldID, item.Language);
+							TokenKeeper.CurrentKeeper.ResetTokenLocations(item.ID, change.FieldID, item.Language, item.Version.Number);
 						}
 					}
 				}
@@ -56,7 +56,7 @@ namespace TokenManager.Pipelines.Saved
 					string oldCategoryName = item["Category Label"];
 					foreach (FieldChange change in changes.FieldChanges)
 					{
-						if (change.FieldID.ToString() == Constants._tokenGroupCategoryFieldId && change.OriginalValue != "$name")
+                        if (change.FieldID.ToString() == Constants._tokenGroupCategoryFieldId && change.OriginalValue != "$name" && change.Value != "$name")
 						{
 							var tokenCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(change.OriginalValue);
 							if (tokenCollection != null)

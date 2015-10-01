@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using Sitecore.Data;
@@ -44,7 +45,15 @@ namespace TokenManager.Handlers.TokenOperations
 			ret.Uses = 0;
 			ret.TokenCategory = _category;
 			ret.Token = _token;
-			ret.ByItem = new Dictionary<string, ExpandoObject>();
+		    try
+		    {
+		        ret.TokenValue = TokenKeeper.CurrentKeeper.GetTokenValue(_category, _token, null);
+		    }
+		    catch (Exception e)
+		    {
+		        ret.TokenValue = "[Couldn't get token value without context data]";
+		    }
+		    ret.ByItem = new Dictionary<string, ExpandoObject>();
 			ret.TokenCollectionItemId = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(_category).GetBackingItemId();
 			ret.TokenItemId = TokenKeeper.CurrentKeeper.GetToken(_category, _token).GetBackingItemId();
 			CrunchStats(ret);

@@ -81,7 +81,6 @@ namespace TokenManager.Handlers.TokenOperations
 				Stack<Item> itemStack = new Stack<Item>();
 				Item content = _database.GetItem(new ID(_root));
 				LoadAllLanguageItems(content, itemStack);
-
 				{
 					while (itemStack.Any())
 					{
@@ -94,8 +93,13 @@ namespace TokenManager.Handlers.TokenOperations
                             MatchCollection m = r.Matches(field.Value);
                             if (m.Count > 0)
                             {
-                                ret.Count++;
-                                ret.Converted.Add(ConvertTextToToken(field, m, preview));
+                                var ttt = ConvertTextToToken(field, m, preview);
+                                if (ttt != null)
+                                {
+                                    ret.Count++;
+
+                                    ret.Converted.Add(ttt);
+                                }
                             }
                         }
                         if (LanguageManager.DefaultLanguage.Name == cur.Language.Name)
@@ -118,11 +122,6 @@ namespace TokenManager.Handlers.TokenOperations
 	    private dynamic ConvertTextToToken(Field field, MatchCollection matches, bool preview)
         {
             dynamic ret = new ExpandoObject();
-            ret.DisplayName = field.Item.DisplayName;
-            ret.ID = field.Item.ID;
-            ret.FieldName = field.Name;
-            ret.Path = field.Item.Paths.FullPath;
-	        ret.Language = field.Language.Name;
 	        ret.InstancesReplaced = 0;
 	        var sb = new StringBuilder(field.Value);
             for (int i = matches.Count-1;i>=0;i--)
@@ -136,6 +135,13 @@ namespace TokenManager.Handlers.TokenOperations
 	                sb.Insert(group.Index, _tokenIdentifier);
 	            }
 	        }
+	        if (ret.InstancesReplaced == 0)
+	            return null;
+            ret.DisplayName = field.Item.DisplayName;
+            ret.ID = field.Item.ID;
+            ret.FieldName = field.Name;
+            ret.Path = field.Item.Paths.FullPath;
+            ret.Language = field.Language.Name;
             if (!preview)
             {
                 field.Item.Editing.BeginEdit();

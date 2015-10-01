@@ -1,4 +1,6 @@
-﻿using Sitecore.Data;
+﻿using System;
+using Sitecore.Data;
+using Sitecore.Diagnostics;
 using TokenManager.Collections;
 
 namespace TokenManager.Pipelines.GetTokenGroup
@@ -13,8 +15,16 @@ namespace TokenManager.Pipelines.GetTokenGroup
         {
             if (args.GroupItem.TemplateID.ToString() == Constants._tokenSharedLinkCollectionTemplateId)
             {
-                args.Collection = new SharedLinkTokenCollection(args.GroupItem, new ID(Constants._tokenSharedLinkTemplateId));//rules token template guid
-                args.AbortPipeline();
+                try
+                {
+                    args.Collection = new SharedLinkTokenCollection(args.GroupItem,
+                        new ID(Constants._tokenSharedLinkTemplateId)); //rules token template guid
+                    args.AbortPipeline();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("Unable to load shared link token" , e, this);
+                }
             }
         }
     }

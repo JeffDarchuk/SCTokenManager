@@ -1,4 +1,5 @@
 ﻿using System;
+using Sitecore.Data;
 using Sitecore.Data.Items;
 using Sitecore.Events;
 using TokenManager.Data.Interfaces;
@@ -19,7 +20,7 @@ namespace TokenManager.Pipelines.Deleting
 		{
 			var item = Event.ExtractParameter<Item>(e, 0);
 			if (item == null) return;
-			if (item.TemplateID.ToString() == Constants._tokenTemplateId)
+            if (item.Template.IsDerived(new ID(Constants._tokenTemplateBaseId)))
 			{
 				TokenUnzipper unzipper = new TokenUnzipper("{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}",item.Parent["Category Label"], item["Token"], true);
 				unzipper.Unzip();
@@ -27,7 +28,7 @@ namespace TokenManager.Pipelines.Deleting
 				if (sitecoreTokenCollection != null) 
 					sitecoreTokenCollection.RemoveToken(item["Token"]);
 			}
-			else if (item.TemplateID.ToString() == Constants._tokenGroupTemplateId || item.TemplateID.ToString() == Constants._tokenMethodGroupTemplateId)
+            else if (item.Template.IsDerived(new ID(Constants._tokenGroupTemplateBaseId)))
 			{
 				var sitecoreTokenCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(item["Category Label"]);
 			    if (sitecoreTokenCollection != null)

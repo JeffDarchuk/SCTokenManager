@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>TokenManager</id>
+    <version>1.0.0</version>
+    <authors>Jeff Darchuk!</authors>
+    <owners>Jeff Darchuk!</owners>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/JeffDarchuk/SCTokenManager</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>
+		TokenManager is a system designed to manage, analyse and inject any content into a rich text field, all the time being completely flexible and extendible.
+	</description>
+	<summary>
+		TokenManager is a system designed to manage, analyse and inject any content into a rich text field, all the time being completely flexible and extendible.
+	</summary>
+  <releaseNotes>Initial release</releaseNotes>
+  <copyright>Copyright 2015 Jeff Darchuk</copyright>
+  <tags>sitecore</tags>
+  <dependencies>
+	  <dependency id="TokenManager" version="1.0.0" />
+  </dependencies>
+  </metadata>
+  <files>
+	   <file src="..\Source\TokenManager\Tokens.config" target="content\App_Config\Include" />
+  </files>
+</package>

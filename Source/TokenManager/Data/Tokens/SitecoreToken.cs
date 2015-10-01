@@ -42,7 +42,7 @@ namespace TokenManager.Data.Tokens
         public string Value(NameValueCollection extraData)
         {
             Database db = Context.ContentDatabase ?? Context.Database ?? Database.GetDatabase("master");
-            var lang = string.IsNullOrWhiteSpace(extraData["Language"]) ? Context.Language.Name : extraData["Language"];
+            var lang = extraData == null || string.IsNullOrWhiteSpace(extraData["Language"]) ? Context.Language.Name : extraData["Language"];
             if (_databaseToValue.ContainsKey(db.Name + lang))
                 return _databaseToValue[db.Name + lang];
             if (LoadValue(db, lang))

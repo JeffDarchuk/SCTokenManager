@@ -143,7 +143,7 @@ namespace TokenManager.Collections
             {
                 item = Context.Item;
             }
-		    if (item == null)
+		    if (item == null || item.Database.Name != "master")
 		        return true;
 		    var collectionItem = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(_itemID);
 		    if (collectionItem != null &&

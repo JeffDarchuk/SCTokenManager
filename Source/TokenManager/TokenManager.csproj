@@ -114,7 +114,6 @@
     <Compile Include="Rules\TokenRuleContext.cs" />
     <Compile Include="TemplateExtensions.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Resources\app.js" />
     <EmbeddedResource Include="Resources\index.html" />
@@ -167,6 +166,10 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\tokenextradata.html" />
     <EmbeddedResource Include="Resources\tokenextradatadirective.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\TokenManagerPackage.zip" />
+    <None Include="Tokens.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

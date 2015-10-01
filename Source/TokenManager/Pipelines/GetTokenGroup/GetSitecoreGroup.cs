@@ -1,4 +1,6 @@
-﻿using Sitecore.Data;
+﻿using System;
+using Sitecore.Data;
+using Sitecore.Diagnostics;
 using TokenManager.Collections;
 
 namespace TokenManager.Pipelines.GetTokenGroup
@@ -14,8 +16,15 @@ namespace TokenManager.Pipelines.GetTokenGroup
 		{
 			if (args.GroupItem.TemplateID.ToString() == Constants._tokenGroupTemplateId)
 			{
-				args.Collection = new SimpleSitecoreTokenCollection(args.GroupItem, new ID(Constants._tokenTemplateId));
-				args.AbortPipeline();
+			    try
+			    {
+			        args.Collection = new SimpleSitecoreTokenCollection(args.GroupItem, new ID(Constants._tokenTemplateId));
+			        args.AbortPipeline();
+			    }
+			    catch (Exception e)
+			    {
+			        Log.Error("Unable to load sitecore based token", e, this);
+			    }
 			}
 		}
 	}

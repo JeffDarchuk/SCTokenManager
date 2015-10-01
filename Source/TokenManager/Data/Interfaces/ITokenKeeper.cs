@@ -208,7 +208,7 @@ namespace TokenManager.Data.Interfaces
         /// </summary>
         /// <param name="itemId"></param>
         /// <param name="fieldId"></param>
-        void ResetTokenLocations(ID itemId, ID fieldId, Language language);
+        void ResetTokenLocations(ID itemId, ID fieldId, Language language, int versionNumber);
 
         /// <summary>
         /// given an item that represents a token collection it will return the collection

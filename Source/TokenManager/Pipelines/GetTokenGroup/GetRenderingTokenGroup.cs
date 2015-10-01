@@ -1,4 +1,6 @@
-﻿using Sitecore.Data;
+﻿using System;
+using Sitecore.Data;
+using Sitecore.Diagnostics;
 using TokenManager.Collections;
 
 namespace TokenManager.Pipelines.GetTokenGroup
@@ -13,8 +15,16 @@ namespace TokenManager.Pipelines.GetTokenGroup
         {
             if (args.GroupItem.TemplateID.ToString() == Constants._tokenRenderingCollectionTemplateId)
             {
-                args.Collection = new RenderingTokenCollection(args.GroupItem, new ID(Constants._tokenRenderingTokenTemplateId));//rendering token template guid
-                args.AbortPipeline();
+                try
+                {
+                    args.Collection = new RenderingTokenCollection(args.GroupItem,
+                        new ID(Constants._tokenRenderingTokenTemplateId)); //rendering token template guid
+                    args.AbortPipeline();
+                }
+                catch (Exception e)
+                {
+                    Log.Error("unable to load rendering token", e,this);
+                }
             }
         }
     }
