@@ -12,6 +12,9 @@ TokenManager uses sitecore items and a new system to automatically install the s
 1. Set up tokens under the TokenManager item content/TokenManager.
 2. New icon in default rich text editor opens a form to select a token to inject.
 
+# Common problems
+1.  Tokens analytics aren't reporting correctly - Rebuild your search indexes from the sitecore control panel.
+
 # Features
 1. Inject the contents of a rich text field into another rich text field on render.
 2. Filter available tokens based on rich text field's item's template or rich text's field's location in the content tree.
