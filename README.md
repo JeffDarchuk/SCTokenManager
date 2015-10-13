@@ -19,12 +19,12 @@ TokenManager uses sitecore items and a new system to automatically install the s
 1. Inject the contents of a rich text field into another rich text field on render.
 2. Filter available tokens based on rich text field's item's template or rich text's field's location in the content tree.
 3. Sitecore actions propogate appropriately.
-  3a. Moved and saved tokens are properly updated everywhere they're used.
-  3b. Deleted tokens are replaced by their former value everywhere they were used.
+  1. Moved and saved tokens are properly updated everywhere they're used.
+  2. Deleted tokens are replaced by their former value everywhere they were used.
 4. Management App to manage and analyze token usage.  Custom MVC and AngularJS app embedded in binary.
-  4a. Analyze token usage, edit items tokens are used in.
-  4b. Incorporate a specific text snippet into a managed token in all rich text fields.
-  4c. Unzip a token replacing every usage of it with it's value in all rich text fields.
+  1. Analyze token usage, edit items tokens are used in.
+  2. Incorporate a specific text snippet into a managed token in all rich text fields.
+  3. Unzip a token replacing every usage of it with it's value in all rich text fields.
 5. Custom content search index value added to track tokens.
 6. Easilly extendable and overridable to add new types of tokens or new behavior for collections of tokens.
 
