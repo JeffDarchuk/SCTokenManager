@@ -24,10 +24,6 @@ namespace TokenManager.Data.Tokens
         }
         public string Token { get { return _token; } }
 
-        public ID Datasource { get; set; }
-        public int Test { get; set; }
-        public bool AlsoTest { get; set; }
-
         public IEnumerable<ITokenData> ExtraData()
         {
             yield return new BasicTokenData("Datasource", "Datasource for the rendering", "", true,TokenDataType.Id);

@@ -58,7 +58,7 @@ namespace TokenManager.Management
 				return text;
 			foreach (var location in TokenLocations[args.Item.ID.ToString() + current+args.Item.Language.Name+args.Item.Version.Number])
 			{
-			    if (location.Item1 + location.Item2 >= text.Length)
+			    if (location.Item1 + location.Item2 > text.Length)
 			    {
 			        ResetTokenLocations(args.Item.ID,current, args.Item.Language, args.Item.Version.Number);
 			        return ReplaceRTETokens(args, text);
@@ -107,7 +107,7 @@ namespace TokenManager.Management
 			{
 				return TokenLocations[field.Item.ID.ToString() + field.ID+field.Language.Name+field.Item.Version.Number];
 			}
-			return null;
+			return new List<Tuple<int, int>>();
 		} 
 
 		public virtual IToken ParseITokenFromText(string token)
@@ -164,34 +164,37 @@ namespace TokenManager.Management
 
 		public virtual IEnumerable<ContentSearchTokens> GetTokenOccurances(string category, string token)
 		{
-			return GetTokenOccurances(category, token, "master", new ID("{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}"));
+			return GetTokenOccurances(category, token, "master");
 		}
         public virtual IEnumerable<ContentSearchTokens> GetTokenOccurances(string category, string token, ID root)
         {
-            return GetTokenOccurances(category, token, "master", root);
+            return GetTokenOccurances(category, token, Database.GetDatabase("master"), root);
         }
 
 		public virtual IEnumerable<ContentSearchTokens> GetTokenOccurances(string category, string token, Database db)
 		{
-            return GetTokenOccurances(category, token, db.Name, new ID("{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}"));
+            return GetTokenOccurances(category, token, db.Name);
 		}
         public virtual IEnumerable<ContentSearchTokens> GetTokenOccurances(string category, string token, Database db, ID root)
         {
-            return GetTokenOccurances(category, token, db.Name, root);
+            var item = db.GetItem(root);
+            if (item == null)
+                return GetTokenOccurances(category, token, db.Name);
+            else
+            {
+                var tmp = GetTokenOccurances(category, token, db.Name).ToList();
+                return tmp.Where(x => x.Path.StartsWith(item.Paths.FullPath));
+            }
         }
 
-	    public virtual IEnumerable<ContentSearchTokens> GetTokenOccurances(string category, string token, string db, ID root)
+	    public virtual IEnumerable<ContentSearchTokens> GetTokenOccurances(string category, string token, string db)
 		{
-		    var item = Factory.GetDatabase(db).GetItem(root);
-		    if (item != null)
-		    {
-		        var index = ContentSearchManager.GetIndex("sitecore_" + db + "_index")
-		            .CreateSearchContext(SearchSecurityOptions.DisableSecurityCheck);
-		        var query = index.GetQueryable<ContentSearchTokens>()
-                    .Where(t=>t.Path.StartsWith(item.Paths.Path))
-		            .Where(t => t.Tokens.Contains(category + token));
-                return query;
-		    }
+		    
+		    var index = ContentSearchManager.GetIndex("sitecore_" + db + "_index")
+		        .CreateSearchContext(SearchSecurityOptions.DisableSecurityCheck);
+		    var query = index.GetQueryable<ContentSearchTokens>()
+		        .Where(t => t.Tokens.Contains(category + token));
+            return query;
 		    return null;
 		} 
 
@@ -213,7 +216,12 @@ namespace TokenManager.Management
 			return null;
 		}
 
-		public virtual IEnumerable<IToken> GetTokens(string category)
+        public ITokenCollection<T> GetTokenCollection<T>(ID backingItemId) where T : IToken
+        {
+            return GetTokenCollections().FirstOrDefault(x => x.GetBackingItemId() == backingItemId) as ITokenCollection<T>;
+        }
+
+        public virtual IEnumerable<IToken> GetTokens(string category)
 		{
 			var collection = GetTokenCollection<IToken>(category);
 			if (collection != null)

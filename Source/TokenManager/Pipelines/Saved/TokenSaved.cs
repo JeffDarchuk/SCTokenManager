@@ -26,58 +26,62 @@ namespace TokenManager.Pipelines.Saved
             if (item != null && changes != null && !item.Paths.FullPath.StartsWith("/sitecore/templates"))
 			{
 				// if it's a specific token that's changed
-				if (TemplateManager.GetTemplate(item).IsDerived(new ID(Constants._tokenTemplateBaseId)))
-					foreach (ITokenCollection<IToken> tokenCollection in TokenKeeper.CurrentKeeper.GetTokenCollections()
-						.Where(x => x.GetBackingItemId() == item.ParentID))
-					{
-						foreach (FieldChange change in changes.FieldChanges)
-						{
-							if (change.FieldID.ToString() == Constants._tokenFieldId && change.OriginalValue != "$name" && change.Value !="$name")
-							{
-                                TokenRootPropertyChanger changer = new TokenRootPropertyChanger(item.Parent["Category Label"], change.OriginalValue);
-							    changer.Change(item.Parent["Category Label"], item["Token"]);
-							}
-						}
-						tokenCollection.ResetTokenCache();
-					}
-				else
-				{
-					foreach (FieldChange change in changes.FieldChanges)
-					{
-						if (item.Fields[change.FieldID].Type.ToLower() == "rich text")
-						{
-							TokenKeeper.CurrentKeeper.ResetTokenLocations(item.ID, change.FieldID, item.Language, item.Version.Number);
-						}
-					}
-				}
+			    if (TemplateManager.GetTemplate(item).IsDerived(new ID(Constants._tokenTemplateBaseId)))
+			    {
+			        var parent = item.Parent;
+			        while (parent != null &&
+			               !TemplateManager.GetTemplate(parent).IsDerived(new ID(Constants._tokenGroupTemplateBaseId)))
+			        {
+			            parent = parent.Parent;
+			        }
+			        if (parent != null)
+			        {
+			            var collection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(parent.ID);
+			            IToken token = collection.GetTokens().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
+                        collection.ResetTokenCache();
+                        IToken newToken = collection.GetTokens().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
+			            if (token != null && newToken != null && newToken.Token != token.Token)
+			            {
+                            TokenRootPropertyChanger changer = new TokenRootPropertyChanger(collection.GetCollectionLabel(), token.Token);
+                            changer.Change(collection.GetCollectionLabel(), newToken.Token);
+			            }
+			        }
+			    }
 				// if it's a token collection that's changed
-				if (TemplateManager.GetTemplate(item).IsDerived(new ID(Constants._tokenGroupTemplateBaseId)))
+				else if (TemplateManager.GetTemplate(item).IsDerived(new ID(Constants._tokenGroupTemplateBaseId)))
 				{
-					string oldCategoryName = item["Category Label"];
-					foreach (FieldChange change in changes.FieldChanges)
-					{
-                        if (change.FieldID.ToString() == Constants._tokenGroupCategoryFieldId && change.OriginalValue != "$name" && change.Value != "$name")
-						{
-							var tokenCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(change.OriginalValue);
-							if (tokenCollection != null)
-							{
-								TokenKeeper.CurrentKeeper.LoadTokenGroup(TokenKeeper.CurrentKeeper.GetCollectionFromItem(item));
-								foreach (var token in tokenCollection.GetTokens())
-								{
-                                    TokenRootPropertyChanger changer = new TokenRootPropertyChanger(change.OriginalValue, token.Token);
-                                    changer.Change(item["Category Label"], token.Token);
-								}
-								oldCategoryName = change.OriginalValue;
-
-							}
-						}
-					}
-					TokenKeeper.CurrentKeeper.RemoveGroup(oldCategoryName);
-					if (item["Category Label"] == oldCategoryName)
-						TokenKeeper.CurrentKeeper.LoadTokenGroup(TokenKeeper.CurrentKeeper.GetCollectionFromItem(item));
+				    var collection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(item.ID);
+				    if (collection != null)
+				    {
+				        var newCollection = TokenKeeper.CurrentKeeper.GetCollectionFromItem(item);
+				        if (newCollection != null && collection.GetCollectionLabel() != newCollection.GetCollectionLabel())
+				        {
+				            foreach (var token in collection.GetTokens())
+				            {
+				                TokenRootPropertyChanger changer = new TokenRootPropertyChanger(collection.GetCollectionLabel(),
+				                    token.Token);
+				                changer.Change(newCollection.GetCollectionLabel(), token.Token);
+				            }
+				        }
+                        TokenKeeper.CurrentKeeper.RemoveGroup(collection.GetCollectionLabel());
+                        TokenKeeper.CurrentKeeper.LoadTokenGroup(newCollection);
+				    }
+				    else
+				    {
+                        var newCollection = TokenKeeper.CurrentKeeper.GetCollectionFromItem(item);
+                        TokenKeeper.CurrentKeeper.LoadTokenGroup(newCollection);
+				    }
 				}
-
-
+                else
+                {
+                    foreach (FieldChange change in changes.FieldChanges)
+                    {
+                        if (item.Fields[change.FieldID].Type.ToLower() == "rich text")
+                        {
+                            TokenKeeper.CurrentKeeper.ResetTokenLocations(item.ID, change.FieldID, item.Language, item.Version.Number);
+                        }
+                    }
+                }
 			}
 		}
 	}

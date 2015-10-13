@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Linq;
 using Sitecore.Data;
 using Sitecore.Data.Items;
 using Sitecore.Events;
+using TokenManager.Data.Interfaces;
 using TokenManager.Handlers.TokenOperations;
+using TokenManager.Management;
 
 namespace TokenManager.Pipelines.Moved
 {
@@ -21,17 +24,24 @@ namespace TokenManager.Pipelines.Moved
 			var from = Event.ExtractParameter<ID>(e, 1);
 			var fromItem = item.Database.GetItem(from);
 			var toItem = item.Parent;
-			if (fromItem.TemplateID.ToString() == Constants._tokenGroupTemplateId &&
-			    toItem.TemplateID.ToString() == Constants._tokenGroupTemplateId)
+            var fromCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(from);
+            var toCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(toItem.ID);
+			if (fromItem.TemplateID.ToString() == toItem.TemplateID.ToString() )
 			{
-                TokenRootPropertyChanger changer = new TokenRootPropertyChanger(fromItem["Category Label"], item["Token"]);
-			    changer.Change(toItem["Category Label"], item["Token"]);
+			    if (fromCollection != null && toCollection != null)
+			    {
+			        var token = fromCollection.GetTokens().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
+			        if (token != null)
+			        {
+                        TokenRootPropertyChanger changer = new TokenRootPropertyChanger(fromCollection.GetCollectionLabel(), token.Token);
+                        changer.Change(toCollection.GetCollectionLabel(), token.Token);
+			        }
+			    }
 			}
-			else if (fromItem.TemplateID.ToString() == Constants._tokenGroupTemplateId)
-			{
-				TokenUnzipper unzipper = new TokenUnzipper("{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}",fromItem["Category Label"], item["Token"], true);
-				unzipper.Unzip();
-			}
+            if (fromCollection != null)
+                fromCollection.ResetTokenCache();
+            if (toCollection != null)
+                toCollection.ResetTokenCache();
 		}
 	}
 }

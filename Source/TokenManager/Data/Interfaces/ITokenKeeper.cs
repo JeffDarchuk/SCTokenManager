@@ -159,7 +159,7 @@ namespace TokenManager.Data.Interfaces
         /// <param name="db">Database to get token occurances from</param>
         /// <param name="root">root id to get tokens from</param>
         /// <returns>enumerable of all occurances of this token</returns>
-        IEnumerable<ContentSearchTokens> GetTokenOccurances(string category, string token, string db, ID root);
+        IEnumerable<ContentSearchTokens> GetTokenOccurances(string category, string token, string db);
 
         /// <summary>
         /// gets all the labels for the token collections
@@ -182,6 +182,13 @@ namespace TokenManager.Data.Interfaces
             where T : IToken;
 
         /// <summary>
+        /// gets a specific token collection by backing ID
+        /// </summary>
+        /// <param name="collectionName"></param>
+        /// <returns>token collection</returns>
+        ITokenCollection<T> GetTokenCollection<T>(ID backingItemId)
+            where T: IToken;
+            /// <summary>
         /// gets all token names under a specific category
         /// </summary>
         /// <param name="category"></param>

@@ -98,7 +98,12 @@ namespace TokenManager.Handlers.TokenOperations
 		        }
 		    }
             if (!preview) field.Item.Editing.EndEdit();
-            ret.Converted.Add(fieldReport);
+	        if (fieldReport.InstancesReplaced == 0)
+	        {
+	            ret.Count--;
+	        }
+            else
+                ret.Converted.Add(fieldReport);
 		}
 	}
 }

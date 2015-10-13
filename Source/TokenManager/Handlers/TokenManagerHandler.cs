@@ -10,6 +10,7 @@ using Sitecore;
 using Sitecore.Configuration;
 using Sitecore.Data;
 using Sitecore.Data.Items;
+using Sitecore.Diagnostics;
 using TokenManager.Collections;
 using TokenManager.Data.Interfaces;
 using TokenManager.Handlers.ContentTree;
@@ -61,64 +62,74 @@ namespace TokenManager.Handlers
 		/// <param name="context"></param>
         public override void ProcessRequest(HttpContextBase context)
         {
-			var path = context.Request.AppRelativeCurrentExecutionFilePath;
-			var fileName = Path.GetFileName(path);
-			if (fileName == null)
-			{
-				NotFound(context);
-				return;
-			}
-
-			var file = fileName.ToLowerInvariant();
-			if (_prefix.Equals(file, StringComparison.CurrentCultureIgnoreCase))
-			{
-				file = "";
-			}
-            if (context.Request.Cookies["ASP.NET_SessionId"] == null)
-                context.Response.Redirect("/sitecore/login");
-		    if (string.IsNullOrWhiteSpace(file))
+		    try
 		    {
-                _userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value] = context.Request.QueryString["token"];
-		        ReturnResource(context, "index.html", "text/html");
+		        var path = context.Request.AppRelativeCurrentExecutionFilePath;
+		        var fileName = Path.GetFileName(path);
+		        if (fileName == null)
+		        {
+		            NotFound(context);
+		            return;
+		        }
+
+		        var file = fileName.ToLowerInvariant();
+		        if (_prefix.Equals(file, StringComparison.CurrentCultureIgnoreCase))
+		        {
+		            file = "";
+		        }
+		        if (context.Request.Cookies["ASP.NET_SessionId"] == null)
+		            context.Response.Redirect("/sitecore/login");
+		        if (string.IsNullOrWhiteSpace(file))
+		        {
+		            _userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value] =
+		                context.Request.QueryString["token"];
+		            ReturnResource(context, "index.html", "text/html");
+		        }
+		        else if (file.EndsWith(".js"))
+		            ReturnResource(context, file, "application/javascript");
+		        else if (file.EndsWith(".html"))
+		            ReturnResource(context, file, "text/html");
+		        else if (file == "contenteditor.css")
+		            ReturnResponse(context, string.Format(".token-manager-token{{{0}}}", TokenKeeper.CurrentKeeper.TokenCss),
+		                "text/css");
+		        else if (file.EndsWith(".css"))
+		            ReturnResource(context, file, "text/css");
+		        else if (file.EndsWith(".gif"))
+		            ReturnImage(context, file, ImageFormat.Gif, "image/gif");
+		        else if (file == "categories.json")
+		            ReturnJson(context, GetTokenCategories());
+		        else if (file == "tokens.json")
+		            ReturnJson(context, GetTokens(context));
+		        else if (file == "tokenidentifier.json")
+		            ReturnJson(context, GetTokenIdentifier(context));
+		        else if (file == "tokenincorporator.json")
+		            ReturnJson(context, IncorporateToken(context));
+		        else if (file == "databases.json")
+		            ReturnJson(context, GetDatabases());
+		        else if (file == "sitecoretokencollections.json")
+		            ReturnJson(context, GetSitecoreTokenCollectionNames(context));
+		        else if (file == "incorporatetokens.json")
+		            ReturnJson(context, IncorporateToken(context));
+		        else if (file == "issitecorecollection.json")
+		            ReturnJson(context, IsSitecoreCollection(context));
+		        else if (file == "unziptoken.json")
+		            ReturnJson(context, UnzipToken(context));
+		        else if (file == "tokenstats.json")
+		            ReturnJson(context, GetTokenStats(context));
+		        else if (file == "contenttree.json")
+		            ReturnJson(context, GetContentTree(context));
+		        else if (file == "contenttreeselectedrelated.json")
+		            ReturnJson(context, GetContentSelectedRelated(context));
+		        else if (file == "tokenselected.json")
+		            ReturnJson(context, GetRichTextSelectedToken(context));
+		        else
+		            NotFound(context);
 		    }
-		    else if (file.EndsWith(".js"))
-		        ReturnResource(context, file, "application/javascript");
-		    else if (file.EndsWith(".html"))
-		        ReturnResource(context, file, "text/html");
-            else if (file == "contenteditor.css")
-                ReturnResponse(context, string.Format(".token-manager-token{{{0}}}", TokenKeeper.CurrentKeeper.TokenCss), "text/css");
-		    else if (file.EndsWith(".css"))
-		        ReturnResource(context, file, "text/css");
-		    else if (file.EndsWith(".gif"))
-		        ReturnImage(context, file, ImageFormat.Gif, "image/gif");
-		    else if (file == "categories.json")
-		        ReturnJson(context, GetTokenCategories());
-		    else if (file == "tokens.json")
-		        ReturnJson(context, GetTokens(context));
-		    else if (file == "tokenidentifier.json")
-		        ReturnJson(context, GetTokenIdentifier(context));
-		    else if (file == "tokenincorporator.json")
-		        ReturnJson(context, IncorporateToken(context));
-		    else if (file == "databases.json")
-		        ReturnJson(context, GetDatabases());
-		    else if (file == "sitecoretokencollections.json")
-		        ReturnJson(context, GetSitecoreTokenCollectionNames(context));
-		    else if (file == "incorporatetokens.json")
-		        ReturnJson(context, IncorporateToken(context));
-		    else if (file == "issitecorecollection.json")
-		        ReturnJson(context, IsSitecoreCollection(context));
-		    else if (file == "unziptoken.json")
-		        ReturnJson(context, UnzipToken(context));
-		    else if (file == "tokenstats.json")
-		        ReturnJson(context, GetTokenStats(context));
-		    else if (file == "contenttree.json")
-		        ReturnJson(context, GetContentTree(context));
-            else if (file == "contenttreeselectedrelated.json")
-                ReturnJson(context, GetContentSelectedRelated(context));
-            else if (file == "tokenselected.json")
-                ReturnJson(context, GetRichTextSelectedToken(context));
-		    else
-		        NotFound(context);
+		    catch (Exception e)
+		    {
+		        Log.Error("TokenManager failed to return the proper resource", e, this);
+                NotFound(context);
+		    }
         }
 
         /// <summary>

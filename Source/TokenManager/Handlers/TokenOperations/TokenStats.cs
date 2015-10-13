@@ -71,7 +71,7 @@ namespace TokenManager.Handlers.TokenOperations
 			{
                 Item item = _database.GetItem(ID.Parse(current.Id), !string.IsNullOrWhiteSpace(current.Language) && LanguageManager.IsValidLanguageName(current.Language) ? LanguageManager.GetLanguage(current.Language) : LanguageManager.DefaultLanguage);
                 foreach (var field in item.Fields.Where(f => f.Type == "Rich Text"))
-					ProcessThisToken(current, field, ret);
+					ProcessThisToken(field, ret);
 			}
 		}
 
@@ -81,9 +81,12 @@ namespace TokenManager.Handlers.TokenOperations
 		/// <param name="tokens"></param>
 		/// <param name="f"></param>
 		/// <param name="ret"></param>
-		private void ProcessThisToken(ContentSearchTokens tokens, Field f, dynamic ret)
+		private void ProcessThisToken(Field f, dynamic ret)
 		{
-			var tokenCount = tokens.Tokens.Count(t => t == _category + _token);
+		    var tokenCount =
+		        TokenKeeper.CurrentKeeper.ParseTokenIdentifiers(f)
+		            .Select(TokenKeeper.CurrentKeeper.TokenProperties)
+		            .Count(p => p["Category"] == _category && p["Token"] == _token);
 			if (tokenCount == 0) return;
 			ret.Uses+= tokenCount;
 			if (!ret.ByItem.ContainsKey(f.Item.ID+f.Language.Name))

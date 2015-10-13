@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using Sitecore.Data;
 using Sitecore.Data.Items;
+using Sitecore.Data.Managers;
 using Sitecore.Events;
 using TokenManager.Data.Interfaces;
 using TokenManager.Handlers.TokenOperations;
@@ -22,23 +24,44 @@ namespace TokenManager.Pipelines.Deleting
 			if (item == null) return;
             if (item.Template.IsDerived(new ID(Constants._tokenTemplateBaseId)))
 			{
-				TokenUnzipper unzipper = new TokenUnzipper("{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}",item.Parent["Category Label"], item["Token"], true);
-				unzipper.Unzip();
-				var sitecoreTokenCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(item.Parent["Category Label"]);
-				if (sitecoreTokenCollection != null) 
-					sitecoreTokenCollection.RemoveToken(item["Token"]);
+                var parent = item.Parent;
+			    while (parent != null &&
+			            !TemplateManager.GetTemplate(parent).IsDerived(new ID(Constants._tokenGroupTemplateBaseId)))
+			    {
+			        parent = parent.Parent;
+			    }
+			    if (parent != null)
+			    {
+			        var collection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(parent.ID);
+			        if (collection != null)
+			        {
+			            var token = collection.GetTokens().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
+			            if (token != null)
+			            {
+			                TokenUnzipper unzipper = new TokenUnzipper("{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}",
+			                    collection.GetCollectionLabel(), token.Token, true);
+			                unzipper.Unzip();
+                            collection.RemoveToken(token.Token);
+			            }
+			            else
+			            {
+			                collection.ResetTokenCache();
+			            }
+			        }
+			        
+			    }
 			}
             else if (item.Template.IsDerived(new ID(Constants._tokenGroupTemplateBaseId)))
 			{
-				var sitecoreTokenCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(item["Category Label"]);
+				var sitecoreTokenCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(item.ID);
 			    if (sitecoreTokenCollection != null)
 			    {
 			        foreach (var token in sitecoreTokenCollection.GetTokens())
 			        {
-			            TokenUnzipper unzipper = new TokenUnzipper("{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}",item["Category Label"], token.Token, true);
+			            TokenUnzipper unzipper = new TokenUnzipper("{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}",sitecoreTokenCollection.GetCollectionLabel(), token.Token, true);
 			            unzipper.Unzip();
 			        }
-			        TokenKeeper.CurrentKeeper.RemoveGroup(item["Category Label"]);
+			        TokenKeeper.CurrentKeeper.RemoveGroup(sitecoreTokenCollection.GetCollectionLabel());
 			    }
 			}
 		}
