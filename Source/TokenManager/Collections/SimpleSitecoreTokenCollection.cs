@@ -10,10 +10,10 @@ namespace TokenManager.Collections
 	public class SimpleSitecoreTokenCollection : SitecoreTokenCollection<IToken>
 	{
 		private readonly ID _backingItemId;
-		public SimpleSitecoreTokenCollection(Item tokenGroup, ID tokenTemplateID)
-			: base(tokenGroup, tokenTemplateID)
+		public SimpleSitecoreTokenCollection(Item tokenCollection, ID tokenTemplateID)
+			: base(tokenCollection, tokenTemplateID)
 		{
-			_backingItemId = tokenGroup.ID;
+			_backingItemId = tokenCollection.ID;
 		}
 		/// <summary>
 		/// loads in the token to the collection

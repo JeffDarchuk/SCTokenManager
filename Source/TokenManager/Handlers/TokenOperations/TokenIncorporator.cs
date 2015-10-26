@@ -46,7 +46,7 @@ namespace TokenManager.Handlers.TokenOperations
 		public TokenIncorporator(string root, string category, string tokenName, string tokenValue)
 		{
 		    _root = root;
-			_database = Database.GetDatabase("master");
+			_database = TokenKeeper.CurrentKeeper.GetDatabase();
 			_category = category;
 			_item = _database.GetItem(TokenCollection.GetBackingItemId());
 			_tokenName = tokenName;
@@ -103,7 +103,7 @@ namespace TokenManager.Handlers.TokenOperations
                             }
                         }
                         if (LanguageManager.DefaultLanguage.Name == cur.Language.Name)
-						    foreach (Item child in cur.Children.Where(c=>!TemplateManager.GetTemplate(c).IsDerived(new ID(Constants._tokenTemplateBaseId))))
+						    foreach (Item child in cur.Children.Where(c=>!TemplateManager.GetTemplate(c).IsDerived(new ID(Constants.TokenTemplateBaseId))))
 							    LoadAllLanguageItems(child, itemStack);
 					}
 				}

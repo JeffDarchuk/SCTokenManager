@@ -9,7 +9,7 @@ namespace TokenManager.Collections
 {
     class RenderingTokenCollection : SitecoreTokenCollection<IToken>
     {
-        public RenderingTokenCollection(Item tokenGroup, ID tokenTemplateID) : base(tokenGroup, tokenTemplateID)
+        public RenderingTokenCollection(Item tokenCollection, ID tokenTemplateID) : base(tokenCollection, tokenTemplateID)
         {
         }
 

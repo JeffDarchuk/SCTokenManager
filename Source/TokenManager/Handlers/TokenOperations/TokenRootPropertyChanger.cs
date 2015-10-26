@@ -5,6 +5,7 @@ using System.Text;
 using Sitecore.Data;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Managers;
+using Sitecore.Mvc.Extensions;
 using Sitecore.SecurityModel;
 using TokenManager.Management;
 
@@ -45,7 +46,7 @@ namespace TokenManager.Handlers.TokenOperations
                             fieldReport.FieldName = field.Name;
                             fieldReport.InstancesReplaced = 0;
                             fieldReport.Language = field.Language.Name;
-                            foreach (var tokenLocation in TokenKeeper.CurrentKeeper.ParseTokenLocations(field))
+                            foreach (var tokenLocation in TokenKeeper.CurrentKeeper.ParseTokenLocations(field).Item2)
                             {
                                 var tokenIdentifier = field.Value.Substring(tokenLocation.Item1, tokenLocation.Item2);
                                 var tokenProps = TokenKeeper.CurrentKeeper.TokenProperties(tokenIdentifier);
@@ -55,7 +56,7 @@ namespace TokenManager.Handlers.TokenOperations
 
                                     StringBuilder sb = new StringBuilder(field.Value);
                                     sb.Remove(tokenLocation.Item1, tokenLocation.Item2);
-                                    sb.Insert(tokenLocation.Item1, TokenKeeper.CurrentKeeper.GetTokenIdentifier(newCategory, newToken, tokenProps));
+                                    sb.Insert(tokenLocation.Item1, TokenKeeper.CurrentKeeper.GetTokenIdentifier(newCategory, newToken, tokenProps.AllKeys.ToDictionary(k => k, k => (object)tokenProps[k])));
                                     field.Value = sb.ToString();
 
                             }

@@ -15,26 +15,24 @@ namespace TokenManager.Collections
 	{
 		private readonly ID _backingItemId;
 		private readonly string _collectionLabel;
-		private bool _initialized;
-		private readonly object _locker = new object();
 	    private ID _tokenTemplateID;
 
 		/// <summary>
 		/// constructs the sitecore token collection based on the specific item
 		/// </summary>
-		/// <param name="tokenGroup"></param>
-		public SitecoreTokenCollection(Item tokenGroup, ID tokenTemplateID):base(tokenGroup)
+		/// <param name="tokenCollection"></param>
+		public SitecoreTokenCollection(Item tokenCollection, ID tokenTemplateID):base(tokenCollection)
 		{
 		    _tokenTemplateID = tokenTemplateID;
-			_backingItemId = tokenGroup.ID;
-			_collectionLabel = tokenGroup["Category Label"];
-			var tmp = tokenGroup.Database.GetItem(tokenGroup["Item Ancestor"]);
+			_backingItemId = tokenCollection.ID;
+			_collectionLabel = tokenCollection["Category Label"];
+			var tmp = tokenCollection.Database.GetItem(tokenCollection["Item Ancestor"]);
 			if (string.IsNullOrWhiteSpace(_collectionLabel))
 				throw new ArgumentException("Category labels can not be empty", _backingItemId.ToString());
-            SitecoreIcon = tokenGroup[FieldIDs.Icon];
+            SitecoreIcon = tokenCollection[FieldIDs.Icon];
             if (string.IsNullOrWhiteSpace(SitecoreIcon))
             {
-                SitecoreIcon = tokenGroup.Template.Icon;
+                SitecoreIcon = tokenCollection.Template.Icon;
             }
 		}
 
@@ -52,7 +50,6 @@ namespace TokenManager.Collections
 		/// </summary>
 		public override void ResetTokenCache()
 		{
-			_initialized = false;
 			RemoveAllTokens();
 		}
 
@@ -62,24 +59,13 @@ namespace TokenManager.Collections
 		/// <returns>all tokens</returns>
 		public override IEnumerable<IToken> GetTokens()
 		{
-			if (!_initialized)
-			{
-				lock (_locker)
+            Database db = TokenKeeper.CurrentKeeper.GetDatabase(); ;
+			var item = db.GetItem(_backingItemId);
+            if (item != null)
+				foreach (string key in item.Children.Where(c => c.TemplateID == _tokenTemplateID).Select(c => c["Token"]))
 				{
-					if (!_initialized)
-					{
-						_initialized = true;
-                        Database db = TokenKeeper.CurrentKeeper.GetDatabase(); ;
-						var item = db.GetItem(_backingItemId);
-                        if (item != null)
-						    foreach (string key in item.Children.Where(c => c.TemplateID == _tokenTemplateID).Select(c => c["Token"]))
-						    {
-							    AddOrUpdateToken(InitiateToken(key));
-						    }
-					}
+					AddOrUpdateToken(InitiateToken(key));
 				}
-
-			}
 			return base.GetTokens();
 		}
 

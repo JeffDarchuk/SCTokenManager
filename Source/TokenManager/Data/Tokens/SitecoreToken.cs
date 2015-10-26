@@ -1,17 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using Sitecore;
 using Sitecore.Data;
 using TokenManager.Data.Interfaces;
+using TokenManager.Management;
 
 namespace TokenManager.Data.Tokens
 {
 
     public class SitecoreToken : IToken
     {
-        private Dictionary<string, string> _databaseToValue = new Dictionary<string, string>();
-        private object locker = new object();
-        private ID _backingItem;
+        private readonly ConcurrentDictionary<string, string> _databaseToValue = new ConcurrentDictionary<string, string>();
+	    private readonly ID _backingItem;
         public string Token { get; set; }
 
         /// <summary>
@@ -41,12 +42,14 @@ namespace TokenManager.Data.Tokens
 
         public string Value(NameValueCollection extraData)
         {
-            Database db = Context.ContentDatabase ?? Context.Database ?? Database.GetDatabase("master");
-            var lang = extraData == null || string.IsNullOrWhiteSpace(extraData["Language"]) ? Context.Language.Name : extraData["Language"];
-            if (_databaseToValue.ContainsKey(db.Name + lang))
-                return _databaseToValue[db.Name + lang];
-            if (LoadValue(db, lang))
-                return _databaseToValue[db.Name + lang];
+	        Database db = TokenKeeper.CurrentKeeper.GetDatabase();
+	        var lang = Context.Language.Name;
+	        int? version = db?.GetItem(GetBackingItemId())?.Version.Number;
+	        var key = db?.Name + lang + version;
+            if (_databaseToValue.ContainsKey(key))
+                return _databaseToValue[key];
+            if (LoadValue(db, key))
+                return _databaseToValue[key];
             return null;
         }
 
@@ -55,27 +58,24 @@ namespace TokenManager.Data.Tokens
             return this;
         }
 
-        /// <summary>
-        /// caches the token value for the spedified database
-        /// </summary>
-        /// <param name="db"></param>
-        /// <returns>was the token found</returns>
-        private bool LoadValue(Database db, string language)
+	    /// <summary>
+	    /// caches the token value for the spedified database
+	    /// </summary>
+	    /// <param name="db"></param>
+	    /// <param name="key"></param>
+	    /// <returns>was the token found</returns>
+	    private bool LoadValue(Database db, string key)
         {
-            lock (locker)
+            if (db != null)
             {
-                if (db != null)
+                if (!_databaseToValue.ContainsKey(db.Name))
                 {
-                    if (!_databaseToValue.ContainsKey(db.Name))
-                    {
 
-                        var item = db.GetItem(_backingItem);
-                        _databaseToValue[db.Name + language] = item["Value"];
-                        return true;
-                    }
-                    _databaseToValue[db.Name + language] = null;
+                    var item = db.GetItem(_backingItem);
+                    _databaseToValue[key] = item["Value"];
+                    return true;
                 }
-                
+                _databaseToValue[key] = null;
             }
             return false;
         }

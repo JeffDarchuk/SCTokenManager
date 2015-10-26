@@ -13,14 +13,14 @@ namespace TokenManager.Pipelines.Moved
 	class TokenMoved
 	{
 		/// <summary>
-		/// Handles if a token gets moved out of a group.  Either it gets re-incorporated into another group or unzipped
+		/// Handles if a token gets moved out of a collection.  If it's a moved to a similar parent it'll be adopted.
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		public void OnItemMoved(object sender, EventArgs e)
 		{
 			var item = Event.ExtractParameter<Item>(e, 0);
-			if (item.TemplateID.ToString() != Constants._tokenTemplateId) return;
+			if (!item.Template.IsDerived(new ID(Constants.TokenTemplateBaseId))) return;
 			var from = Event.ExtractParameter<ID>(e, 1);
 			var fromItem = item.Database.GetItem(from);
 			var toItem = item.Parent;
@@ -38,10 +38,9 @@ namespace TokenManager.Pipelines.Moved
 			        }
 			    }
 			}
-            if (fromCollection != null)
-                fromCollection.ResetTokenCache();
-            if (toCollection != null)
-                toCollection.ResetTokenCache();
+
+			fromCollection?.ResetTokenCache();
+			toCollection?.ResetTokenCache();
 		}
 	}
 }

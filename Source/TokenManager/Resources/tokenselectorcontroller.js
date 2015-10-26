@@ -13,11 +13,11 @@
 		vm.tokens = [];
 	    vm.data = new Object();
 		vm.events = {
-		    'click': function (val) {
-                if (typeof (vm.fieldName) != "undefined")
-		            vm.data[vm.fieldName] = val.Id;
-		    }
-    };
+		    'click': function (val) {}
+		};
+		vm.clicked = function(field) {
+			vm.data[field] = vm.events.selectedItem;
+		}
 		tokenfactory.tokenCategories().then(function(response) {
 		    vm.categories = response.data;
 		});

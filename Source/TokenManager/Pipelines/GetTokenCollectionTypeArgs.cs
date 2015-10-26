@@ -7,7 +7,7 @@ namespace TokenManager.Pipelines
 
 	public class GetTokenCollectionTypeArgs : PipelineArgs
 	{
-		public Item GroupItem { get; set; }
+		public Item CollectionItem { get; set; }
 		public ITokenCollection<IToken> Collection { get; set; }
 	}
 }

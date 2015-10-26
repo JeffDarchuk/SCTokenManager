@@ -4,6 +4,7 @@ using Sitecore;
 using Sitecore.Data;
 using Sitecore.Data.Items;
 using TokenManager.Data.Interfaces;
+using TokenManager.Management;
 using TokenManager.Rules;
 
 namespace TokenManager.Data.Tokens
@@ -22,7 +23,7 @@ namespace TokenManager.Data.Tokens
 
         public string Value(NameValueCollection extraData)
         {
-            Database db = Context.ContentDatabase ?? Context.Database ?? Database.GetDatabase("master");
+	        Database db = TokenKeeper.CurrentKeeper.GetDatabase();
             Item item = db.GetItem(_backingItem);
             if (item != null)
             {

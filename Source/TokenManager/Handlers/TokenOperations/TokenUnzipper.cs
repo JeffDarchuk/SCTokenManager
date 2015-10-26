@@ -36,7 +36,7 @@ namespace TokenManager.Handlers.TokenOperations
 		    _root = root;
 			_category = category;
 			_token = token;
-			_database = Database.GetDatabase("master");
+			_database = TokenKeeper.CurrentKeeper.GetDatabase();
 		    _replaceWithValue = replaceWithValue;
 		}
 
@@ -78,7 +78,7 @@ namespace TokenManager.Handlers.TokenOperations
 		    fieldReport.InstancesReplaced = 0;
 	        fieldReport.Language = field.Language.Name;
             if (!preview) field.Item.Editing.BeginEdit();
-		    foreach (var tokenLocation in TokenKeeper.CurrentKeeper.ParseTokenLocations(field))
+		    foreach (var tokenLocation in TokenKeeper.CurrentKeeper.ParseTokenLocations(field).Item2)
 		    {
 		        var tokenIdentifier = field.Value.Substring(tokenLocation.Item1, tokenLocation.Item2);
 		        var tokenProps = TokenKeeper.CurrentKeeper.TokenProperties(tokenIdentifier);

@@ -57,10 +57,10 @@ namespace TokenManager.Pipelines.Initialize
                                @"\packages\TokenManager.TokenManagerPackage.zip";
                 try
                 {
-                    this.GetType().Assembly
-                        .GetManifestResourceStream("TokenManager.Resources.TokenManagerPackage.zip")
-                        .CopyTo(new FileStream(filepath, FileMode.Create));
-                    Task.Run(() =>
+	                var manifestResourceStream = GetType().Assembly
+		                .GetManifestResourceStream("TokenManager.Resources.TokenManagerPackage.zip");
+	                manifestResourceStream?.CopyTo(new FileStream(filepath, FileMode.Create));
+	                Task.Run(() =>
                     {
 
                         while (true)
@@ -105,7 +105,7 @@ namespace TokenManager.Pipelines.Initialize
         /// Detects if a required sitecore item is missing.
         /// </summary>
         /// <returns></returns>
-        private bool RequiredSitecoreItemsMissing()
+        private static bool RequiredSitecoreItemsMissing()
         {
             return typeof (Constants)
                 .GetFields(BindingFlags.Static | BindingFlags.Public)
@@ -135,11 +135,10 @@ namespace TokenManager.Pipelines.Initialize
             }
             finally
             {
-                if (stream != null)
-                    stream.Close();
+	            stream?.Close();
             }
 
-            //file is not locked
+	        //file is not locked
             return false;
         }
 
@@ -148,23 +147,20 @@ namespace TokenManager.Pipelines.Initialize
         /// </summary>
         private void RegisterSitecoreTokens()
         {
-            Item tokenManagerItem = Database.GetDatabase("master").GetItem(Constants._tokenManagerGuid);
-            if (tokenManagerItem != null)
-            {
-
-                Stack<Item> curItems = new Stack<Item>();
-                curItems.Push(tokenManagerItem);
-                while (curItems.Any())
-                {
-                    Item cur = curItems.Pop();
-                    ITokenCollection<IToken> col = Tokens.GetCollectionFromItem(cur);
-                    if (col != null)
-                        Tokens.LoadTokenGroup(col);
-                    else
-                        foreach (Item child in cur.Children)
-                            curItems.Push(child);
-                }
-            }
+            Item tokenManagerItem = Tokens.GetDatabase().GetItem(Constants.TokenManagerGuid);
+	        if (tokenManagerItem == null) return;
+	        Stack<Item> curItems = new Stack<Item>();
+	        curItems.Push(tokenManagerItem);
+	        while (curItems.Any())
+	        {
+		        Item cur = curItems.Pop();
+		        ITokenCollection<IToken> col = Tokens.GetCollectionFromItem(cur);
+		        if (col != null)
+			        Tokens.LoadTokenCollection(col);
+		        else
+			        foreach (Item child in cur.Children)
+				        curItems.Push(child);
+	        }
         }
 
         /// <summary>

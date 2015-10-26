@@ -9,7 +9,7 @@ namespace TokenManager.Handlers.ContentTree
 {
     public class ContentTreeNode
     {
-        public string Icon;
+        public string Icon = "";
         public string DisplayName;
         public ID Id;
         public bool Open;
@@ -29,14 +29,18 @@ namespace TokenManager.Handlers.ContentTree
                 Nodes = item.Children.Select(c => new ContentTreeNode(c)).ToList();
         }
 
-        public void SetIcon(Item item)
-        {
-            Icon = null;
-            Icon = item[FieldIDs.Icon];
-            if (Icon.IsNullOrEmpty())
-            {
-                Icon = item.Template.Icon;
-            }
-        }
+	    public void SetIcon(Item item)
+	    {
+		    if (item != null)
+		    {
+
+			    Icon = null;
+			    Icon = item[FieldIDs.Icon];
+			    if (Icon.IsNullOrEmpty() && item.Template != null)
+			    {
+				    Icon = item.Template.Icon;
+			    }
+		    }
+	    }
     }
 }

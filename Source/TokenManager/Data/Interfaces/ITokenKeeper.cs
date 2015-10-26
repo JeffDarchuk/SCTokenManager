@@ -21,7 +21,7 @@ namespace TokenManager.Data.Interfaces
         /// Inserts a token collection into the keeper
         /// </summary>
         /// <param name="collection"></param>
-        void LoadTokenGroup(ITokenCollection<IToken> collection);
+        void LoadTokenCollection(ITokenCollection<IToken> collection);
 
         /// <summary>
         /// handles replacing the text from a render field pipeline
@@ -46,11 +46,11 @@ namespace TokenManager.Data.Interfaces
         IEnumerable<string> ParseTokenIdentifiers(Field field);
 
         /// <summary>
-        /// finds the locations of all the tokens in the field
+        /// finds the locations of all the tokens in the field, the first datetime is the modified time of the item
         /// </summary>
         /// <param name="field"></param>
         /// <returns>list of tuples that have two ints that correspond to the token index, and length of the token</returns>
-        List<Tuple<int, int>> ParseTokenLocations(Field field);
+		Tuple<DateTime, List<Tuple<int, int>>> ParseTokenLocations(Field field);
 
         /// <summary>
         /// given a token identifying text this returns the IToken object
@@ -107,14 +107,6 @@ namespace TokenManager.Data.Interfaces
         /// <param name="extraData">Extra data owned by the token</param>
         /// <returns></returns>
         string GetTokenValue(string category, string token, NameValueCollection extraData);
-
-        /// <summary>
-        /// returns the token value of the first 
-        /// </summary>
-        /// <param name="token">token name</param>
-        /// <param name="extraData">Extra data owned by the token</param>
-        /// <returns></returns>
-        string GetTokenValue(string token, NameValueCollection extraData);
 
         /// <summary>
         /// finds everywhere a specified token is used
@@ -208,7 +200,7 @@ namespace TokenManager.Data.Interfaces
         /// </summary>
         /// <param name="collectionLabel"></param>
         /// <returns>the collection removed</returns>
-        ITokenCollection<IToken> RemoveGroup(string collectionLabel);
+        ITokenCollection<IToken> RemoveCollection(string collectionLabel);
 
         /// <summary>
         /// clears the token location caches for the specific item and field

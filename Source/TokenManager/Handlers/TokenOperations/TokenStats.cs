@@ -31,7 +31,7 @@ namespace TokenManager.Handlers.TokenOperations
 		{
 			_category = category;
 			_token = token;
-			_database = Database.GetDatabase("master");
+			_database = TokenKeeper.CurrentKeeper.GetDatabase();
 			
 		}
 
@@ -49,7 +49,7 @@ namespace TokenManager.Handlers.TokenOperations
 		    {
 		        ret.TokenValue = TokenKeeper.CurrentKeeper.GetTokenValue(_category, _token, null);
 		    }
-		    catch (Exception e)
+		    catch (Exception)
 		    {
 		        ret.TokenValue = "[Couldn't get token value without context data]";
 		    }

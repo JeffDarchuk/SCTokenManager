@@ -9,7 +9,7 @@
     <div ng-if="field.Type==1" class="field-row {{field.class}}">
         <span class="field-label">{{field.Label}} </span>
         <div class="field-data">
-            <contenttree parent="'{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}'" selected="token.data[field.Name]" events="token.events" ng-click="token.fieldName=field.Name"></contenttree>
+            <contenttree parent="'{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}'" selected="token.data[field.Name]" events="token.events" ng-click="token.clicked(field.Name)"></contenttree>
         </div>
     </div>
     <div ng-if="field.Type==2" class="field-row {{field.class}}">

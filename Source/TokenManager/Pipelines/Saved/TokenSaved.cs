@@ -23,65 +23,53 @@ namespace TokenManager.Pipelines.Saved
 			var item = Event.ExtractParameter<Item>(e, 0);
 			var changes = Event.ExtractParameter<ItemChanges>(e, 1);
 
-            if (item != null && changes != null && !item.Paths.FullPath.StartsWith("/sitecore/templates"))
+			if (item == null || changes == null || item.Paths.FullPath.StartsWith("/sitecore/templates")) return;
+			// if it's a specific token that's changed
+			if (TemplateManager.GetTemplate(item).IsDerived(new ID(Constants.TokenTemplateBaseId)))
 			{
-				// if it's a specific token that's changed
-			    if (TemplateManager.GetTemplate(item).IsDerived(new ID(Constants._tokenTemplateBaseId)))
-			    {
-			        var parent = item.Parent;
-			        while (parent != null &&
-			               !TemplateManager.GetTemplate(parent).IsDerived(new ID(Constants._tokenGroupTemplateBaseId)))
-			        {
-			            parent = parent.Parent;
-			        }
-			        if (parent != null)
-			        {
-			            var collection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(parent.ID);
-			            IToken token = collection.GetTokens().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
-                        collection.ResetTokenCache();
-                        IToken newToken = collection.GetTokens().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
-			            if (token != null && newToken != null && newToken.Token != token.Token)
-			            {
-                            TokenRootPropertyChanger changer = new TokenRootPropertyChanger(collection.GetCollectionLabel(), token.Token);
-                            changer.Change(collection.GetCollectionLabel(), newToken.Token);
-			            }
-			        }
-			    }
-				// if it's a token collection that's changed
-				else if (TemplateManager.GetTemplate(item).IsDerived(new ID(Constants._tokenGroupTemplateBaseId)))
+				var parent = item.Parent;
+				while (parent != null &&
+				       !TemplateManager.GetTemplate(parent).IsDerived(new ID(Constants.TokenCollectionTemplateBaseId)))
 				{
-				    var collection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(item.ID);
-				    if (collection != null)
-				    {
-				        var newCollection = TokenKeeper.CurrentKeeper.GetCollectionFromItem(item);
-				        if (newCollection != null && collection.GetCollectionLabel() != newCollection.GetCollectionLabel())
-				        {
-				            foreach (var token in collection.GetTokens())
-				            {
-				                TokenRootPropertyChanger changer = new TokenRootPropertyChanger(collection.GetCollectionLabel(),
-				                    token.Token);
-				                changer.Change(newCollection.GetCollectionLabel(), token.Token);
-				            }
-				        }
-                        TokenKeeper.CurrentKeeper.RemoveGroup(collection.GetCollectionLabel());
-                        TokenKeeper.CurrentKeeper.LoadTokenGroup(newCollection);
-				    }
-				    else
-				    {
-                        var newCollection = TokenKeeper.CurrentKeeper.GetCollectionFromItem(item);
-                        TokenKeeper.CurrentKeeper.LoadTokenGroup(newCollection);
-				    }
+					parent = parent.Parent;
 				}
-                else
-                {
-                    foreach (FieldChange change in changes.FieldChanges)
-                    {
-                        if (item.Fields[change.FieldID].Type.ToLower() == "rich text")
-                        {
-                            TokenKeeper.CurrentKeeper.ResetTokenLocations(item.ID, change.FieldID, item.Language, item.Version.Number);
-                        }
-                    }
-                }
+				if (parent == null) return;
+				var collection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(parent.ID);
+				IToken token = collection.GetTokens().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
+				collection.ResetTokenCache();
+				IToken newToken = collection.GetTokens().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
+				if (token == null || newToken == null || newToken.Token == token.Token) return;
+				TokenRootPropertyChanger changer = new TokenRootPropertyChanger(collection.GetCollectionLabel(), token.Token);
+				changer.Change(collection.GetCollectionLabel(), newToken.Token);
+			}
+			// if it's a token collection that's changed
+			else if (TemplateManager.GetTemplate(item).IsDerived(new ID(Constants.TokenCollectionTemplateBaseId)))
+			{
+				var collection = TokenKeeper.CurrentKeeper.GetTokenCollections().FirstOrDefault(x=>x.GetBackingItemId()==item.ID);
+				if (collection != null)
+				{
+					var newCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(item.ID);
+					if (newCollection == null || collection.GetCollectionLabel() == newCollection.GetCollectionLabel()) return;
+					foreach (var token in collection.GetTokens())
+					{
+						TokenRootPropertyChanger changer = new TokenRootPropertyChanger(collection.GetCollectionLabel(),
+							token.Token);
+						changer.Change(newCollection.GetCollectionLabel(), token.Token);
+					}
+				}
+				else
+					TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(item.ID);
+
+			}
+			else
+			{
+				foreach (FieldChange change in changes.FieldChanges)
+				{
+					if (item.Fields[change.FieldID].Type.ToLower() == "rich text")
+					{
+						TokenKeeper.CurrentKeeper.ResetTokenLocations(item.ID, change.FieldID, item.Language, item.Version.Number);
+					}
+				}
 			}
 		}
 	}

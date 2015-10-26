@@ -77,9 +77,12 @@ namespace TokenManager.Handlers
 		        {
 		            file = "";
 		        }
-		        if (context.Request.Cookies["ASP.NET_SessionId"] == null)
-		            context.Response.Redirect("/sitecore/login");
-		        if (string.IsNullOrWhiteSpace(file))
+			    if (context.Request.Cookies["ASP.NET_SessionId"] == null)
+			    {
+				    context.Response.Redirect("/sitecore/login");
+				    return;
+			    }
+			    if (string.IsNullOrWhiteSpace(file))
 		        {
 		            _userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value] =
 		                context.Request.QueryString["token"];
@@ -90,7 +93,7 @@ namespace TokenManager.Handlers
 		        else if (file.EndsWith(".html"))
 		            ReturnResource(context, file, "text/html");
 		        else if (file == "contenteditor.css")
-		            ReturnResponse(context, string.Format(".token-manager-token{{{0}}}", TokenKeeper.CurrentKeeper.TokenCss),
+		            ReturnResponse(context, $".token-manager-token{{{TokenKeeper.CurrentKeeper.TokenCss}}}",
 		                "text/css");
 		        else if (file.EndsWith(".css"))
 		            ReturnResource(context, file, "text/css");
@@ -137,7 +140,7 @@ namespace TokenManager.Handlers
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        private bool GetContentSelectedRelated(HttpContextBase context)
+        private static bool GetContentSelectedRelated(HttpContextBase context)
 	    {
             var data = GetPostData(context);
             var db = TokenKeeper.CurrentKeeper.GetDatabase();
@@ -173,7 +176,7 @@ namespace TokenManager.Handlers
         /// <param name="name"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-	    private object GetExtraDataConcrete(IEnumerable<ITokenData> data , string name, string value)
+	    private static object GetExtraDataConcrete(IEnumerable<ITokenData> data , string name, string value)
 	    {
 
 	        var currentData = data.FirstOrDefault(d => d.Name == name);
@@ -206,7 +209,7 @@ namespace TokenManager.Handlers
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-	    private object GetContentTree(HttpContextBase context)
+	    private static object GetContentTree(HttpContextBase context)
         {
             var data = GetPostData(context);
             return new ContentTreeNode(Factory.GetDatabase(data.database).GetItem(new ID(data.id)));
@@ -217,7 +220,7 @@ namespace TokenManager.Handlers
 		/// </summary>
 		/// <param name="context"></param>
 		/// <returns></returns>
-		private object GetTokenStats(HttpContextBase context)
+		private static object GetTokenStats(HttpContextBase context)
 		{
 			var data = GetPostData(context);
 			var tokenStats = new TokenStats(data.category, data.token);
@@ -229,7 +232,7 @@ namespace TokenManager.Handlers
 		/// </summary>
 		/// <param name="context"></param>
 		/// <returns></returns>
-		private object UnzipToken(HttpContextBase context)
+		private static object UnzipToken(HttpContextBase context)
 		{
 			var data = GetPostData(context);
             var unzipper = new TokenUnzipper(data.root, data.category, data.token, data.replaceWithValue);
@@ -241,7 +244,7 @@ namespace TokenManager.Handlers
 		/// </summary>
 		/// <param name="context"></param>
 		/// <returns></returns>
-		private object IsSitecoreCollection(HttpContextBase context)
+		private static object IsSitecoreCollection(HttpContextBase context)
 		{
 			var data = GetPostData(context);
 			return
@@ -253,7 +256,7 @@ namespace TokenManager.Handlers
 		/// </summary>
 		/// <param name="context"></param>
 		/// <returns></returns>
-		private object GetSitecoreTokenCollectionNames(HttpContextBase context)
+		private static object GetSitecoreTokenCollectionNames(HttpContextBase context)
 		{
 			var data = GetPostData(context);
 			string database = data.database;
@@ -264,7 +267,7 @@ namespace TokenManager.Handlers
 		/// get all database names
 		/// </summary>
 		/// <returns></returns>
-		private object GetDatabases()
+		private static object GetDatabases()
 		{
 			return Factory.GetDatabases().Select(d => d.Name).ToArray();
 		}
@@ -274,7 +277,7 @@ namespace TokenManager.Handlers
 		/// </summary>
 		/// <param name="context"></param>
 		/// <returns></returns>
-		private object IncorporateToken(HttpContextBase context)
+		private static object IncorporateToken(HttpContextBase context)
 		{
 			var data = GetPostData(context);
 			var incorporator = new TokenIncorporator(data.root, data.category, data.tokenName, data.tokenValue);
@@ -342,7 +345,7 @@ namespace TokenManager.Handlers
 		/// <returns></returns>
 		private static object GetTokenCategories()
 		{
-            var db = Context.ContentDatabase ?? Context.Database ?? Database.GetDatabase("master");
+			var db = TokenKeeper.CurrentKeeper.GetDatabase();
             var item = Context.Item;
             if (item == null)
             {

@@ -9,7 +9,7 @@ namespace TokenManager.Collections
 {
     public class SharedLinkTokenCollection : SitecoreTokenCollection<IToken>
     {
-        public SharedLinkTokenCollection(Item tokenGroup, ID tokenTemplateID) : base(tokenGroup, tokenTemplateID)
+        public SharedLinkTokenCollection(Item tokenCollection, ID tokenTemplateID) : base(tokenCollection, tokenTemplateID)
         {
         }
 

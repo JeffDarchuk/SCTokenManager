@@ -12,13 +12,25 @@ namespace TokenManager
 	/// </summary>
 	public static class TemplateExtensions
 	{
+		/// <summary>
+		/// returns true if the template object is derived from the template id given
+		/// </summary>
+		/// <param name="template"></param>
+		/// <param name="templateId"></param>
+		/// <returns></returns>
 		public static bool IsDerived(this Template template, ID templateId)
 		{
 		    if (template == null) return false;
 			return template.ID == templateId || template.GetBaseTemplates().Any(baseTemplate => IsDerived(baseTemplate, templateId));
 		}
 
-	    public static bool IsDerived( this TemplateItem template,  ID templateId)
+		/// <summary>
+		/// returns true if the template object is derived from the template id given
+		/// </summary>
+		/// <param name="template"></param>
+		/// <param name="templateId"></param>
+		/// <returns></returns>
+		public static bool IsDerived( this TemplateItem template,  ID templateId)
 	    {
             if (template == null) return false;
             return template.ID == templateId || template.BaseTemplates.Any(baseTemplate => IsDerived(baseTemplate, templateId));

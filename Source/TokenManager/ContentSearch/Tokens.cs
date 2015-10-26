@@ -28,7 +28,7 @@ namespace TokenManager.ContentSearch
 		/// <returns></returns>
 		public List<string> GetTokens(Item item)
 		{
-            if (!item.IsTokenManagerItem())
+            if (item != null && !item.IsTokenManagerItem())
 			    return item.Fields.Where(f => f.Type == "Rich Text").SelectMany(GetAllTokenUniqueIds).ToList();
 		    return null;
 		}
