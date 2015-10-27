@@ -3,6 +3,10 @@ Token Manager for Sitecore
 
 
 Generic rich text token management system.  Easilly inject dynamic content into rich text fields, that is fully tracked, managed, and analyzed.
+
+# Documentation
+[here](https://jeffdarchuk.wordpress.com/2015/10/26/sitecore-tokenmanager/) is the official documentation
+
 # How to install
 Nuget - PM> Install-Package TokenManager
 
