@@ -313,18 +313,19 @@ namespace TokenManager.Management
 				return Context.ContentDatabase;
 			if (Context.Database != null)
 				return Context.Database;
-			var master = Factory.GetDatabases().FirstOrDefault(x => x.HasContentItem && x.Name=="master");
+			var master = Factory.GetDatabase("master", false);
 			if (master != null)
 				return master;
-			if (HttpContext.Current == null)
-				return Context.Site != null ? Context.Site.Database : Factory.GetDatabases().FirstOrDefault(x => x.HasContentItem);
-			var url = HttpContext.Current.Request.Url;
-			var siteContext = Sitecore.Sites.SiteContextFactory.GetSiteContext(url.Host, url.PathAndQuery);
-			if (siteContext != null)
+			if (HttpContext.Current == null && Context.Site != null && Context.Site.Database != null)
+				return Context.Site.Database;
+			if (HttpContext.Current != null)
 			{
-				return siteContext.Database;
+				var url = HttpContext.Current.Request.Url;
+				var siteContext = Sitecore.Sites.SiteContextFactory.GetSiteContext(url.Host, url.PathAndQuery);
+				if (siteContext != null && siteContext.Database != null)
+					return siteContext.Database;
 			}
-			return Context.Site != null ? Context.Site.Database : Factory.GetDatabases().FirstOrDefault(x=>x.HasContentItem);
+			return Factory.GetDatabases().FirstOrDefault(x=>x.HasContentItem);
 		}
 
 		/// <summary>
