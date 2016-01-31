@@ -24,7 +24,7 @@
                     events.click(vm.data);
                 }
             });
-            if (selectedId.length > 0)
+            if (typeof(selectedId) !== "undefined" && selectedId.length > 0)
                 tokenfactory.contentTreeSelectedRelated(nodeId, selectedId).then(function (response) {
                     if (response.data)
                         vm.Open = true;

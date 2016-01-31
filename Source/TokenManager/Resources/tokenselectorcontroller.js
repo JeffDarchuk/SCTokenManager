@@ -47,7 +47,7 @@
 				tokenfactory.tokenIdentifier(category, token).then(function(response) {
 				    if (response.data.Fields === null || response.data.Fields.length === 0) {
 				        window.parent.scTokenSelectorCallback(null, response.data.TokenIdentifier);
-				        window.close();
+				        scCloseRadWindow();
 				    } else {
 				        vm.fields = response.data.Fields;
 				    }
@@ -71,8 +71,8 @@
             if (valid)
                 tokenfactory.tokenIdentifier(vm.category, vm.token, vm.data).then(function(response) {
                     window.parent.scTokenSelectorCallback(null, response.data.TokenIdentifier);
-                    window.close();
-                });
+		            scCloseRadWindow();
+	            });
 		}
 		if(typeof (window.parent.scTokenSelectorCallback) !== "undefined")
             tokenfactory.getSelectedToken().then(function (response) {

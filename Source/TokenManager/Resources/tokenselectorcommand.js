@@ -1,6 +1,6 @@
 ﻿var scEditor = null;
 var scTool = null;
-
+var range = null;
 //Set the Id of your button into the RadEditorCommandList[]
 if (typeof RadEditorCommandList == "undefined")
 	RadEditorCommandList = Telerik.Web.UI.Editor.CommandList;
@@ -30,7 +30,8 @@ function scTokenSelectorCallback(sender, returnValue) {
 	if (!returnValue || returnValue.text == "") {
 		return;
 	}
-	if (scEditor.getSelectedElement().className === "token-manager-token") {
+	scEditor.getSelection().selectRange(range);
+	if (scEditor.getSelectedElement() != null && scEditor.getSelectedElement().className === "token-manager-token") {
 		scEditor.getSelectedElement().outerHTML = returnValue;
 	} else {
 		scEditor.pasteHtml(returnValue, "DocumentManager");
@@ -38,6 +39,7 @@ function scTokenSelectorCallback(sender, returnValue) {
 }
 
 function getToken(editor) {
+	range = editor.getSelection().GetRange();
 	if (editor.getSelectedElement().className === "token-manager-token") {
 		return editor.getSelectedElement().outerHTML;
 	}
