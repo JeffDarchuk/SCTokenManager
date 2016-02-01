@@ -24,7 +24,8 @@ namespace TokenManager.Management
 	class DefaultTokenKeeperService : ITokenKeeperService
 	{
 		public string TokenPrefix => "<a class=\"token-manager-token\" href=\"/TokenManager?";
-		public string TokenSuffix => "</a>";
+		public string IeTokenPrefix => "<a href=\"/TokenManager?"; // because the telerik editor in IE pastes differently for some reason
+        public string TokenSuffix => "</a>";
 		public string TokenCss { get; set; }
 		private static readonly ConcurrentDictionary<string, ITokenCollection<IToken>> TokenCollections = new ConcurrentDictionary<string, ITokenCollection<IToken>>();
 		private static readonly ConcurrentDictionary<string, DateTime> TokenCacheUpdateTimes = new ConcurrentDictionary<string, DateTime>(); 
@@ -70,7 +71,7 @@ namespace TokenManager.Management
 					return ReplaceRTETokens(args, text);
 				}
 				string token = sb.ToString(location.Item1, location.Item2);
-				if (token.StartsWith(TokenPrefix) && token.EndsWith(TokenSuffix))
+				if ((token.StartsWith(TokenPrefix) || token.StartsWith(IeTokenPrefix)) && token.EndsWith(TokenSuffix))
 					sb.Replace(token, ParseTokenValueFromTokenIdentifier(token, args.Item), location.Item1, location.Item2);
 				else
 				{
@@ -95,7 +96,7 @@ namespace TokenManager.Management
 			if (locations == null) return ret;
 			foreach (var tokenProps in locations.Item2.Select(location => sb.ToString(location.Item1, location.Item2)))
 			{
-				if (!tokenProps.StartsWith(TokenPrefix) || !tokenProps.EndsWith(TokenSuffix))
+				if ((!tokenProps.StartsWith(TokenPrefix) && !tokenProps.StartsWith(IeTokenPrefix)) || !tokenProps.EndsWith(TokenSuffix))
 				{
 					ResetTokenLocations(field.Item.ID, field.ID, field.Language, field.Item.Version.Number);
 					return ParseTokenIdentifiers(field);
@@ -282,12 +283,10 @@ namespace TokenManager.Management
 		{
 			if (string.IsNullOrWhiteSpace(tokenIdentifier))
 				return new NameValueCollection();
-			if (!tokenIdentifier.StartsWith(TokenPrefix) || !tokenIdentifier.EndsWith(TokenSuffix))
-				return HttpUtility.ParseQueryString(tokenIdentifier);
-			int end = tokenIdentifier.IndexOf('"', TokenPrefix.Length);
-			tokenIdentifier = HttpUtility.HtmlDecode(tokenIdentifier.Substring(TokenPrefix.Length,
-				end - TokenPrefix.Length));
-			return HttpUtility.ParseQueryString(tokenIdentifier);
+			var qsRoot = "href=\"/TokenManager";
+            int start = tokenIdentifier.IndexOf(qsRoot, StringComparison.Ordinal)+qsRoot.Length;
+			int end = tokenIdentifier.IndexOf('"', start);
+			return HttpUtility.ParseQueryString(HttpUtility.HtmlDecode(tokenIdentifier.Substring(start, end - start)));
 		}
 
 		public virtual bool IsInToken(Field field, int startIndex, int length)
@@ -343,6 +342,8 @@ namespace TokenManager.Management
 				return false;
 			List<Tuple<int, int>> locations = new List<Tuple<int, int>>();
 			int startIndex = text.IndexOf(TokenPrefix, StringComparison.Ordinal);
+			int ieIndex = text.IndexOf(IeTokenPrefix, StringComparison.Ordinal);
+			startIndex = startIndex == -1 || (ieIndex < startIndex && ieIndex != -1) ? ieIndex : startIndex;
 			while (startIndex > -1)
 			{
 				var endIndex = text.IndexOf(TokenSuffix, startIndex, StringComparison.Ordinal);
@@ -352,6 +353,8 @@ namespace TokenManager.Management
 					break;
 				locations.Insert(0, new Tuple<int, int>(startIndex, endIndex - startIndex));
 				startIndex = text.IndexOf(TokenPrefix, endIndex, StringComparison.Ordinal);
+				ieIndex = text.IndexOf(IeTokenPrefix, endIndex, StringComparison.Ordinal);
+				startIndex = startIndex == -1 || (ieIndex < startIndex && ieIndex != -1) ? ieIndex : startIndex;
 			}
 			var ret = new Tuple<DateTime, List<Tuple<int, int>>>(item.Statistics.Updated, locations);
 			TokenLocations.AddOrUpdate(item.ID + fieldId.ToString() + language.Name + version, ret, (key, value) => ret);
