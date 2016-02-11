@@ -23,14 +23,14 @@ namespace TokenManager.Pipelines.Deleting
 		{
 			var item = Event.ExtractParameter<Item>(e, 0);
 			if (item == null) return;
-            if (item.Template.IsDerived(new ID(Constants.TokenTemplateBaseId)))
+			if (item.Template.IsDerived(new ID(Constants.TokenTemplateBaseId)))
 			{
-                var parent = item.Parent;
-			    while (parent != null &&
-			            !TemplateManager.GetTemplate(parent).IsDerived(new ID(Constants.TokenCollectionTemplateBaseId)))
-			    {
-			        parent = parent.Parent;
-			    }
+				var parent = item.Parent;
+				while (parent != null &&
+						!TemplateManager.GetTemplate(parent).IsDerived(new ID(Constants.TokenCollectionTemplateBaseId)))
+				{
+					parent = parent.Parent;
+				}
 				if (parent == null) return;
 				var collection =
 					TokenKeeper.CurrentKeeper.GetTokenCollections().FirstOrDefault(x => x.GetBackingItemId() == parent.ID);
@@ -48,19 +48,19 @@ namespace TokenManager.Pipelines.Deleting
 					collection.ResetTokenCache();
 				}
 			}
-            else if (item.Template.IsDerived(new ID(Constants.TokenCollectionTemplateBaseId)))
-            {
-	            var sitecoreTokenCollection =
-		            TokenKeeper.CurrentKeeper.GetTokenCollections().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
-	            if (sitecoreTokenCollection == null) return;
-	            var tokens = sitecoreTokenCollection.GetTokens().ToList();
-	            foreach (var token in tokens)
-	            {
-		            TokenUnzipper unzipper = new TokenUnzipper("{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}",sitecoreTokenCollection.GetCollectionLabel(), token.Token, true);
-		            unzipper.Unzip();
-	            }
-	            TokenKeeper.CurrentKeeper.RemoveCollection(sitecoreTokenCollection.GetCollectionLabel());
-            }
+			else if (item.Template.IsDerived(new ID(Constants.TokenCollectionTemplateBaseId)))
+			{
+				var sitecoreTokenCollection =
+					TokenKeeper.CurrentKeeper.GetTokenCollections().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
+				if (sitecoreTokenCollection == null) return;
+				var tokens = sitecoreTokenCollection.GetTokens().ToList();
+				foreach (var token in tokens)
+				{
+					TokenUnzipper unzipper = new TokenUnzipper("{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}", sitecoreTokenCollection.GetCollectionLabel(), token.Token, true);
+					unzipper.Unzip();
+				}
+				TokenKeeper.CurrentKeeper.RemoveCollection(sitecoreTokenCollection.GetCollectionLabel());
+			}
 		}
 	}
 }

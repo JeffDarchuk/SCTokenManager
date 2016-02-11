@@ -7,8 +7,8 @@ namespace TokenManager.Data.Interfaces
 	public interface IToken
 	{
 		string Token { get; }
-	    string Value(NameValueCollection extraData);
-	    IEnumerable<ITokenData> ExtraData();
-        ID GetBackingItemId();
+		string Value(NameValueCollection extraData);
+		IEnumerable<ITokenData> ExtraData();
+		ID GetBackingItemId();
 	}
 }

@@ -9,44 +9,34 @@ using TokenManager.Rules;
 
 namespace TokenManager.Data.Tokens
 {
-    class RuleToken : IToken
-    {
-		private ID _backingItem;
+	class RuleToken : SitecoreBasedToken
+	{
 
-		public string Token { get; set; }
-
-		public RuleToken(string token, ID scId)
+		public RuleToken(string name, ID backingId) : base(name, backingId)
 		{
-			_backingItem = scId;
-			Token = token;
+		}
+		public override string Value(NameValueCollection extraData)
+		{
+			Database db = TokenKeeper.CurrentKeeper.GetDatabase();
+			Item item = db.GetItem(BackingId);
+			if (item != null)
+			{
+				TokenRuleContext context = new TokenRuleContext();
+				item.RunRules("Value", context);
+				return context.Value;
+			}
+			return string.Empty;
 		}
 
-        public string Value(NameValueCollection extraData)
-        {
-	        Database db = TokenKeeper.CurrentKeeper.GetDatabase();
-            Item item = db.GetItem(_backingItem);
-            if (item != null)
-            {
-                TokenRuleContext context = new TokenRuleContext();
-                item.RunRules("Value", context);
-                return context.Value;
-            }
-            return string.Empty;
-        }
+		public override IEnumerable<ITokenData> ExtraData()
+		{
+			return null;
+		}
 
-        public IEnumerable<ITokenData> ExtraData()
-        {
-            return null;
-        }
+		public IToken LoadExtraData(NameValueCollection props)
+		{
+			return this;
+		}
 
-        public ID GetBackingItemId()
-	    {
-		    return _backingItem;
-	    }
-
-        public IToken LoadExtraData(NameValueCollection props)
-        {
-            return this;
-        }
-    }
+	}
 }

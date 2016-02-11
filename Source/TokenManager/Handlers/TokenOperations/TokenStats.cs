@@ -32,7 +32,7 @@ namespace TokenManager.Handlers.TokenOperations
 			_category = category;
 			_token = token;
 			_database = TokenKeeper.CurrentKeeper.GetDatabase();
-			
+
 		}
 
 		/// <summary>
@@ -45,19 +45,19 @@ namespace TokenManager.Handlers.TokenOperations
 			ret.Uses = 0;
 			ret.TokenCategory = _category;
 			ret.Token = _token;
-		    try
-		    {
-		        ret.TokenValue = TokenKeeper.CurrentKeeper.GetTokenValue(_category, _token, null);
-		    }
-		    catch (Exception)
-		    {
-		        ret.TokenValue = "[Couldn't get token value without context data]";
-		    }
-		    ret.ByItem = new Dictionary<string, ExpandoObject>();
+			try
+			{
+				ret.TokenValue = TokenKeeper.CurrentKeeper.GetTokenValue(_category, _token, null);
+			}
+			catch (Exception)
+			{
+				ret.TokenValue = "[Couldn't get token value without context data]";
+			}
+			ret.ByItem = new Dictionary<string, ExpandoObject>();
 			ret.TokenCollectionItemId = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(_category).GetBackingItemId();
 			ret.TokenItemId = TokenKeeper.CurrentKeeper.GetToken(_category, _token).GetBackingItemId();
 			CrunchStats(ret);
-		    ret.ByItem = ret.ByItem.Values;
+			ret.ByItem = ret.ByItem.Values;
 			return ret;
 		}
 
@@ -67,10 +67,10 @@ namespace TokenManager.Handlers.TokenOperations
 		/// <param name="ret"></param>
 		public void CrunchStats(dynamic ret)
 		{
-			foreach (ContentSearchTokens current in TokenKeeper.CurrentKeeper.GetTokenOccurances(_category,_token))
+			foreach (ContentSearchTokens current in TokenKeeper.CurrentKeeper.GetTokenOccurances(_category, _token))
 			{
-                Item item = _database.GetItem(ID.Parse(current.Id), !string.IsNullOrWhiteSpace(current.Language) && LanguageManager.IsValidLanguageName(current.Language) ? LanguageManager.GetLanguage(current.Language) : LanguageManager.DefaultLanguage);
-                foreach (var field in item.Fields.Where(f => f.Type == "Rich Text"))
+				Item item = _database.GetItem(ID.Parse(current.Id), !string.IsNullOrWhiteSpace(current.Language) && LanguageManager.IsValidLanguageName(current.Language) ? LanguageManager.GetLanguage(current.Language) : LanguageManager.DefaultLanguage);
+				foreach (var field in item.Fields.Where(f => f.Type == "Rich Text"))
 					ProcessThisToken(field, ret);
 			}
 		}
@@ -83,13 +83,13 @@ namespace TokenManager.Handlers.TokenOperations
 		/// <param name="ret"></param>
 		private void ProcessThisToken(Field f, dynamic ret)
 		{
-		    var tokenCount =
-		        TokenKeeper.CurrentKeeper.ParseTokenIdentifiers(f)
-		            .Select(TokenKeeper.CurrentKeeper.TokenProperties)
-		            .Count(p => p["Category"] == _category && p["Token"] == _token);
+			var tokenCount =
+				TokenKeeper.CurrentKeeper.ParseTokenIdentifiers(f)
+					.Select(TokenKeeper.CurrentKeeper.TokenProperties)
+					.Count(p => p["Category"] == _category && p["Token"] == _token);
 			if (tokenCount == 0) return;
-			ret.Uses+= tokenCount;
-			if (!ret.ByItem.ContainsKey(f.Item.ID+f.Language.Name))
+			ret.Uses += tokenCount;
+			if (!ret.ByItem.ContainsKey(f.Item.ID + f.Language.Name))
 			{
 				dynamic cur = new ExpandoObject();
 				cur.Count = 0;
@@ -97,12 +97,12 @@ namespace TokenManager.Handlers.TokenOperations
 				cur.Path = f.Item.Paths.FullPath;
 				cur.ID = f.Item.ID;
 				cur.FieldName = f.Name;
-			    cur.Language = f.Language.Name;
-                ret.ByItem[f.Item.ID + f.Language.Name] = cur;
+				cur.Language = f.Language.Name;
+				ret.ByItem[f.Item.ID + f.Language.Name] = cur;
 			}
 
-            ret.ByItem[f.Item.ID + f.Language.Name].Count += tokenCount;
-			
+			ret.ByItem[f.Item.ID + f.Language.Name].Count += tokenCount;
+
 		}
 	}
 }

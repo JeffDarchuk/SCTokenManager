@@ -12,47 +12,38 @@ using TokenManager.Management;
 
 namespace TokenManager.Data.Tokens
 {
-    public class RenderingToken : IToken
-    {
-        private string _token;
-        private ID _backingId;
+	public class RenderingToken : SitecoreBasedToken
+	{
 
-        public RenderingToken(string token, ID backingId)
-        {
-            _token = token;
-            _backingId = backingId;
-        }
-        public string Token { get { return _token; } }
+		public RenderingToken(string name, ID backingId) : base(name, backingId)
+		{
+		}
+		public override IEnumerable<ITokenData> ExtraData()
+		{
+			yield return new BasicTokenData("Datasource", "Datasource for the rendering", "", true, TokenDataType.Id);
+		}
 
-        public IEnumerable<ITokenData> ExtraData()
-        {
-            yield return new BasicTokenData("Datasource", "Datasource for the rendering", "", true,TokenDataType.Id);
-        }
+		public override string Value(NameValueCollection extraData)
+		{
+			InternalLinkField renderingItem = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(BackingId).Fields["Rendering"];
+			TextWriter tw = new StringWriter();
+			var h = new HtmlHelper(new ViewContext(new ControllerContext(), new FakeView(), new ViewDataDictionary(), new TempDataDictionary(), tw), new ViewPage());
+			StringBuilder sb = new StringBuilder();
+			if (!string.IsNullOrWhiteSpace(extraData["Datasource"]))
+				sb.Append(new SitecoreHelper(h).Rendering(renderingItem.TargetID.ToString(),
+					new { Datasource = extraData["Datasource"] }));
+			return sb.ToString();
+		}
 
-        public ID GetBackingItemId()
-        {
-            return _backingId;
-        }
+		public class FakeView : IView
+		{
+			public void Render(ViewContext viewContext, TextWriter writer)
+			{
+				throw new InvalidOperationException();
+			}
+		}
 
-        public string Value(NameValueCollection extraData)
-        {
-            InternalLinkField renderingItem = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(_backingId).Fields["Rendering"];
-            TextWriter tw = new StringWriter();
-            var h = new HtmlHelper(new ViewContext(new ControllerContext(), new FakeView(), new ViewDataDictionary(), new TempDataDictionary(), tw), new ViewPage());
-            StringBuilder sb = new StringBuilder();
-            if (!string.IsNullOrWhiteSpace(extraData["Datasource"]))
-                sb.Append(new SitecoreHelper(h).Rendering(renderingItem.TargetID.ToString(),
-                    new { Datasource = extraData["Datasource"] }));
-            return sb.ToString();
-        }
 
-        public class FakeView : IView
-        {
-            public void Render(ViewContext viewContext, TextWriter writer)
-            {
-                throw new InvalidOperationException();
-            }
-        }
-    }
+	}
 
 }

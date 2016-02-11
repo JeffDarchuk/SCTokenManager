@@ -65,9 +65,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collections\RenderingTokenCollection.cs" />
-    <Compile Include="Collections\SharedLinkTokenCollection.cs" />
-    <Compile Include="Collections\RulesTokenCollection.cs" />
     <Compile Include="Collections\SimpleSitecoreTokenCollection.cs" />
     <Compile Include="Collections\SitecoreTokenCollection.cs" />
     <Compile Include="Collections\TokenCollection.cs" />
@@ -76,6 +73,7 @@
     <Compile Include="ContentSearch\Tokens.cs" />
     <Compile Include="Data\BasicTokenData.cs" />
     <Compile Include="Data\Interfaces\ITokenData.cs" />
+    <Compile Include="Data\Interfaces\ITokenIdentifier.cs" />
     <Compile Include="Data\Interfaces\ITokenKeeper.cs" />
     <Compile Include="Data\Tokens\BasicToken.cs" />
     <Compile Include="Data\Tokens\DynamicToken.cs" />
@@ -83,6 +81,7 @@
     <Compile Include="Data\Interfaces\ITokenCollection.cs" />
     <Compile Include="Data\Tokens\RenderingToken.cs" />
     <Compile Include="Data\Tokens\RuleToken.cs" />
+    <Compile Include="Data\Tokens\SitecoreBasedToken.cs" />
     <Compile Include="Data\Tokens\SitecoreToken.cs" />
     <Compile Include="Data\Tokens\SharedLinkToken.cs" />
     <Compile Include="Handlers\BaseHttpHandler.cs" />
@@ -93,13 +92,12 @@
     <Compile Include="Handlers\TokenOperations\TokenStats.cs" />
     <Compile Include="Handlers\TokenOperations\TokenUnzipper.cs" />
     <Compile Include="ItemExtensions.cs" />
+    <Compile Include="Management\DefaultTokenIdentifier.cs" />
     <Compile Include="Management\DefaultTokenKeeperService.cs" />
+    <Compile Include="Management\TokenIdentifier.cs" />
     <Compile Include="Pipelines\Deleting\TokenDeleting.cs" />
     <Compile Include="Pipelines\GetTokenCollectionTypeArgs.cs" />
-    <Compile Include="Pipelines\GetTokenCollection\GetRenderingTokenCollection.cs" />
-    <Compile Include="Pipelines\GetTokenCollection\GetSharedLinkCollection.cs" />
     <Compile Include="Pipelines\GetTokenCollection\GetDynamicCollection.cs" />
-    <Compile Include="Pipelines\GetTokenCollection\GetRuleTokenCollection.cs" />
     <Compile Include="Pipelines\GetTokenCollection\GetSitecoreCollection.cs" />
     <Compile Include="Pipelines\Initialize\InitializeTokenManager.cs" />
     <Compile Include="Pipelines\Moved\TokenMoved.cs" />
@@ -113,6 +111,7 @@
     <Compile Include="Rules\SetTokenValue.cs" />
     <Compile Include="Rules\TokenRuleContext.cs" />
     <Compile Include="TemplateExtensions.cs" />
+    <Compile Include="TokenException.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\app.js" />
@@ -172,11 +171,8 @@
     <None Include="Tokens.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
   <Target Name="AfterBuild">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="C:\inetpub\wwwroot\Debut\Source\Debut.Web\bin" />
+    <Copy SourceFiles="C:\Development\TokenManager\Source\TokenManager\Tokens.config" DestinationFolder="C:\inetpub\wwwroot\Debut\Source\Debut.Web\App_Config\Include" />
   </Target>
-  -->
 </Project>

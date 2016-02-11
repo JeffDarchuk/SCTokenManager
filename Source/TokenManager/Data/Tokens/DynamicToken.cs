@@ -16,31 +16,31 @@ namespace TokenManager.Data.Tokens
 		/// </summary>
 		/// <param name="token"></param>
 		/// <param name="valueFunc"></param>
- 		public DynamicToken(string token, Func<string> valueFunc)
+		public DynamicToken(string token, Func<string> valueFunc)
 		{
 			Token = token;
 			_valueFunc = valueFunc;
 		}
 		public string Token { get; set; }
 
-	    public string Value(NameValueCollection extraData)
-	    {
-            return _valueFunc();
-	    }
+		public string Value(NameValueCollection extraData)
+		{
+			return _valueFunc();
+		}
 
-	    public IEnumerable<ITokenData> ExtraData()
-	    {
-	        return null;
-	    }
-
-	    public ID GetBackingItemId()
+		public IEnumerable<ITokenData> ExtraData()
 		{
 			return null;
 		}
 
-	    public IToken LoadExtraData(NameValueCollection props)
-	    {
-	        return this;
-	    }
+		public ID GetBackingItemId()
+		{
+			return null;
+		}
+
+		public IToken LoadExtraData(NameValueCollection props)
+		{
+			return this;
+		}
 	}
 }

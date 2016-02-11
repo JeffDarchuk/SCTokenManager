@@ -10,8 +10,8 @@ namespace TokenManager.Collections
 	public class SimpleSitecoreTokenCollection : SitecoreTokenCollection<IToken>
 	{
 		private readonly ID _backingItemId;
-		public SimpleSitecoreTokenCollection(Item tokenCollection, ID tokenTemplateID)
-			: base(tokenCollection, tokenTemplateID)
+		public SimpleSitecoreTokenCollection(Item tokenCollection)
+			: base(tokenCollection)
 		{
 			_backingItemId = tokenCollection.ID;
 		}
@@ -22,11 +22,7 @@ namespace TokenManager.Collections
 		/// <returns></returns>
 		public override IToken InitiateToken(string token)
 		{
-            Database db = TokenKeeper.CurrentKeeper.GetDatabase();
-			Item tokenItem = db.GetItem(_backingItemId).Children.FirstOrDefault(i => i["Token"] == token);
-			if (tokenItem == null)
-				return null;
-			return new SitecoreToken(token, tokenItem.ID);
+			return TokenIdentifier.Current.ResolveToken<IToken>(this, token);
 		}
 	}
 }

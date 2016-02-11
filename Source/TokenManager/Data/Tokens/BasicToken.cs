@@ -12,26 +12,26 @@ namespace TokenManager.Data
 
 		public string Value { get; set; }
 
-	    string IToken.Value(NameValueCollection extraData)
-	    {
-	        return Value;
-	    }
+		string IToken.Value(NameValueCollection extraData)
+		{
+			return Value;
+		}
 
-	    public IEnumerable<ITokenData> ExtraData()
-	    {
-	        return null;
-	    }
-
-	    public ID GetBackingItemId()
+		public IEnumerable<ITokenData> ExtraData()
 		{
 			return null;
 		}
 
-	    public BasicToken(string token, string value)
+		public ID GetBackingItemId()
+		{
+			return null;
+		}
+
+		public BasicToken(string token, string value)
 		{
 			Value = value;
 			Token = token;
-		
+
 		}
 	}
 }

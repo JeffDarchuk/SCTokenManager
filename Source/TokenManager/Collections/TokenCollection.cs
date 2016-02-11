@@ -47,7 +47,7 @@ namespace TokenManager.Collections
 		/// constructs the token collection based on the backing item
 		/// </summary>
 		/// <param name="backingItem"></param>
-		public TokenCollection(Item backingItem)
+		protected TokenCollection(Item backingItem)
 		{
 			InitializeCollection(backingItem);
 		}
@@ -67,10 +67,20 @@ namespace TokenManager.Collections
 		/// </summary>
 		/// <param name="backingItem"></param>
 		/// <param name="tokensToLoad"></param>
-		public TokenCollection(Item backingItem, IEnumerable<T> tokensToLoad)
+		protected TokenCollection(Item backingItem, IEnumerable<T> tokensToLoad)
 			: this(backingItem)
 		{
 			InitializeCollection(backingItem);
+			foreach (var token in tokensToLoad)
+				_tokens.Add(token.Token, token);
+		}
+
+		protected TokenCollection()
+		{
+		}
+
+		protected TokenCollection(IEnumerable<T> tokensToLoad)
+		{
 			foreach (var token in tokensToLoad)
 				_tokens.Add(token.Token, token);
 		}
@@ -92,35 +102,45 @@ namespace TokenManager.Collections
 		/// <returns>token object</returns>
 		public virtual T GetToken(string token)
 		{
-			var item = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(_itemID);
-			if (item == null)
-				ResetTokenCache();
-			else if (item.Statistics.Updated > _itemUpdated)
+			if ((object)_itemID == null)
 			{
-				InitializeCollection(item);
-				ResetTokenCache();
+				if (_tokens.ContainsKey(token))
+					return _tokens[token];
+				return default(T);
 			}
-			if (_tokens.ContainsKey(token))
+			else if (_tokens.ContainsKey(token))
 			{
-				IToken t = _tokens[token];
-				if (t != null)
+				var item = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(_itemID);
+				if (item == null)
+					ResetTokenCache();
+				else if (item.Statistics.Updated > _itemUpdated)
 				{
-					if (t.GetBackingItemId() != (ID)null)
+					InitializeCollection(item);
+					ResetTokenCache();
+				}
+				if (_tokens.ContainsKey(token))
+				{
+					IToken t = _tokens[token];
+					if (t != null)
 					{
-						var tokenItem = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(t.GetBackingItemId());
-						if (tokenItem != null)
-							if (!CacheTime.ContainsKey(t.GetBackingItemId()) || tokenItem.Statistics.Updated > CacheTime[t.GetBackingItemId()])
-							{
-								_tokens[token] = InitiateToken(token);
-								CacheTime[t.GetBackingItemId()] = tokenItem.Statistics.Updated;
-								return _tokens[token];
-							}
-					}
-					else
-					{
-						return _tokens[token];
-					}
+						if (t.GetBackingItemId() != (ID)null)
+						{
+							var tokenItem = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(t.GetBackingItemId());
+							if (tokenItem != null)
+								if (!CacheTime.ContainsKey(t.GetBackingItemId()) ||
+									tokenItem.Statistics.Updated > CacheTime[t.GetBackingItemId()])
+								{
+									_tokens[token] = InitiateToken(token);
+									CacheTime[t.GetBackingItemId()] = tokenItem.Statistics.Updated;
+									return _tokens[token];
+								}
+						}
+						else
+						{
+							return _tokens[token];
+						}
 
+					}
 				}
 			}
 			_tokens[token] = InitiateToken(token);
@@ -183,20 +203,10 @@ namespace TokenManager.Collections
 			if (item == null || item.Database.Name != TokenKeeper.CurrentKeeper.GetDatabase().Name)
 				return true;
 			var collectionItem = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(_itemID);
-			if (collectionItem != null &&
-				collectionItem.Parent.TemplateID.ToString() == Constants.TokenCollectionFolderTemplateId)
-			{
-				var parent = collectionItem.Parent;
-				var tmp = parent.Database.GetItem(parent["Item Ancestor"]);
-				var parentFilterPath = "";
-				if (tmp != null)
-					parentFilterPath = tmp.Paths.Path;
-				var parentFilterTemplateId = parent["Item Template"];
-				if (!string.IsNullOrWhiteSpace(parentFilterPath) && !item.Paths.Path.StartsWith(parentFilterPath))
-					return false;
-				if (!string.IsNullOrWhiteSpace(parentFilterTemplateId) && item.TemplateID.ToString() != parentFilterTemplateId)
-					return false;
-			}
+
+			if (collectionItem != null && !IsAllowed(item, collectionItem))
+				return false;
+
 			if (string.IsNullOrWhiteSpace(_ancestorPath) && string.IsNullOrWhiteSpace(_templateId))
 				return true;
 			if ((string.IsNullOrWhiteSpace(_ancestorPath) || item.Paths.Path.StartsWith(_ancestorPath)) &&
@@ -204,6 +214,25 @@ namespace TokenManager.Collections
 				return true;
 
 			return false;
+		}
+
+		private static bool IsAllowed(Item tokenTarget, Item filterable)
+		{
+			while (filterable.Fields["Item Ancestor"] != null && filterable.Fields["Item Template"] != null)
+			{
+				var tmp = filterable.Database.GetItem(filterable["Item Ancestor"]);
+				var parentFilterPath = "";
+				if (tmp != null)
+					parentFilterPath = tmp.Paths.Path;
+				var parentFilterTemplateId = filterable["Item Template"];
+				if (!string.IsNullOrWhiteSpace(parentFilterPath) && !tokenTarget.Paths.Path.StartsWith(parentFilterPath))
+					return false;
+				if (!string.IsNullOrWhiteSpace(parentFilterTemplateId) &&
+					tokenTarget.TemplateID.ToString() != parentFilterTemplateId)
+					return false;
+				filterable = filterable.Parent;
+			}
+			return true;
 		}
 
 		/// <summary>

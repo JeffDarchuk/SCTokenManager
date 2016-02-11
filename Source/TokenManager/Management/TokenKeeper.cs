@@ -2,10 +2,10 @@
 
 namespace TokenManager.Management
 {
- 
 
-    public class TokenKeeper 
-    {
+
+	public class TokenKeeper
+	{
 		internal static ITokenKeeperService TokenSingleton;
 		public static ITokenKeeperService CurrentKeeper { get { return TokenSingleton; } }
 

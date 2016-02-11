@@ -15,25 +15,23 @@ namespace TokenManager.Collections
 	{
 		private readonly ID _backingItemId;
 		private readonly string _collectionLabel;
-	    private ID _tokenTemplateID;
 
 		/// <summary>
 		/// constructs the sitecore token collection based on the specific item
 		/// </summary>
 		/// <param name="tokenCollection"></param>
-		public SitecoreTokenCollection(Item tokenCollection, ID tokenTemplateID):base(tokenCollection)
+		public SitecoreTokenCollection(Item tokenCollection) : base(tokenCollection)
 		{
-		    _tokenTemplateID = tokenTemplateID;
 			_backingItemId = tokenCollection.ID;
 			_collectionLabel = tokenCollection["Category Label"];
 			var tmp = tokenCollection.Database.GetItem(tokenCollection["Item Ancestor"]);
 			if (string.IsNullOrWhiteSpace(_collectionLabel))
 				throw new ArgumentException("Category labels can not be empty", _backingItemId.ToString());
-            SitecoreIcon = tokenCollection[FieldIDs.Icon];
-            if (string.IsNullOrWhiteSpace(SitecoreIcon))
-            {
-                SitecoreIcon = tokenCollection.Template.Icon;
-            }
+			SitecoreIcon = tokenCollection[FieldIDs.Icon];
+			if (string.IsNullOrWhiteSpace(SitecoreIcon))
+			{
+				SitecoreIcon = tokenCollection.Template.Icon;
+			}
 		}
 
 		/// <summary>
@@ -59,10 +57,10 @@ namespace TokenManager.Collections
 		/// <returns>all tokens</returns>
 		public override IEnumerable<IToken> GetTokens()
 		{
-            Database db = TokenKeeper.CurrentKeeper.GetDatabase(); ;
+			Database db = TokenKeeper.CurrentKeeper.GetDatabase(); ;
 			var item = db.GetItem(_backingItemId);
-            if (item != null)
-				foreach (string key in item.Children.Where(c => c.TemplateID == _tokenTemplateID).Select(c => c["Token"]))
+			if (item != null)
+				foreach (string key in item.Children.Select(c => c["Token"]))
 				{
 					AddOrUpdateToken(InitiateToken(key));
 				}
@@ -76,7 +74,7 @@ namespace TokenManager.Collections
 		/// <returns>is the backing item available on the database</returns>
 		public bool IsAvailableOnDatabase(string database)
 		{
-            Database db = TokenKeeper.CurrentKeeper.GetDatabase(); ;
+			Database db = TokenKeeper.CurrentKeeper.GetDatabase(); ;
 			return db != null && db.GetItem(_backingItemId) != null;
 		}
 

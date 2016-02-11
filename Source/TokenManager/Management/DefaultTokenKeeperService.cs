@@ -15,6 +15,7 @@ using Sitecore.Data.Items;
 using Sitecore.Globalization;
 using Sitecore.Pipelines;
 using Sitecore.Pipelines.RenderField;
+using Sitecore.SecurityModel;
 using TokenManager.ContentSearch;
 using TokenManager.Data.Interfaces;
 using TokenManager.Pipelines;
@@ -25,10 +26,10 @@ namespace TokenManager.Management
 	{
 		public string TokenPrefix => "<a class=\"token-manager-token\" href=\"/TokenManager?";
 		public string IeTokenPrefix => "<a href=\"/TokenManager?"; // because the telerik editor in IE pastes differently for some reason
-        public string TokenSuffix => "</a>";
+		public string TokenSuffix => "</a>";
 		public string TokenCss { get; set; }
 		private static readonly ConcurrentDictionary<string, ITokenCollection<IToken>> TokenCollections = new ConcurrentDictionary<string, ITokenCollection<IToken>>();
-		private static readonly ConcurrentDictionary<string, DateTime> TokenCacheUpdateTimes = new ConcurrentDictionary<string, DateTime>(); 
+		private static readonly ConcurrentDictionary<string, DateTime> TokenCacheUpdateTimes = new ConcurrentDictionary<string, DateTime>();
 		private static readonly ConcurrentDictionary<string, Tuple<DateTime, List<Tuple<int, int>>>> TokenLocations = new ConcurrentDictionary<string, Tuple<DateTime, List<Tuple<int, int>>>>();
 
 		public DefaultTokenKeeperService()
@@ -53,7 +54,7 @@ namespace TokenManager.Management
 
 				TokenCacheUpdateTimes[collection.GetCollectionLabel()] =
 					GetDatabase().GetItem(collection.GetBackingItemId()).Statistics.Updated;
-                TokenCollections[collection.GetCollectionLabel()] = collection;
+				TokenCollections[collection.GetCollectionLabel()] = collection;
 			}
 		}
 
@@ -109,7 +110,7 @@ namespace TokenManager.Management
 		public virtual Tuple<DateTime, List<Tuple<int, int>>> ParseTokenLocations(Field field)
 		{
 			var text = field.Value;
-			return TrackTokens(field.Item, field.ID, field.Language, field.Item.Version.Number, text) ? TokenLocations[field.Item.ID.ToString() + field.ID + field.Language.Name + field.Item.Version.Number] : new Tuple<DateTime, List<Tuple<int, int>>>(DateTime.Now,new List<Tuple<int, int>>());
+			return TrackTokens(field.Item, field.ID, field.Language, field.Item.Version.Number, text) ? TokenLocations[field.Item.ID.ToString() + field.ID + field.Language.Name + field.Item.Version.Number] : new Tuple<DateTime, List<Tuple<int, int>>>(DateTime.Now, new List<Tuple<int, int>>());
 		}
 
 		public virtual IToken ParseITokenFromText(string token)
@@ -148,9 +149,9 @@ namespace TokenManager.Management
 			if (fields == null)
 				return string.Format("{0}{1}\" {5}>{2} > {3}{4}", TokenPrefix, ret, category, token, TokenSuffix,
 					$"style='{TokenCss}'");
-			foreach (string key in fields.Keys.Where(x=>x != "Category" && x != "Token"))
+			foreach (string key in fields.Keys.Where(x => x != "Category" && x != "Token"))
 				ret.Add(key, fields[key].ToString());
-			return string.Format("{0}{1}\" {5}>{2} > {3}{4}", TokenPrefix, ret, category, token, TokenSuffix,$"style='{TokenCss}'");
+			return string.Format("{0}{1}\" {5}>{2} > {3}{4}", TokenPrefix, ret, category, token, TokenSuffix, $"style='{TokenCss}'");
 		}
 
 		public virtual string GetTokenValue(string category, string token, NameValueCollection extraData)
@@ -196,12 +197,12 @@ namespace TokenManager.Management
 
 		public virtual IEnumerable<string> GetTokenCollectionNames()
 		{
-			return GetTokenCollections().Select(x=>x.GetCollectionLabel());
+			return GetTokenCollections().Select(x => x.GetCollectionLabel());
 		}
 
 		public virtual IEnumerable<ITokenCollection<IToken>> GetTokenCollections()
 		{
-			return TokenCollections.Values.Where(c => c.IsCurrentContextValid() ).OrderBy(x=>x.GetCollectionLabel());
+			return TokenCollections.Values.Where(c => c.IsCurrentContextValid()).OrderBy(x => x.GetCollectionLabel());
 		}
 
 		public virtual ITokenCollection<T> GetTokenCollection<T>(string collectionName)
@@ -228,13 +229,22 @@ namespace TokenManager.Management
 
 		public ITokenCollection<T> GetTokenCollection<T>(ID backingItemId) where T : IToken
 		{
-			var ret =  GetTokenCollections().FirstOrDefault(x => x.GetBackingItemId() == backingItemId) as ITokenCollection<T>;
+			var ret = GetTokenCollections().FirstOrDefault(x => x.GetBackingItemId() == backingItemId) as ITokenCollection<T>;
 			if (ret != null)
 				return GetTokenCollection<T>(ret.GetCollectionLabel());
 			var item = GetDatabase().GetItem(backingItemId);
 			if (item == null) return null;
 			var collection = GetCollectionFromItem(item);
 			if (collection == null) return null;
+			if (TokenCollections.ContainsKey(collection.GetCollectionLabel()))
+			{
+				using (new SecurityDisabler())
+				{
+					TokenKeeper.CurrentKeeper.GetDatabase().GetItem(backingItemId).Delete();
+				}
+				throw new TokenException(
+					"A token collection was created with a label that already exists in another token collection, please use a different name to create the token collection.");
+			}
 			LoadTokenCollection(collection);
 			return collection as ITokenCollection<T>;
 		}
@@ -284,7 +294,7 @@ namespace TokenManager.Management
 			if (string.IsNullOrWhiteSpace(tokenIdentifier))
 				return new NameValueCollection();
 			var qsRoot = "href=\"/TokenManager";
-            int start = tokenIdentifier.IndexOf(qsRoot, StringComparison.Ordinal)+qsRoot.Length;
+			int start = tokenIdentifier.IndexOf(qsRoot, StringComparison.Ordinal) + qsRoot.Length;
 			int end = tokenIdentifier.IndexOf('"', start);
 			return HttpUtility.ParseQueryString(HttpUtility.HtmlDecode(tokenIdentifier.Substring(start, end - start)));
 		}
@@ -324,7 +334,7 @@ namespace TokenManager.Management
 				if (siteContext != null && siteContext.Database != null)
 					return siteContext.Database;
 			}
-			return Factory.GetDatabases().FirstOrDefault(x=>x.HasContentItem);
+			return Factory.GetDatabases().FirstOrDefault(x => x.HasContentItem);
 		}
 
 		/// <summary>
@@ -386,7 +396,7 @@ namespace TokenManager.Management
 		private bool IsCollectionValid(ITokenCollection<IToken> collection)
 		{
 			var item = GetDatabase().GetItem(collection.GetBackingItemId());
-            if (item != null && item.Statistics.Updated <= TokenCacheUpdateTimes[collection.GetCollectionLabel()])
+			if (item != null && item.Statistics.Updated <= TokenCacheUpdateTimes[collection.GetCollectionLabel()])
 				return true;
 			return false;
 		}
@@ -398,38 +408,42 @@ namespace TokenManager.Management
 		/// <returns>token collection</returns>
 		private ITokenCollection<IToken> RefreshTokenCollection(string category)
 		{
-			Item tokenManagerItem = GetDatabase().GetItem(Constants.TokenManagerGuid);
-			ITokenCollection<IToken> collection = TokenCollections.ContainsKey(category) ? TokenCollections[category]:null;
-			if (tokenManagerItem != null)
+			Item[] tokenManagerItems =
+				GetDatabase().SelectItems($"fast:/sitecore/content//*[@@templateid = '{Constants.TokenRootTemplateId}']");
+			ITokenCollection<IToken> collection = TokenCollections.ContainsKey(category) ? TokenCollections[category] : null;
+			foreach (Item tokenManagerItem in tokenManagerItems)
 			{
-				Stack<Item> curItems = new Stack<Item>();
-				curItems.Push(tokenManagerItem);
-				while (curItems.Any())
+				if (tokenManagerItem != null)
 				{
-					Item cur = curItems.Pop();
-					// this means that the collection exists, it's just out of date, so we need to update it.
-					if (collection != null)
+					Stack<Item> curItems = new Stack<Item>();
+					curItems.Push(tokenManagerItem);
+					while (curItems.Any())
 					{
-						if (collection.GetBackingItemId() == cur.ID)
+						Item cur = curItems.Pop();
+						// this means that the collection exists, it's just out of date, so we need to update it.
+						if (collection != null)
+						{
+							if (collection.GetBackingItemId() == cur.ID)
+							{
+								ITokenCollection<IToken> col = GetCollectionFromItem(cur);
+								LoadTokenCollection(col);
+								RemoveCollection(category);
+								return col;
+							}
+						}
+						else
+						// this means that the token doesn't exist yet, lets create it.
 						{
 							ITokenCollection<IToken> col = GetCollectionFromItem(cur);
-							LoadTokenCollection(col);
-							RemoveCollection(category);
-							return col;
+							if (col != null && col.GetCollectionLabel() == category)
+							{
+								LoadTokenCollection(col);
+								return col;
+							}
 						}
+						foreach (Item child in cur.Children)
+							curItems.Push(child);
 					}
-					else
-					// this means that the token doesn't exist yet, lets create it.
-					{
-						ITokenCollection<IToken> col = GetCollectionFromItem(cur);
-						if (col != null && col.GetCollectionLabel() == category)
-						{
-							LoadTokenCollection(col);
-							return col;
-						}
-					}
-					foreach (Item child in cur.Children)
-						curItems.Push(child);
 				}
 			}
 			return null;
