@@ -8,6 +8,7 @@ using Sitecore.Data;
 using Sitecore.Data.Fields;
 using Sitecore.Mvc.Helpers;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.TokenDataTypes;
 using TokenManager.Management;
 
 namespace TokenManager.Data.Tokens
@@ -20,7 +21,7 @@ namespace TokenManager.Data.Tokens
 		}
 		public override IEnumerable<ITokenData> ExtraData()
 		{
-			yield return new BasicTokenData("Datasource", "Datasource for the rendering", "", true, TokenDataType.Id);
+			yield return new IdTokenData("Datasource", "Datasource for the rendering", true);
 		}
 
 		public override string Value(NameValueCollection extraData)
@@ -29,9 +30,9 @@ namespace TokenManager.Data.Tokens
 			TextWriter tw = new StringWriter();
 			var h = new HtmlHelper(new ViewContext(new ControllerContext(), new FakeView(), new ViewDataDictionary(), new TempDataDictionary(), tw), new ViewPage());
 			StringBuilder sb = new StringBuilder();
-			if (!string.IsNullOrWhiteSpace(extraData["Datasource"]))
+			if (!string.IsNullOrWhiteSpace(extraData["Datasource for the rendering"]))
 				sb.Append(new SitecoreHelper(h).Rendering(renderingItem.TargetID.ToString(),
-					new { Datasource = extraData["Datasource"] }));
+					new { Datasource = extraData["Datasource for the rendering"] }));
 			return sb.ToString();
 		}
 

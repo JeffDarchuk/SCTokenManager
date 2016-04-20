@@ -83,9 +83,9 @@ namespace TokenManager.Management
 			return sb.ToString();
 		}
 
-		public virtual IEnumerable<IToken> ParseTokens(Field field)
+		public virtual IEnumerable<IToken> ParseTokens(Field field, Item item = null)
 		{
-			return ParseTokenIdentifiers(field).Select(ParseITokenFromText);
+			return ParseTokenIdentifiers(field).Select(x=>ParseITokenFromText(x, item));
 		}
 
 		public virtual IEnumerable<string> ParseTokenIdentifiers(Field field)
@@ -113,21 +113,21 @@ namespace TokenManager.Management
 			return TrackTokens(field.Item, field.ID, field.Language, field.Item.Version.Number, text) ? TokenLocations[field.Item.ID.ToString() + field.ID + field.Language.Name + field.Item.Version.Number] : new Tuple<DateTime, List<Tuple<int, int>>>(DateTime.Now, new List<Tuple<int, int>>());
 		}
 
-		public virtual IToken ParseITokenFromText(string token)
+		public virtual IToken ParseITokenFromText(string token, Item item = null)
 		{
 			var props = TokenProperties(token);
-			return ParseITokenFromProps(props);
+			return ParseITokenFromProps(props, item);
 		}
 
-		public virtual IToken ParseITokenFromProps(NameValueCollection props)
+		public virtual IToken ParseITokenFromProps(NameValueCollection props, Item item = null)
 		{
-			return GetToken(props["Category"], props["Token"]);
+			return GetToken(props["Category"], props["Token"], item);
 		}
 
 		public virtual string ParseTokenValueFromTokenIdentifier(string token, Item item = null)
 		{
 			var props = TokenProperties(token);
-			IToken t = ParseITokenFromProps(props);
+			IToken t = ParseITokenFromProps(props, item);
 			return t != null ? t.Value(props) : string.Empty;
 		}
 
@@ -205,7 +205,7 @@ namespace TokenManager.Management
 			return TokenCollections.Values.Where(c => c.IsCurrentContextValid()).OrderBy(x => x.GetCollectionLabel());
 		}
 
-		public virtual ITokenCollection<T> GetTokenCollection<T>(string collectionName)
+		public virtual ITokenCollection<T> GetTokenCollection<T>(string collectionName, Item item = null)
 			where T : IToken
 		{
 
@@ -222,19 +222,19 @@ namespace TokenManager.Management
 
 
 			}
-			if (TokenCollections.ContainsKey(collectionName) && TokenCollections[collectionName].IsCurrentContextValid() && IsCollectionValid(TokenCollections[collectionName]))
+			if (TokenCollections.ContainsKey(collectionName) && TokenCollections[collectionName].IsCurrentContextValid(item) && IsCollectionValid(TokenCollections[collectionName]))
 				return TokenCollections[collectionName] as ITokenCollection<T>;
 			return null;
 		}
 
-		public ITokenCollection<T> GetTokenCollection<T>(ID backingItemId) where T : IToken
+		public ITokenCollection<T> GetTokenCollection<T>(ID backingItemId, Item item = null) where T : IToken
 		{
 			var ret = GetTokenCollections().FirstOrDefault(x => x.GetBackingItemId() == backingItemId) as ITokenCollection<T>;
 			if (ret != null)
-				return GetTokenCollection<T>(ret.GetCollectionLabel());
-			var item = GetDatabase().GetItem(backingItemId);
-			if (item == null) return null;
-			var collection = GetCollectionFromItem(item);
+				return GetTokenCollection<T>(ret.GetCollectionLabel(), item);
+			var backingItem = GetDatabase().GetItem(backingItemId);
+			if (backingItem == null) return null;
+			var collection = GetCollectionFromItem(backingItem);
 			if (collection == null) return null;
 			if (TokenCollections.ContainsKey(collection.GetCollectionLabel()))
 			{
@@ -256,9 +256,9 @@ namespace TokenManager.Management
 			return collection?.GetTokens();
 		}
 
-		public virtual IToken GetToken(string category, string token)
+		public virtual IToken GetToken(string category, string token, Item item = null)
 		{
-			var collection = GetTokenCollection<IToken>(category);
+			var collection = GetTokenCollection<IToken>(category, item);
 			IToken ret = collection?.GetToken(token);
 			return ret;
 		}

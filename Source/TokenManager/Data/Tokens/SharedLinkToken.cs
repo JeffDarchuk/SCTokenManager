@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using Sitecore.Data;
 using Sitecore.Data.Fields;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.TokenDataTypes;
 using TokenManager.Management;
 
 namespace TokenManager.Data.Tokens
@@ -17,12 +18,12 @@ namespace TokenManager.Data.Tokens
 		{
 			LinkField f = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(BackingId).Fields["Link"];
 			return string.Format("<a href='{0}' target='{1}' class='{2}' title='{3}'>{4}</a>", f.GetFriendlyUrl(), f.Target,
-				f.Class, f.Title, extraData["Text"]);
+				f.Class, f.Title, extraData["Link Text"]);
 		}
 
 		public override IEnumerable<ITokenData> ExtraData()
 		{
-			yield return new BasicTokenData("Text", "Link Text", "Enter the text that will appear as the link", true, TokenDataType.String);
+			yield return new StringTokenData("Text", "Link Text", "Enter the text that will appear as the link", true);
 		}
 
 

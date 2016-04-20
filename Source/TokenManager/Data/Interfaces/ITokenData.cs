@@ -4,16 +4,9 @@
 	{
 		string Name { get; set; }
 		string Label { get; set; }
-		string Placeholder { get; set; }
 		bool Required { get; set; }
-		TokenDataType Type { get; set; }
-	}
-
-	public enum TokenDataType
-	{
-		String,
-		Id,
-		Integer,
-		Boolean
+		string AngularMarkup { get;}
+		dynamic Data { get;}
+		object GetValue(string value);
 	}
 }

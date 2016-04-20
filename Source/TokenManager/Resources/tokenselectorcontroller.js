@@ -2,13 +2,18 @@
 (function () {
 	'use strict';
 
-	angular
+	var app = angular
         .module('app')
         .controller('tokenselectorcontroller', tokenselectorcontroller);
 
-	tokenselectorcontroller.$inject = ['$http', 'tokenfactory'];
+	tokenselectorcontroller.$inject = ['$http', 'tokenfactory', '$sce'];
+	app.filter("sanitize", ['$sce', function ($sce) {
+		return function (htmlCode) {
+			return $sce.trustAsHtml(htmlCode);
+		}
+	}]);
+	function tokenselectorcontroller($http, tokenfactory, $sce) {
 
-	function tokenselectorcontroller($http, tokenfactory) {
 		var vm = this;
 		vm.tokens = [];
 	    vm.data = new Object();

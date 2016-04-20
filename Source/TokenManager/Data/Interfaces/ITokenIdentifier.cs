@@ -14,13 +14,12 @@ namespace TokenManager.Data.Interfaces
 	{
 
 		void AddType(XmlNode node);
-
 		T ResolveCollection<T>(Item item)
 			where T : ITokenCollection<IToken>;
 
 		T ResolveToken<T>(ITokenCollection<IToken> collection, string tokenName)
 			where T : IToken;
 
-
+		IEnumerable<ID> GetAllTokenTemplates();
 	}
 }

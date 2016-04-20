@@ -154,6 +154,8 @@ namespace TokenManager.Collections
 		/// <param name="newToken"></param>
 		public virtual void AddOrUpdateToken(string oldToken, T newToken)
 		{
+			if (newToken == null)
+				return;
 			if (oldToken != null && oldToken != newToken.Token)
 				RemoveToken(oldToken);
 			_tokens[newToken.Token] = newToken;
@@ -207,31 +209,31 @@ namespace TokenManager.Collections
 			if (collectionItem != null && !IsAllowed(item, collectionItem))
 				return false;
 
-			if (string.IsNullOrWhiteSpace(_ancestorPath) && string.IsNullOrWhiteSpace(_templateId))
-				return true;
-			if ((string.IsNullOrWhiteSpace(_ancestorPath) || item.Paths.Path.StartsWith(_ancestorPath)) &&
-				(string.IsNullOrWhiteSpace(_templateId) || item.TemplateID.ToString() == _templateId))
-				return true;
-
-			return false;
+			return true;
 		}
 
 		private static bool IsAllowed(Item tokenTarget, Item filterable)
 		{
 			while (filterable.Fields["Item Ancestor"] != null && filterable.Fields["Item Template"] != null)
 			{
-				var tmp = filterable.Database.GetItem(filterable["Item Ancestor"]);
-				var parentFilterPath = "";
-				if (tmp != null)
-					parentFilterPath = tmp.Paths.Path;
-				var parentFilterTemplateId = filterable["Item Template"];
-				if (!string.IsNullOrWhiteSpace(parentFilterPath) && !tokenTarget.Paths.Path.StartsWith(parentFilterPath))
+				if (
+					!filterable["Item Ancestor"].Split('|')
+						.Any(x => IsAllowedForItem(tokenTarget, filterable, filterable.Database.GetItem(x))))
 					return false;
-				if (!string.IsNullOrWhiteSpace(parentFilterTemplateId) &&
-					tokenTarget.TemplateID.ToString() != parentFilterTemplateId)
+				if (!string.IsNullOrWhiteSpace(filterable["Item Template"]) && filterable["Item Template"].Split('|').All(x => x != tokenTarget.TemplateID.ToString()))
 					return false;
 				filterable = filterable.Parent;
 			}
+			return true;
+		}
+
+		private static bool IsAllowedForItem(Item tokenTarget, Item filterable, Item tmp)
+		{
+			var parentFilterPath = "";
+			if (tmp != null)
+				parentFilterPath = tmp.Paths.Path;
+			if (!string.IsNullOrWhiteSpace(parentFilterPath) && !tokenTarget.Paths.Path.StartsWith(parentFilterPath))
+				return false;
 			return true;
 		}
 

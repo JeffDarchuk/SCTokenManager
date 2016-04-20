@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using Sitecore.Collections;
 using Sitecore.Configuration;
 using Sitecore.Data;
 using Sitecore.Data.Items;
@@ -16,10 +17,15 @@ namespace TokenManager.Management
 	public class DefaultTokenIdentifier : ITokenIdentifier
 	{
 		public delegate T ObjectActivator<out T>(params object[] args);
-		Dictionary<string, XmlNode> templateToType = new Dictionary<string, XmlNode>();
+		private Dictionary<string, XmlNode> templateToType = new Dictionary<string, XmlNode>();
+		private List<ID> tokenIds = new IdList(); 
 		public void AddType(XmlNode node)
 		{
-			if (node.Attributes != null) templateToType[node.Attributes["templateId"].Value] = node;
+			if (node?.Attributes != null && (node.ParentNode == null || node.Attributes["templateId"] == null))
+				throw new ArgumentException("The xml structure is not set up correctly, ensure that the token node has a templateId attribute");
+			if (node?.ParentNode != null && (node.ParentNode.Name == "tokens"))
+				if (node.Attributes != null) tokenIds.Add(new ID(node.Attributes["templateId"].Value));
+			if (node?.Attributes != null) templateToType[node.Attributes["templateId"].Value] = node;
 		}
 
 		public virtual T ResolveCollection<T>(Item item)
@@ -54,6 +60,11 @@ namespace TokenManager.Management
 				}
 			}
 			return default(T);
+		}
+
+		public IEnumerable<ID> GetAllTokenTemplates()
+		{
+			return tokenIds;
 		}
 
 		/// <summary>

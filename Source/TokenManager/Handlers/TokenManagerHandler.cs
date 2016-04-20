@@ -183,11 +183,7 @@ namespace TokenManager.Handlers
 			var currentData = data.FirstOrDefault(d => d.Name == name);
 			if (currentData != null)
 			{
-				if (currentData.Type == TokenDataType.Boolean)
-					return value == "True";
-				int tmp;
-				if (currentData.Type == TokenDataType.Integer && int.TryParse(value, out tmp))
-					return tmp;
+				return currentData.GetValue(value);
 			}
 			return value;
 		}
@@ -201,8 +197,7 @@ namespace TokenManager.Handlers
 		private static object GetTokenExtraData(string category, string tokenName)
 		{
 			IToken token = TokenKeeper.CurrentKeeper.GetToken(category, tokenName);
-			return token.ExtraData();
-
+			return token?.ExtraData();
 		}
 
 		/// <summary>

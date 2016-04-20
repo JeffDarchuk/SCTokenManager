@@ -99,7 +99,7 @@ namespace TokenManager.Handlers
 		/// </summary>
 		/// <param name="filename"></param>
 		/// <returns></returns>
-		private string GetResource(string filename)
+		public string GetResource(string filename)
 		{
 			filename = filename.ToLowerInvariant();
 			string result;

@@ -2,6 +2,7 @@
 {
 	public static class Constants
 	{
+		public const string TokenCollectionStandardValuesId = "{D627C02A-7DD7-4FA6-A1F5-1FBFD869B6F2}";
 		public const string TokenFieldId = "{273E8C26-5BF0-4DC1-8430-BDB5C2665853}";
 		public const string TokenCollectionCategoryFieldId = "{81941697-38C9-4B03-A045-EB065A690B9E}";
 

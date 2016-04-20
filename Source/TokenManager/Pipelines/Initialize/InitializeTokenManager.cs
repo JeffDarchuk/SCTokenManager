@@ -4,14 +4,17 @@ using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Routing;
 using Sitecore;
 using Sitecore.Configuration;
+using Sitecore.ContentSearch.FieldReaders;
 using Sitecore.Data;
 using Sitecore.Data.Engines;
+using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
 using Sitecore.Data.Proxies;
 using Sitecore.Diagnostics;
@@ -32,7 +35,7 @@ namespace TokenManager.Pipelines.Initialize
 	{
 		private ITokenKeeperService Tokens { get; set; }
 		private ITokenIdentifier Identifier { get; set; }
-
+		private static bool _needRebuild;
 		/// <summary>
 		/// Starts up a new tokenkeeper that will be set up as a singleton
 		/// </summary>
@@ -51,7 +54,7 @@ namespace TokenManager.Pipelines.Initialize
 
 			Assert.ArgumentNotNull(args, "args");
 			RegisterRoutes("tokenManager");
-
+			ValidateInsertOptions();
 			if (RequiredSitecoreItemsMissing())
 			{
 				var filepath = "";
@@ -107,12 +110,37 @@ namespace TokenManager.Pipelines.Initialize
 			}
 		}
 
+		private static void ValidateInsertOptions()
+		{
+			Item sv = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(Constants.TokenCollectionStandardValuesId);
+			if (sv == null)
+				_needRebuild = true;
+			else
+			{
+				MultilistField fld = sv.Fields[FieldIDs.Branches];
+				HashSet<ID> existing = new HashSet<ID>(fld.TargetIDs);
+				var missingTokens = TokenIdentifier.Current.GetAllTokenTemplates().Where(x => !existing.Contains(x)).ToList();
+				if (missingTokens.Any())
+				{
+					StringBuilder sb = new StringBuilder();
+					if (sb.Length == 0)
+						sb.Append(string.Join("|", fld.TargetIDs.Select(x => x.ToString())));
+					foreach (ID needsToBeAdded in missingTokens)
+						sb.Append("|").Append(needsToBeAdded);
+					using (new SecurityDisabler())
+					using (new EditContext(sv))
+						sv[FieldIDs.Branches] = sb.ToString();
+				}
+			}
+		}
 		/// <summary>
 		/// Detects if a required sitecore item is missing.
 		/// </summary>
 		/// <returns></returns>
 		private static bool RequiredSitecoreItemsMissing()
 		{
+			if (_needRebuild)
+				return true;
 			return typeof(Constants)
 				.GetFields(BindingFlags.Static | BindingFlags.Public)
 				.Any(f => TokenKeeper.CurrentKeeper.GetDatabase().GetItem(f.GetValue(null).ToString()) == null);

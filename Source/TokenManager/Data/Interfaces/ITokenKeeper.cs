@@ -37,7 +37,7 @@ namespace TokenManager.Data.Interfaces
 		/// </summary>
 		/// <param name="field"></param>
 		/// <returns>tokens used in this field</returns>
-		IEnumerable<IToken> ParseTokens(Field field);
+		IEnumerable<IToken> ParseTokens(Field field, Item item = null);
 
 		/// <summary>
 		/// from the field it extracts all the token identifying strings
@@ -58,15 +58,15 @@ namespace TokenManager.Data.Interfaces
 		/// </summary>
 		/// <param name="token"></param>
 		/// <returns>IToken for the identifier</returns>
-		IToken ParseITokenFromText(string token);
+		IToken ParseITokenFromText(string token, Item item = null);
 
 		/// <summary>
 		/// given a token identifying text this returns the IToken object with an item for checking context validity
 		/// </summary>
-		/// <param name="token"></param>
+		/// <param name="props"></param>
 		/// <param name="item"></param>
 		/// <returns>IToken for the identifier</returns>
-		IToken ParseITokenFromProps(NameValueCollection props);
+		IToken ParseITokenFromProps(NameValueCollection props, Item item = null);
 
 		/// <summary>
 		/// given a token identifier this returns the value of the token with an optional item for checking context validity
@@ -170,17 +170,21 @@ namespace TokenManager.Data.Interfaces
 		/// gets a specific token collection by name
 		/// </summary>
 		/// <param name="collectionName"></param>
+		/// <param name="item"></param>
 		/// <returns>token collection</returns>
-		ITokenCollection<T> GetTokenCollection<T>(string collectionName)
+		ITokenCollection<T> GetTokenCollection<T>(string collectionName, Item item = null)
 			where T : IToken;
 
 		/// <summary>
 		/// gets a specific token collection by backing ID
 		/// </summary>
 		/// <param name="collectionName"></param>
+		/// <param name="backingItemId"></param>
+		/// <param name="item"></param>
 		/// <returns>token collection</returns>
-		ITokenCollection<T> GetTokenCollection<T>(ID backingItemId)
+		ITokenCollection<T> GetTokenCollection<T>(ID backingItemId, Item item = null)
 			where T : IToken;
+
 		/// <summary>
 		/// gets all token names under a specific category
 		/// </summary>
@@ -193,8 +197,9 @@ namespace TokenManager.Data.Interfaces
 		/// </summary>
 		/// <param name="category"></param>
 		/// <param name="token"></param>
+		/// <param name="item"></param>
 		/// <returns>token object</returns>
-		IToken GetToken(string category, string token);
+		IToken GetToken(string category, string token, Item item = null);
 
 		/// <summary>
 		/// removes to the token collection from the keeper
