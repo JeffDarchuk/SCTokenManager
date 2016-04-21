@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using Sitecore;
 using Sitecore.Configuration;
@@ -24,8 +25,8 @@ namespace TokenManager.Management
 	class DefaultTokenKeeperService : ITokenKeeperService
 	{
 		public string TokenPrefix => "<a class=\"token-manager-token\" href=\"/TokenManager?";
-		public string IeTokenPrefix => "<a href=\"/TokenManager?"; // because the telerik editor in IE pastes differently for some reason
-        public string TokenSuffix => "</a>";
+		public string TokenSuffix => "</a>";
+		public string TokenRegex = "<a.*?/TokenManager?.*?</a>";
 		public string TokenCss { get; set; }
 		private static readonly ConcurrentDictionary<string, ITokenCollection<IToken>> TokenCollections = new ConcurrentDictionary<string, ITokenCollection<IToken>>();
 		private static readonly ConcurrentDictionary<string, DateTime> TokenCacheUpdateTimes = new ConcurrentDictionary<string, DateTime>(); 
@@ -71,7 +72,7 @@ namespace TokenManager.Management
 					return ReplaceRTETokens(args, text);
 				}
 				string token = sb.ToString(location.Item1, location.Item2);
-				if ((token.StartsWith(TokenPrefix) || token.StartsWith(IeTokenPrefix)) && token.EndsWith(TokenSuffix))
+				if (Regex.IsMatch(token, TokenRegex))
 					sb.Replace(token, ParseTokenValueFromTokenIdentifier(token, args.Item), location.Item1, location.Item2);
 				else
 				{
@@ -96,7 +97,7 @@ namespace TokenManager.Management
 			if (locations == null) return ret;
 			foreach (var tokenProps in locations.Item2.Select(location => sb.ToString(location.Item1, location.Item2)))
 			{
-				if ((!tokenProps.StartsWith(TokenPrefix) && !tokenProps.StartsWith(IeTokenPrefix)) || !tokenProps.EndsWith(TokenSuffix))
+				if (!Regex.IsMatch(tokenProps, TokenRegex))
 				{
 					ResetTokenLocations(field.Item.ID, field.ID, field.Language, field.Item.Version.Number);
 					return ParseTokenIdentifiers(field);
@@ -181,7 +182,7 @@ namespace TokenManager.Management
 			else
 			{
 				var tmp = GetTokenOccurances(category, token, db.Name).ToList();
-				return tmp.Where(x => x.Path.StartsWith(item.Paths.FullPath));
+				return tmp.Where(x => x.Path.StartsWith(item.Paths.FullPath, StringComparison.CurrentCultureIgnoreCase));
 			}
 		}
 
@@ -338,24 +339,8 @@ namespace TokenManager.Management
 		/// <returns>if there are any tokens found</returns>
 		private bool IdentifyTokenLocations(Item item, ID fieldId, Language language, int version, string text)
 		{
-			if (TokenPrefix == null || TokenSuffix == null)
-				return false;
-			List<Tuple<int, int>> locations = new List<Tuple<int, int>>();
-			int startIndex = text.IndexOf(TokenPrefix, StringComparison.Ordinal);
-			int ieIndex = text.IndexOf(IeTokenPrefix, StringComparison.Ordinal);
-			startIndex = startIndex == -1 || (ieIndex < startIndex && ieIndex != -1) ? ieIndex : startIndex;
-			while (startIndex > -1)
-			{
-				var endIndex = text.IndexOf(TokenSuffix, startIndex, StringComparison.Ordinal);
-				if (endIndex != -1)
-					endIndex += TokenSuffix.Length;
-				else
-					break;
-				locations.Insert(0, new Tuple<int, int>(startIndex, endIndex - startIndex));
-				startIndex = text.IndexOf(TokenPrefix, endIndex, StringComparison.Ordinal);
-				ieIndex = text.IndexOf(IeTokenPrefix, endIndex, StringComparison.Ordinal);
-				startIndex = startIndex == -1 || (ieIndex < startIndex && ieIndex != -1) ? ieIndex : startIndex;
-			}
+			var collection = Regex.Matches(text, TokenRegex);
+			List<Tuple<int, int>> locations = (from Match m in collection select new Tuple<int, int>(m.Index, m.Length)).Reverse().ToList();
 			var ret = new Tuple<DateTime, List<Tuple<int, int>>>(item.Statistics.Updated, locations);
 			TokenLocations.AddOrUpdate(item.ID + fieldId.ToString() + language.Name + version, ret, (key, value) => ret);
 			return locations.Any();
