@@ -3,7 +3,7 @@
 <html class="full-height" lang="en" xmlns="http://www.w3.org/1999/xhtml" ng-app="app">
 <head>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<meta charset="utf-8"/>
+	<meta charset="utf-8" />
 	<title>Token Manager</title>
 	<script type="text/javascript">
 		function scGetRadWindow() {
@@ -18,39 +18,39 @@
 		function scCloseRadWindow() {
 			var currentRadWindow = scGetRadWindow();
 			if (currentRadWindow != null) {
-				// Hack for IE. Window is not closed because code thinks that window is already closed. Calling 'show' before closing helps to solve the problem. 
+				// Hack for IE. Window is not closed because code thinks that window is already closed. Calling 'show' before closing helps to solve the problem.
 				currentRadWindow.show();
 				currentRadWindow.close();
 			}
 			return false;
 		}
 	</script>
-	<link rel="stylesheet" href="/sitecore/shell/client/Speak/Assets/css/speak-default-theme.css"/>
+	<link rel="stylesheet" href="/sitecore/shell/client/Speak/Assets/css/speak-default-theme.css" />
 	<link rel="stylesheet" href="tokenmanager/tokenstyle.css">
 
 </head>
 <body class="full-height">
 
 	<div class="full-height" ng-controller="master as vm">
-	    <h3 class="title-bar">Token Manager<span ng-if="vm.isRTE" class="close" onclick="scCloseRadWindow();"></span></h3>
-	    <h3>TokenManager</h3>
+		<h3 class="title-bar">Token Manager<span ng-if="vm.isRTE" class="close" onclick="scCloseRadWindow();"></span></h3>
+		<h3>TokenManager</h3>
 		<div ng-if="!vm.isRTE" id="tabs" class="tab-pane">
 			<span ng-click="vm.activePage = 'selector'" ng-class="vm.activePage==='selector' ? 'selected' : ''" class="tab">Token Selector</span>
 			<span ng-click="vm.activePage = 'incorporator'" ng-class="vm.activePage==='incorporator' ? 'selected' : ''" class="tab">Token Incorporator</span>
 			<span ng-click="vm.activePage = 'unzipper'" ng-class="vm.activePage==='unzipper' ? 'selected' : ''" class="tab">Token Unzipper</span>
 
 		</div>
-	    <div id="functional">
-	        <tokenselector ng-if="vm.activePage === 'selector'" master="vm"></tokenselector>
-	        <tokenincorporator ng-if="vm.activePage === 'incorporator'" master="vm"></tokenincorporator>
-	        <tokenunzipper ng-if="vm.activePage === 'unzipper'"></tokenunzipper>
-	    </div>
+		<div id="functional">
+			<tokenselector ng-if="vm.activePage === 'selector'" master="vm"></tokenselector>
+			<tokenincorporator ng-if="vm.activePage === 'incorporator'" master="vm"></tokenincorporator>
+			<tokenunzipper ng-if="vm.activePage === 'unzipper'"></tokenunzipper>
+		</div>
 	</div>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js"></script>
-    <script src="tokenmanager/angular.js"></script>
-    
+	<script src="tokenmanager/angular.js"></script>
+
 	<script src="tokenmanager/app.js"></script>
 	<script src="tokenmanager/master.js"></script>
 	<script src="tokenmanager/tokenfactory.js"></script>
@@ -59,11 +59,11 @@
 	<script src="tokenmanager/tokenincorporatordirective.js"></script>
 	<script src="tokenmanager/tokenincorporatorcontroller.js"></script>
 	<script src="tokenmanager/tokenunzipperdirective.js"></script>
-<script src="tokenmanager/tokenunzippercontroller.js"></script>
-    <script src="tokenmanager/contenttreedirective.js"></script>
-<script src="tokenmanager/contenttreecontroller.js"></script>
-    <script src="tokenmanager/tokenextradatadirective.js"></script>
-<script src="tokenmanager/dirpagination.js"></script>
+	<script src="tokenmanager/tokenunzippercontroller.js"></script>
+	<script src="tokenmanager/contenttreedirective.js"></script>
+	<script src="tokenmanager/contenttreecontroller.js"></script>
+	<script src="tokenmanager/tokenextradatadirective.js"></script>
+	<script src="tokenmanager/dirpagination.js"></script>
 
 
 </body>

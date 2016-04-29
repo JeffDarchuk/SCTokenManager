@@ -1,29 +1,5 @@
 ﻿<div ng-repeat="field in token.fields">
     {{token.fieldValues[field.Name]}}
-	<!--<div ng-if="field.Type==0" class="field-row {{field.class}}">
-		<span class="field-label">{{field.Label}} </span>
-		<div class="field-data">
-			<input ng-model="token.data[field.Name]" placeholder="{{field.Placeholder}}"/>
-		</div>
-	</div>
-	<div ng-if="field.Type==1" class="field-row {{field.class}}">
-		<span class="field-label">{{field.Label}} </span>
-		<div class="field-data">
-			<contenttree parent="'{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}'" selected="token.data[field.Name]" events="token.events" ng-click="token.clicked(field.Name)"></contenttree>
-		</div>
-	</div>
-	<div ng-if="field.Type==2" class="field-row {{field.class}}">
-		<span class="field-label">{{field.Label}} </span>
-		<div class="field-data">
-			<input type="number" ng-model="token.data[field.Name]" placeholder="{{field.Placeholder}}"/>
-		</div>
-	</div>
-	<div ng-if="field.Type==3" class="field-row {{field.class}}">
-		<span class="field-label">{{field.Label}} </span>
-		<div class="field-data">
-			<input type="checkbox" ng-model="token.data[field.Name]"/>
-		</div>
-	</div>-->
 	<div bind-html-compile="field.AngularMarkup"></div>
 </div>
 <a class="btn" ng-click="token.fields=false">Back</a>

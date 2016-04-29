@@ -55,6 +55,18 @@ namespace TokenManager.Handlers
 		}
 
 		/// <summary>
+		/// returns an error response
+		/// </summary>
+		/// <param name="context"></param>
+		/// <param name="e"></param>
+		/// <param name="message"></param>
+		protected void Error(HttpContextBase context, Exception e, string message = null)
+		{
+			message = (string.IsNullOrWhiteSpace(message) ? e.ToString() : message + "\r\n" + e);
+			ReturnResponse(context, message, status: HttpStatusCode.InternalServerError);
+		}
+
+		/// <summary>
 		/// return specific file resource stored in the binary
 		/// </summary>
 		/// <param name="context"></param>

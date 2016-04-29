@@ -32,6 +32,8 @@
 
 		tokenfactory.tokenCategories().then(function (response) {
 			vm.tokenCategories = response.data;
+		}, function (response) {
+			vm.error = response.data;
 		});
 		vm.existingTokenSelected = function () {
 			if (!vm.sitecoreBasedTokenCollection)
@@ -44,9 +46,13 @@
 				vm.sitecoreBasedTokenCollection = response.data;
 				if (!vm.sitecoreBasedTokenCollection)
 					vm.existingToken = true;
+			}, function (response) {
+				vm.error = response.data;
 			});
 			tokenfactory.tokens(vm.selectedTokenCategory.Label).then(function(response) {
 				vm.tokens = response.data;
+			}, function (response) {
+				vm.error = response.data;
 			});
 		}
 		vm.incorporateToken = function () {
@@ -54,6 +60,8 @@
 			tokenfactory.incorporateToken(vm.events.selected.Id, vm.preview, vm.type, vm.selectedTokenCategory.Label, vm.tokenName.Label, vm.tokenValue).then(function(response) {
 				vm.response = response.data;
 				vm.spinner = false;
+			}, function (response) {
+				vm.error = response.data;
 			});
 		}
 		vm.formFilled = function() {

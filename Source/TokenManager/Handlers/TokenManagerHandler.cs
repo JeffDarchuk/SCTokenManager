@@ -131,7 +131,7 @@ namespace TokenManager.Handlers
 			catch (Exception e)
 			{
 				Log.Error("TokenManager failed to return the proper resource", e, this);
-				NotFound(context);
+				Error(context, e);
 			}
 		}
 

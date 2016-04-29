@@ -35,10 +35,9 @@ namespace TokenManager.Management
 			if (templateToType.ContainsKey(tid))
 			{
 				var t = Factory.CreateType(templateToType[tid], true);
-				ConstructorInfo ci = t.GetConstructors().First();
-
-				ObjectActivator<T> activator = GetActivator<T>(ci);
-				return activator(new object[] { item, item.TemplateID });
+				ConstructorInfo ci = t.GetConstructors().FirstOrDefault(x=>x.GetParameters().Length==1 && x.GetParameters()[0].ParameterType == typeof(Item));
+				if (ci == null) throw new ArgumentException("While trying to initialize token collection type "+t.Name+ " no appropriate constructor was found, it should take one parameter of type Item");
+				return (T)ci.Invoke(new object[] { item });
 			}
 			return default(T);
 		}
@@ -53,10 +52,10 @@ namespace TokenManager.Management
 				var tid = tokenItem.TemplateID.ToString();
 				if (templateToType.ContainsKey(tid))
 				{
-					var t = Factory.CreateType(templateToType[tid], false);
-					ConstructorInfo ci = t.GetConstructors().First();
-					ObjectActivator<T> activator = GetActivator<T>(ci);
-					return activator(new object[] { tokenName, tokenItem.ID });
+					Type t = Factory.CreateType(templateToType[tid], false);
+					ConstructorInfo ci = t.GetConstructors().FirstOrDefault(x => x.GetParameters().Length == 2 && x.GetParameters()[0].ParameterType == typeof(string) && x.GetParameters()[1].ParameterType == typeof(ID));
+					if (ci == null) throw new ArgumentException("While trying to initialize token type " + t.Name + " no appropriate constructor was found, it should take two parameters of type String (name) and ID (token sitecore Item Id)");
+					return (T)ci.Invoke(new object[] {tokenName, tokenItem.ID});
 				}
 			}
 			return default(T);
@@ -65,54 +64,6 @@ namespace TokenManager.Management
 		public IEnumerable<ID> GetAllTokenTemplates()
 		{
 			return tokenIds;
-		}
-
-		/// <summary>
-		/// from http://rogeralsing.com/2008/02/28/linq-expressions-creating-objects/
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="ctor"></param>
-		/// <returns></returns>
-		public static ObjectActivator<T> GetActivator<T>(ConstructorInfo ctor)
-		{
-			Type type = ctor.DeclaringType;
-			ParameterInfo[] paramsInfo = ctor.GetParameters();
-
-			//create a single param of type object[]
-			ParameterExpression param =
-				Expression.Parameter(typeof(object[]), "args");
-
-			Expression[] argsExp =
-				new Expression[paramsInfo.Length];
-
-			//pick each arg from the params array 
-			//and create a typed expression of them
-			for (int i = 0; i < paramsInfo.Length; i++)
-			{
-				Expression index = Expression.Constant(i);
-				Type paramType = paramsInfo[i].ParameterType;
-
-				Expression paramAccessorExp =
-					Expression.ArrayIndex(param, index);
-
-				Expression paramCastExp =
-					Expression.Convert(paramAccessorExp, paramType);
-
-				argsExp[i] = paramCastExp;
-			}
-
-			//make a NewExpression that calls the
-			//ctor with the args we just created
-			NewExpression newExp = Expression.New(ctor, argsExp);
-
-			//create a lambda with the New
-			//Expression as body and our param object[] as arg
-			LambdaExpression lambda =
-				Expression.Lambda(typeof(ObjectActivator<T>), newExp, param);
-
-			//compile it
-			ObjectActivator<T> compiled = (ObjectActivator<T>)lambda.Compile();
-			return compiled;
 		}
 	}
 }
