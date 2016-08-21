@@ -14,4 +14,5 @@ Nuget - PM> Install-Package TokenManager
 [Build your own tokens](https://jeffdarchuk.wordpress.com/2016/08/21/creating-custom-tokens-with-token-manager/)
 
 [Dynamic Tokens](https://jeffdarchuk.wordpress.com/2016/01/11/tokenmanager-dynamic-tokens/)
+
 [Rules Tokens](https://jeffdarchuk.wordpress.com/2015/10/27/tokenmanager-rules-token/)
