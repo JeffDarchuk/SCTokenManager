@@ -9,6 +9,8 @@ namespace TokenManager.Data.Interfaces
 		string Token { get; }
 		string Value(NameValueCollection extraData);
 		IEnumerable<ITokenData> ExtraData();
+		string TokenIdentifierText(NameValueCollection extraData);
+		string TokenIdentifierStyle(NameValueCollection extraData);
 		ID GetBackingItemId();
 	}
 }

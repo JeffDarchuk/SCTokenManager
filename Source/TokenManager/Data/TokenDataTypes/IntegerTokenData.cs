@@ -19,7 +19,7 @@ namespace TokenManager.Data.TokenDataTypes
 		public string Label { get; set; }
 		public bool Required { get; set; }
 		public string AngularMarkup => @"
-	<div ng-if=""field.Type==2"" class=""field-row {{field.class}}"">
+	<div class=""field-row {{field.class}}"">
 		<span class=""field-label"">{{field.Label}} </span>
 		<div class=""field-data"">
 			<input type=""number"" ng-model=""token.data[field.Name]"" placeholder=""{{field.Placeholder}}""/>
@@ -28,7 +28,7 @@ namespace TokenManager.Data.TokenDataTypes
 		public dynamic Data { get; }
 		public object GetValue(string value)
 		{
-			return value;
+			return int.Parse(value);
 		}
 	}
 }

@@ -1,6 +1,6 @@
 ﻿<div ng-controller="tokenselectorcontroller as vm">
 	<div class="token-form">
-	    <ul ng-if="!vm.selectedToken && !vm.fields">
+	    <ul ng-if="!vm.selectedToken && (!vm.fields || vm.fields.length == 0)">
 	        <p ng-if="!master.isRTE">Select a token to view token statistics.</p>
 	        <li ng-repeat="category in vm.categories">
 	            <span ng-click="vm.loadTokens(category.Label);">
@@ -17,7 +17,7 @@
 	            <div></div>
 	        </li>
 	    </ul>
-	    <div ng-if="vm.fields">
+	    <div ng-if="vm.fields && vm.fields.length > 0">
 	        <tokenextradata token="vm"></tokenextradata>
 	    </div>
 		<div ng-if="vm.selectedToken" class="response">

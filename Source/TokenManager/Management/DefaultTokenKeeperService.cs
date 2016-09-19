@@ -25,9 +25,9 @@ namespace TokenManager.Management
 {
 	class DefaultTokenKeeperService : ITokenKeeperService
 	{
-		public string TokenPrefix => "<a class=\"token-manager-token\" href=\"/TokenManager?";
-		public string TokenSuffix => "</a>";
-		public string TokenRegex = "<a.*?/TokenManager?.*?</a>";
+		public string TokenPrefix => "<div class=\"token-manager-token\" href=\"/TokenManager?";
+		public string TokenSuffix => "</div>";
+		public string TokenRegex = "<.*?/TokenManager?.*</.*?>";
 		public string TokenCss { get; set; }
 		private static readonly ConcurrentDictionary<string, ITokenCollection<IToken>> TokenCollections = new ConcurrentDictionary<string, ITokenCollection<IToken>>();
 		private static readonly ConcurrentDictionary<string, DateTime> TokenCacheUpdateTimes = new ConcurrentDictionary<string, DateTime>(); 
@@ -146,12 +146,11 @@ namespace TokenManager.Management
 			var ret = HttpUtility.ParseQueryString("");
 			ret["Category"] = category;
 			ret["Token"] = token;
-			if (fields == null)
-				return string.Format("{0}{1}\" {5}>{2} > {3}{4}", TokenPrefix, ret, category, token, TokenSuffix,
-					$"style='{TokenCss}'");
-			foreach (string key in fields.Keys.Where(x => x != "Category" && x != "Token"))
-				ret.Add(key, fields[key].ToString());
-			return string.Format("{0}{1}\" {5}>{2} > {3}{4}", TokenPrefix, ret, category, token, TokenSuffix, $"style='{TokenCss}'");
+			IToken itoken = GetToken(category, token);
+			if (fields != null)
+				foreach (string key in fields.Keys.Where(x => x != "Category" && x != "Token"))
+					ret.Add(key, fields[key].ToString());
+			return string.Format("{0}{1}\" {4}>{2}{3}", TokenPrefix, ret, itoken.TokenIdentifierText(ret).Replace("\n", "").Replace("\r", ""), TokenSuffix, $"style='{itoken.TokenIdentifierStyle(ret)}'");
 		}
 
 		public virtual string GetTokenValue(string category, string token, NameValueCollection extraData)
@@ -295,8 +294,12 @@ namespace TokenManager.Management
 				return new NameValueCollection();
 			var qsRoot = "href=\"/TokenManager";
 			int start = tokenIdentifier.IndexOf(qsRoot, StringComparison.Ordinal) + qsRoot.Length;
-			int end = tokenIdentifier.IndexOf('"', start);
-			return HttpUtility.ParseQueryString(HttpUtility.HtmlDecode(tokenIdentifier.Substring(start, end - start)));
+			int end = -1;
+			if (start > qsRoot.Length-1)
+				end = tokenIdentifier.IndexOf('"', start);
+			if (start > qsRoot.Length - 1 && end > start)
+				return HttpUtility.ParseQueryString(HttpUtility.HtmlDecode(tokenIdentifier.Substring(start, end - start)));
+			return new NameValueCollection();
 		}
 
 		public virtual bool IsInToken(Field field, int startIndex, int length)

@@ -22,7 +22,7 @@ namespace TokenManager.Data.TokenDataTypes
 		public string AngularMarkup
 		{
 			get { return @"
-<div ng-if=""field.Type==3"" class=""field-row {{field.class}}"">
+<div class=""field-row {{field.class}}"">
 		<span class=""field-label"">{{field.Label}} </span>
 		<div class=""field-data"">
 			<input type=""checkbox"" ng-model=""token.data[field.Name]""/>

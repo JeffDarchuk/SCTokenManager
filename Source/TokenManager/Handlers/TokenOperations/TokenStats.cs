@@ -70,6 +70,8 @@ namespace TokenManager.Handlers.TokenOperations
 			foreach (ContentSearchTokens current in TokenKeeper.CurrentKeeper.GetTokenOccurances(_category, _token))
 			{
 				Item item = _database.GetItem(ID.Parse(current.Id), !string.IsNullOrWhiteSpace(current.Language) && LanguageManager.IsValidLanguageName(current.Language) ? LanguageManager.GetLanguage(current.Language) : LanguageManager.DefaultLanguage);
+				if (item == null)
+					throw new Exception("An item in the search index was not found in the database, this is most likely caused by an out of date search index.  Rebuild your index and try again.");
 				foreach (var field in item.Fields.Where(f => f.Type == "Rich Text"))
 					ProcessThisToken(field, ret);
 			}

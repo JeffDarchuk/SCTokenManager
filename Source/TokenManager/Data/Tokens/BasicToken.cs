@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Specialized;
 using Sitecore.Data;
+using Sitecore.StringExtensions;
 using TokenManager.Data.Interfaces;
+using TokenManager.Management;
 
 namespace TokenManager.Data
 {
@@ -20,6 +22,16 @@ namespace TokenManager.Data
 		public IEnumerable<ITokenData> ExtraData()
 		{
 			return null;
+		}
+
+		public string TokenIdentifierText(NameValueCollection extraData)
+		{
+			return "{0} > {1}".FormatWith(extraData["Category"], extraData["Token"]);
+		}
+
+		public string TokenIdentifierStyle(NameValueCollection extraData)
+		{
+			return TokenKeeper.CurrentKeeper.TokenCss;
 		}
 
 		public ID GetBackingItemId()

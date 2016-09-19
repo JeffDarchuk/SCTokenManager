@@ -15,6 +15,7 @@
 		public const string TokenCollectionTemplateBaseId = "{4645BD90-1874-4456-8338-D7440C20A477}";
 
 		public const string TokenRootTemplateId = "{D48A879D-2142-4DFB-A773-C8AF686AE779}";
+		public const string TokenStripOuterPTagsFieldId = "{01038533-5010-4BD2-A2E5-C08D263CCC7A}";
 		#region Token Types
 		//Method Token
 		public const string TokenMethodCollectionTemplateId = "{BB9FBFD1-1C36-4B1C-95C1-E02DEA5B2C8B}";

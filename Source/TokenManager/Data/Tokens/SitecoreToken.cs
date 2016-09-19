@@ -50,7 +50,10 @@ namespace TokenManager.Data.Tokens
 				{
 
 					var item = db.GetItem(BackingId);
-					_databaseToValue[key] = item["Value"];
+					var val = item["Value"];
+					if (item["Strip Outer P Tags"] == "1" && val.StartsWith("<p>") && val.EndsWith("</p>"))
+						val = val.Substring(3, val.Length - 7);
+					_databaseToValue[key] = val;
 					return true;
 				}
 				_databaseToValue[key] = null;

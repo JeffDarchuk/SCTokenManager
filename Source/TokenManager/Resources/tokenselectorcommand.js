@@ -31,16 +31,28 @@ function scTokenSelectorCallback(sender, returnValue) {
 		return;
 	}
 	scEditor.getSelection().selectRange(range);
-	if (scEditor.getSelectedElement() != null && scEditor.getSelectedElement().className === "token-manager-token") {
-		scEditor.getSelectedElement().outerHTML = returnValue;
-	} else {
-		scEditor.pasteHtml(returnValue, "DocumentManager");
-	}
+	if (scEditor.getSelectedElement() != null) {
+		var el = scEditor.getSelectedElement();
+		el = getWrapper(el);
+		if (el && el.className === "token-manager-token") {
+			el.outerHTML = returnValue;
+			return;
+		}
+	} 
+	scEditor.pasteHtml(returnValue, "DocumentManager");
 }
 
 function getToken(editor) {
 	range = editor.getSelection().GetRange();
-	if (editor.getSelectedElement().className === "token-manager-token") {
-		return editor.getSelectedElement().outerHTML;
+	var el = editor.getSelectedElement();
+	el = getWrapper(el);
+	if (el && el.outerHTML)
+		return el.outerHTML;
+	return "";
+}
+function getWrapper(el) {
+	while (el && el.className !== "token-manager-token") {
+		el = el.parentElement;
 	}
+	return el;
 }
