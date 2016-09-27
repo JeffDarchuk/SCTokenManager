@@ -25,9 +25,9 @@ namespace TokenManager.Management
 {
 	class DefaultTokenKeeperService : ITokenKeeperService
 	{
-		public string TokenPrefix => "<div class=\"token-manager-token\" href=\"/TokenManager?";
-		public string TokenSuffix => "</div>";
-		public string TokenRegex = "<.*?/TokenManager?.*</.*?>";
+		public string TokenPrefix => "<span class=\"token-manager-token\" href=\"/TokenManager?";
+		public string TokenSuffix => "</span>";
+		public string TokenRegex = "<[^>]*?/TokenManager?.*?>";
 		public string TokenCss { get; set; }
 		private static readonly ConcurrentDictionary<string, ITokenCollection<IToken>> TokenCollections = new ConcurrentDictionary<string, ITokenCollection<IToken>>();
 		private static readonly ConcurrentDictionary<string, DateTime> TokenCacheUpdateTimes = new ConcurrentDictionary<string, DateTime>(); 
@@ -352,10 +352,22 @@ namespace TokenManager.Management
 		private bool IdentifyTokenLocations(Item item, ID fieldId, Language language, int version, string text)
 		{
 			var collection = Regex.Matches(text, TokenRegex);
-			List<Tuple<int, int>> locations = (from Match m in collection select new Tuple<int, int>(m.Index, m.Length)).Reverse().ToList();
+			List<Tuple<int, int>> locations = (from Match m in collection select new Tuple<int, int>(m.Index, FindTokenEnd(m.Index, text))).Reverse().ToList();
 			var ret = new Tuple<DateTime, List<Tuple<int, int>>>(item.Statistics.Updated, locations);
 			TokenLocations.AddOrUpdate(item.ID + fieldId.ToString() + language.Name + version, ret, (key, value) => ret);
 			return locations.Any();
+		}
+
+		private int FindTokenEnd(int index, string text)
+		{
+			int scope = 0;
+			for (int i = index; i < text.Length - 1; i++)
+			{
+				if (text[i] == '<' && text[i + 1] != '/') scope++;
+				if ((text[i] == '<' && text[i + 1] == '/') || (text[i] == '/' && text[i + 1] == '>')) scope--;
+				if (text[i] == '>' && scope == 0) return i + 1 - index;
+			}
+			return text.Length - 1;
 		}
 
 		/// <summary>
