@@ -395,13 +395,16 @@ namespace TokenManager.Management
 		/// <returns>token collection</returns>
 		private ITokenCollection<IToken> RefreshTokenCollection(string category)
 		{
-			Item[] tokenManagerItems =
-				GetDatabase().SelectItems($"fast:/sitecore/content//*[@@templateid = '{Constants.TokenRootTemplateId}']");
+			var tokenManagerItems =
+				GetDatabase().SelectItems($"fast:/sitecore/content//*[@@templateid = '{Constants.TokenRootTemplateId}']").Union(Globals.LinkDatabase.GetReferrers(this.GetDatabase().GetItem(Constants.TokenRootTemplateId)).Select(x => this.GetDatabase().GetItem(x.SourceItemID)));
+			HashSet<ID> dups = new HashSet<ID>();
 			ITokenCollection<IToken> collection = TokenCollections.ContainsKey(category) ? TokenCollections[category] : null;
 			foreach (Item tokenManagerItem in tokenManagerItems)
 			{
 				if (tokenManagerItem != null)
 				{
+					if (dups.Contains(tokenManagerItem.ID)) continue;
+					dups.Add(tokenManagerItem.ID);
 					Stack<Item> curItems = new Stack<Item>();
 					curItems.Push(tokenManagerItem);
 					while (curItems.Any())

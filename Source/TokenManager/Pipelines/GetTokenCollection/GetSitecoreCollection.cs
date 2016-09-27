@@ -16,11 +16,18 @@ namespace TokenManager.Pipelines.GetTokenCollection
 		/// <param name="args"></param>
 		public void Process(GetTokenCollectionTypeArgs args)
 		{
-			var collection = TokenIdentifier.Current.ResolveCollection<ITokenCollection<IToken>>(args.CollectionItem);
-			if (collection != null)
+			try
 			{
-				args.Collection = collection;
-				args.AbortPipeline();
+				var collection = TokenIdentifier.Current.ResolveCollection<ITokenCollection<IToken>>(args.CollectionItem);
+				if (collection != null)
+				{
+					args.Collection = collection;
+					args.AbortPipeline();
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Error("Issue resolving token collection " + args.CollectionItem + " this could be due to the link database needing to be rebuilt or a database cleanup operation needs to be run", e, this);
 			}
 		}
 	}
