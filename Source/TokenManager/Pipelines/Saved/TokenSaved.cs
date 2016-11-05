@@ -51,6 +51,8 @@ namespace TokenManager.Pipelines.Saved
 				var collection = TokenKeeper.CurrentKeeper.GetTokenCollections().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
 				if (collection != null)
 				{
+					TokenKeeper.CurrentKeeper.RemoveCollection(collection.GetCollectionLabel());
+					TokenKeeper.CurrentKeeper.RefreshTokenCollection();
 					var newCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(item.ID);
 					if (newCollection == null || collection.GetCollectionLabel() == newCollection.GetCollectionLabel()) return;
 					foreach (var token in collection.GetTokens())

@@ -17,15 +17,17 @@ using Sitecore.Globalization;
 using Sitecore.Pipelines;
 using Sitecore.Pipelines.RenderField;
 using Sitecore.SecurityModel;
+using TokenManager.Collections;
 using TokenManager.ContentSearch;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.Tokens;
 using TokenManager.Pipelines;
 
 namespace TokenManager.Management
 {
 	class DefaultTokenKeeperService : ITokenKeeperService
 	{
-		public string TokenPrefix => "<span class=\"token-manager-token\" href=\"/TokenManager?";
+		public string TokenPrefix => "<span  contenteditable=\"false\" unselectable=\"on\" class=\"token-manager-token\" href=\"/TokenManager?";
 		public string TokenSuffix => "</span>";
 		public string TokenRegex = "<[^>]*?/TokenManager?.*?>";
 		public string TokenCss { get; set; }
@@ -58,6 +60,17 @@ namespace TokenManager.Management
 			}
 		}
 
+		public void LoadAutoToken(AutoToken token)
+		{
+			if (TokenCollections.ContainsKey(token.CollectionName))
+				TokenCollections[token.CollectionName].AddOrUpdateToken(token.Token, token);
+			else
+			{
+				TokenCollections[token.CollectionName] = new AutoTokenCollection(token);
+				TokenCollections[token.CollectionName].AddOrUpdateToken(token.Token, token);
+			}
+		}
+
 		public virtual string ReplaceRTETokens(RenderFieldArgs args, string text)
 		{
 			StringBuilder sb = new StringBuilder(text);
@@ -66,9 +79,10 @@ namespace TokenManager.Management
 				return text;
 			foreach (var location in TokenLocations[args.Item.ID.ToString() + current + args.Item.Language.Name + args.Item.Version.Number].Item2)
 			{
-				if (location.Item1 + location.Item2 > text.Length)
+				if (location.Item1 + location.Item2 > text.Length && !args.WebEditParameters.ContainsKey("reseted"))
 				{
 					ResetTokenLocations(args.Item.ID, current, args.Item.Language, args.Item.Version.Number);
+					args.WebEditParameters["reseted"] = "1";
 					return ReplaceRTETokens(args, text);
 				}
 				string token = sb.ToString(location.Item1, location.Item2);
@@ -210,16 +224,15 @@ namespace TokenManager.Management
 
 			if (!TokenCollections.ContainsKey(collectionName) || !IsCollectionValid(TokenCollections[collectionName]))
 			{
-				var collection = RefreshTokenCollection(collectionName);
+				RefreshTokenCollection(collectionName);
+				var collection = TokenCollections.ContainsKey(collectionName) &&
+				                 !IsCollectionValid(TokenCollections[collectionName])
+					? TokenCollections[collectionName]
+					: null;
 				if (collection != null)
-				{
-					LoadTokenCollection(collection);
 					collectionName = collection.GetCollectionLabel();
-				}
 				else if (TokenCollections.ContainsKey(collectionName))
 					RemoveCollection(collectionName);
-
-
 			}
 			if (TokenCollections.ContainsKey(collectionName) && TokenCollections[collectionName].IsCurrentContextValid(item) && IsCollectionValid(TokenCollections[collectionName]))
 				return TokenCollections[collectionName] as ITokenCollection<T>;
@@ -361,13 +374,13 @@ namespace TokenManager.Management
 		private int FindTokenEnd(int index, string text)
 		{
 			int scope = 0;
-			for (int i = index; i < text.Length - 1; i++)
+			for (int i = index; i < text.Length; i++)
 			{
 				if (text[i] == '<' && text[i + 1] != '/') scope++;
 				if ((text[i] == '<' && text[i + 1] == '/') || (text[i] == '/' && text[i + 1] == '>')) scope--;
 				if (text[i] == '>' && scope == 0) return i + 1 - index;
 			}
-			return text.Length - 1;
+			return text.Length;
 		}
 
 		/// <summary>
@@ -394,6 +407,8 @@ namespace TokenManager.Management
 		/// <returns>boolean for if the token is valid</returns>
 		private bool IsCollectionValid(ITokenCollection<IToken> collection)
 		{
+			if (collection.GetBackingItemId() == (ID)null)
+				return true;
 			var item = GetDatabase().GetItem(collection.GetBackingItemId());
 			if (item != null && item.Statistics.Updated <= TokenCacheUpdateTimes[collection.GetCollectionLabel()])
 				return true;
@@ -405,12 +420,12 @@ namespace TokenManager.Management
 		/// </summary>
 		/// <param name="category"></param>
 		/// <returns>token collection</returns>
-		private ITokenCollection<IToken> RefreshTokenCollection(string category)
+		public ITokenCollection<IToken> RefreshTokenCollection(string category = null)
 		{
 			var tokenManagerItems =
 				GetDatabase().SelectItems($"fast:/sitecore/content//*[@@templateid = '{Constants.TokenRootTemplateId}']").Union(Globals.LinkDatabase.GetReferrers(this.GetDatabase().GetItem(Constants.TokenRootTemplateId)).Select(x => this.GetDatabase().GetItem(x.SourceItemID)));
 			HashSet<ID> dups = new HashSet<ID>();
-			ITokenCollection<IToken> collection = TokenCollections.ContainsKey(category) ? TokenCollections[category] : null;
+			ITokenCollection<IToken> collection = category != null && TokenCollections.ContainsKey(category) ? TokenCollections[category] : null;
 			foreach (Item tokenManagerItem in tokenManagerItems)
 			{
 				if (tokenManagerItem != null)
@@ -428,8 +443,8 @@ namespace TokenManager.Management
 							if (collection.GetBackingItemId() == cur.ID)
 							{
 								ITokenCollection<IToken> col = GetCollectionFromItem(cur);
-								LoadTokenCollection(col);
 								RemoveCollection(category);
+								LoadTokenCollection(col);
 								return col;
 							}
 						}
@@ -437,10 +452,11 @@ namespace TokenManager.Management
 						// this means that the token doesn't exist yet, lets create it.
 						{
 							ITokenCollection<IToken> col = GetCollectionFromItem(cur);
-							if (col != null && col.GetCollectionLabel() == category)
+							if (col != null && col.GetCollectionLabel() == category || category == null)
 							{
 								LoadTokenCollection(col);
-								return col;
+								if (category != null)
+									return col;
 							}
 						}
 						foreach (Item child in cur.Children)

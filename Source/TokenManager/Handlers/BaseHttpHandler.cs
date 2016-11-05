@@ -99,7 +99,7 @@ namespace TokenManager.Handlers
 		/// <param name="o"></param>
 		protected void ReturnJson(HttpContextBase context, object o)
 		{
-			var json = o == null ? string.Empty : JsonConvert.SerializeObject(o);
+			var json = o == null ? string.Empty : JsonNetWrapper.SerializeObject(o);
 			context.Response.AppendHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
 			context.Response.AppendHeader("Pragma", "no-cache"); // HTTP 1.0.
 			context.Response.AppendHeader("Expires", "0"); // Proxies.

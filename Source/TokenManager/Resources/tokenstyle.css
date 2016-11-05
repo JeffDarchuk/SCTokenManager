@@ -3,7 +3,7 @@
 h3, h1 {
 	color: white;
 	background-color: #2b2b2b;
-	margin: 0px;
+	margin: -4px -8px;
 	padding: 20px;
     font-size: 2em;
 }
@@ -19,7 +19,6 @@ body {
     color: #131313;
     border: none;
     outline: 0;
-    height: 100%;
 }
 ul {
 	list-style-type: none;
@@ -51,7 +50,7 @@ li {
 }
 
 .close {
-	background: url(/sitecore/shell/themes/standard/Images/Window%20Management/dialog_close.png) no-repeat center center;
+	background: url(/tokenmanager/dialog_close.png) no-repeat center center;
 	float: right;
 	cursor: pointer;
 }
@@ -85,16 +84,17 @@ h3 .close {
 .tab-pane {
 	background-color: white;
 	height: 19px;
-    margin-top: 10px;
+    margin-top: 15px;
 }
 
 .selected {
 	background-color: rgb(240, 240, 240);
 	border-bottom: thin solid rgb(240, 240, 240);
 }
-#functional {
-    border-top: thin solid black;
+#tabs + #functional {
+    border: thin solid black;
     padding: 15px;
+	background-color: rgb(240, 240, 240);
 }
 .full-height {
 	height: 100%;
@@ -117,10 +117,14 @@ th {
 .even td {
 	background-color: white;
 }
-.token-form {
+#tabs + #functional .token-form {
+	margin-top: 0px;
 	padding: 15px;
 	background-color: white;
 	border: thin solid black;
+}
+.token-form {
+    margin-top: 15px;
 }
 strong {
 	  color: black;
@@ -157,9 +161,27 @@ input {
 }
 
 .btn {
-        border: thin solid darkgrey;
-        margin: 5px;
-        background-image: linear-gradient(to bottom, #f0f0f0 0%, #d9d9d9 100%);
+    border: thin solid darkgrey;
+    margin: 5px;
+    background-image: linear-gradient(to bottom, #d0d0d0 0%, #f9f9f9 100%);
+	display: inline-block;
+    margin-bottom: 0;
+    font-weight: normal;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    white-space: nowrap;
+    padding: 8px 12px;
+    font-size: 12px;
+    line-height: 1.42857143;
+    border-radius: 6px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.btn:active {
+	background-image: linear-gradient(to top, #a0a0a0 100%, #d9d9d9 0%);
 }
 td .btn, a .btn {
 	display: block;
@@ -220,3 +242,18 @@ a.scContentTreeNodeActive {
   .scContentTreeSelectable {
       cursor: pointer;
   }
+
+  img {
+    vertical-align: middle;
+    border: 0;
+}
+  * {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+  *:before, *:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}

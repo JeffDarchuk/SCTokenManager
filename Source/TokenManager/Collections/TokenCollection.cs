@@ -6,6 +6,7 @@ using Sitecore;
 using Sitecore.Data;
 using Sitecore.Data.Items;
 using TokenManager.Data.Interfaces;
+using TokenManager.Handlers;
 using TokenManager.Management;
 
 namespace TokenManager.Collections
@@ -214,6 +215,9 @@ namespace TokenManager.Collections
 
 		private static bool IsAllowed(Item tokenTarget, Item filterable)
 		{
+			Item Datasource = TokenManagerHandler.GetDatasourceItem();
+			if (Datasource == null)
+				Datasource = tokenTarget;
 			while (filterable.Fields["Item Ancestor"] != null && filterable.Fields["Item Template"] != null)
 			{
 				if (

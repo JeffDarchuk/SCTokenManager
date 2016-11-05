@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Routing;
+using System.Xml;
 using Sitecore;
 using Sitecore.Configuration;
 using Sitecore.ContentSearch.FieldReaders;
@@ -25,6 +26,7 @@ using Sitecore.Install.Utils;
 using Sitecore.Pipelines;
 using Sitecore.SecurityModel;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.Tokens;
 using TokenManager.Handlers;
 using TokenManager.Management;
 
@@ -48,17 +50,16 @@ namespace TokenManager.Pipelines.Initialize
 			}
 			if (TokenKeeper.TokenSingleton == null)
 			{
-				RegisterSitecoreTokens();
 				TokenKeeper.TokenSingleton = Tokens;
 			}
-
 			Assert.ArgumentNotNull(args, "args");
 			RegisterRoutes("tokenManager");
-			ValidateInsertOptions();
+			TokenKeeper._isSc8 = IsSc8();
 			if (RequiredSitecoreItemsMissing())
 			{
 				var filepath = "";
-				if (System.Text.RegularExpressions.Regex.IsMatch(Settings.DataFolder, @"^(([a-zA-Z]:\\)|(//)).*")) //if we have an absolute path, rather than relative to the site root
+				if (System.Text.RegularExpressions.Regex.IsMatch(Settings.DataFolder, @"^(([a-zA-Z]:\\)|(//)).*"))
+					//if we have an absolute path, rather than relative to the site root
 					filepath = Settings.DataFolder +
 							   @"\packages\TokenManager.TokenManagerPackage.zip";
 				else
@@ -67,7 +68,7 @@ namespace TokenManager.Pipelines.Initialize
 				try
 				{
 					var manifestResourceStream = GetType().Assembly
-						.GetManifestResourceStream("TokenManager.Resources.TokenManagerPackage.zip");
+						.GetManifestResourceStream(TokenKeeper.IsSc8 ? "TokenManager.Resources.TokenManagerPackage.zip" : "TokenManager.Resources.TokenManagerSc7.zip");
 					manifestResourceStream?.CopyTo(new FileStream(filepath, FileMode.Create));
 					Task.Run(() =>
 					{
@@ -101,6 +102,8 @@ namespace TokenManager.Pipelines.Initialize
 							else
 								Thread.Sleep(1000);
 						}
+						RegisterSitecoreTokens();
+						ValidateInsertOptions();
 					});
 				}
 				catch (Exception e)
@@ -108,8 +111,19 @@ namespace TokenManager.Pipelines.Initialize
 					Log.Error("TokenManager was unable to initialize", e, this);
 				}
 			}
+			else
+			{
+				RegisterSitecoreTokens();
+				ValidateInsertOptions();
+			}
 		}
-
+		private static bool IsSc8()
+		{
+			XmlDocument doc = new XmlDocument();
+			doc.Load(HttpRuntime.AppDomainAppPath + "/sitecore/shell/sitecore.version.xml");
+			var selectSingleNode = doc.SelectSingleNode("/information/version/major");
+			return selectSingleNode != null && selectSingleNode.InnerText == "8";
+		}
 		private static void ValidateInsertOptions()
 		{
 			Item sv = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(Constants.TokenCollectionStandardValuesId);
@@ -181,25 +195,30 @@ namespace TokenManager.Pipelines.Initialize
 		/// </summary>
 		private void RegisterSitecoreTokens()
 		{
-			Item[] tokenManagerItems =
-				Tokens.GetDatabase().SelectItems($"fast:/sitecore/content//*[@@templateid = '{Constants.TokenRootTemplateId}']");
-			foreach (Item tokenManagerItem in tokenManagerItems)
-			{
-				if (tokenManagerItem == null) return;
-				Stack<Item> curItems = new Stack<Item>();
-				curItems.Push(tokenManagerItem);
-				while (curItems.Any())
-				{
-					Item cur = curItems.Pop();
-					ITokenCollection<IToken> col = Tokens.GetCollectionFromItem(cur);
-					if (col != null)
-						Tokens.LoadTokenCollection(col);
-					else
-						foreach (Item child in cur.Children)
-							curItems.Push(child);
-				}
-			}
+			Tokens.RefreshTokenCollection();
+			var autoTokens =
+				AppDomain.CurrentDomain.GetAssemblies()
+					.SelectMany(GetAutoTokenTypes)
+						.Select(t => (AutoToken) Activator.CreateInstance(t));
+			foreach (AutoToken token in autoTokens)
+				Tokens.LoadAutoToken(token);
 		}
+
+		private IEnumerable<Type> GetAutoTokenTypes(Assembly a)
+		{
+			IEnumerable<Type> types = null;
+			try
+			{
+				types = a.GetTypes().Where(t => t.IsSubclassOf(typeof (AutoToken)) && !t.IsAbstract);
+			}
+			catch (ReflectionTypeLoadException e)
+			{
+				types = e.Types.Where(t => t != null && t.IsSubclassOf(typeof (AutoToken)) && !t.IsAbstract);
+			}
+			if (types == null) yield break;
+			foreach (var type in types)
+				yield return type;
+		} 
 
 		/// <summary>
 		/// Registers the MVC routes for the TokenManager web app

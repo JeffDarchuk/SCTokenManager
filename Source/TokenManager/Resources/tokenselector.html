@@ -4,14 +4,14 @@
 	        <p ng-if="!master.isRTE">Select a token to view token statistics.</p>
 	        <li ng-repeat="category in vm.categories">
 	            <span ng-click="vm.loadTokens(category.Label);">
-                    <img ng-if="category.Label != vm.category" src="/sitecore/shell/themes/standard/images/treemenu_collapsed.png" class="scContentTreeNodeGlyph" alt="" border="0" />
-                    <img ng-if="category.Label == vm.category" src="/sitecore/shell/themes/standard/images/treemenu_expanded.png" class="scContentTreeNodeGlyph" alt="" border="0" />
-                    <img ng-src="/temp/IconCache/{{category.Icon}}" width="16" height="16" class="scContentTreeNodeIcon" alt="" border="0" />
+                    <img ng-if="category.Label != vm.category" src="tokenmanager/treemenu_collapsed.png" class="scContentTreeNodeGlyph" alt="" border="0" />
+                    <img ng-if="category.Label == vm.category" src="tokenmanager/treemenu_expanded.png" class="scContentTreeNodeGlyph" alt="" border="0" />
+                    <img ng-src="{{category.Icon}}" width="16" height="16" class="scContentTreeNodeIcon" alt="" border="0" />
                     {{category.Label}}
                 </span>
 	            <ul ng-if="category.Label == vm.category">
 	                <li ng-repeat="token in vm.tokens">
-	                    <img src="/sitecore/shell/themes/standard/images/noexpand15x15.gif" class="scContentTreeNodeGlyph" alt="" border="0"><span ng-click="vm.returnToken(category.Label, token.Label);"><img ng-src="/temp/IconCache/{{token.Icon}}" width="16" height="16" class="scContentTreeNodeGlyph" alt="" border="0"> {{token.Label}}</span>
+	                    <img src="/sitecore/shell/themes/standard/images/noexpand15x15.gif" class="scContentTreeNodeGlyph" alt="" border="0"><span ng-click="vm.returnToken(category.Label, token.Label);"><img ng-src="{{token.Icon}}" width="16" height="16" class="scContentTreeNodeGlyph" alt="" border="0"> {{token.Label}}</span>
 	                </li>
 	            </ul>
 	            <div></div>
@@ -25,7 +25,7 @@
 			<a href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{vm.tokenStats.TokenCollectionItemId}}" class="btn fancybox fancybox.iframe">Edit Token Collection</a>
 			<a ng-if="vm.tokenStats.TokenItemId !== null" href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{vm.tokenStats.TokenItemId}}" class="btn fancybox fancybox.iframe">Edit Token</a>
 			<p>Token is used {{vm.tokenStats.Uses}} times.</p>
-			<dir-pagination-controls pagination-id="pagination" template-url="/tokenmanager/dirpagination.html">
+			<dir-pagination-controls pagination-id="pagination" template-url="tokenmanager/dirpagination.html">
 			</dir-pagination-controls>
 			<table>
 				<tr>

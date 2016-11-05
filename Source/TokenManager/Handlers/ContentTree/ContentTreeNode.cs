@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Sitecore;
 using Sitecore.Data;
 using Sitecore.Data.Items;
+using Sitecore.Data.Managers;
 using Sitecore.StringExtensions;
 
 namespace TokenManager.Handlers.ContentTree
@@ -11,7 +13,7 @@ namespace TokenManager.Handlers.ContentTree
 	{
 		public string Icon = "";
 		public string DisplayName;
-		public ID Id;
+		public string Id;
 		public bool Open;
 		public List<ContentTreeNode> Nodes;
 
@@ -24,7 +26,7 @@ namespace TokenManager.Handlers.ContentTree
 			Open = open;
 			SetIcon(item);
 			DisplayName = item.DisplayName;
-			Id = item.ID;
+			Id = item.ID.ToString();
 			if (Open)
 				Nodes = item.Children.Select(c => new ContentTreeNode(c)).ToList();
 		}
@@ -33,14 +35,19 @@ namespace TokenManager.Handlers.ContentTree
 		{
 			if (item != null)
 			{
-
-				Icon = null;
-				Icon = item[FieldIDs.Icon];
-				if (Icon.IsNullOrEmpty() && item.Template != null)
-				{
-					Icon = item.Template.Icon;
-				}
+				Icon = GetSrc(ThemeManager.GetIconImage(item, 32, 32, "", ""));
 			}
+			//if (!string.IsNullOrWhiteSpace(Icon))
+			//{
+			//	string[] parts = Icon.Split('/');
+			//	Icon = string.Join("/", parts.Skip(parts.Length - 3));
+			//}
+		}
+		private string GetSrc(string imgTag)
+		{
+			int i1 = imgTag.IndexOf("src=\"", StringComparison.Ordinal) + 5;
+			int i2 = imgTag.IndexOf("\"", i1, StringComparison.Ordinal);
+			return imgTag.Substring(i1, i2 - i1);
 		}
 	}
 }

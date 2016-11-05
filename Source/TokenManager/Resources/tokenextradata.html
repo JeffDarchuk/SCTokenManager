@@ -2,5 +2,5 @@
     {{token.fieldValues[field.Name]}}
 	<div bind-html-compile="field.AngularMarkup"></div>
 </div>
-<a class="btn" ng-click="token.fields=false">Back</a>
+<a class="btn" ng-if="!token.preset"ng-click="token.fields=false">Back</a>
 <a class="btn" ng-click="token.submit()">Submit</a>

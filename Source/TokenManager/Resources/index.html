@@ -25,14 +25,13 @@
 			return false;
 		}
 	</script>
-	<link rel="stylesheet" href="/sitecore/shell/client/Speak/Assets/css/speak-default-theme.css" />
 	<link rel="stylesheet" href="tokenmanager/tokenstyle.css">
 
 </head>
-<body class="full-height">
+<body>
 
-	<div class="full-height" ng-controller="master as vm">
-		<h3 class="title-bar">Token Manager<span ng-if="vm.isRTE" class="close" onclick="scCloseRadWindow();"></span></h3>
+	<div ng-controller="master as vm">
+		<h3 class="title-bar"><span id="tmtitle">Token Manager</span><span ng-if="vm.isRTE" class="close" onclick="scCloseRadWindow();"></span></h3>
 		<h3>TokenManager</h3>
 		<div ng-if="!vm.isRTE" id="tabs" class="tab-pane">
 			<span ng-click="vm.activePage = 'selector'" ng-class="vm.activePage==='selector' ? 'selected' : ''" class="tab">Token Selector</span>
@@ -64,7 +63,8 @@
 	<script src="tokenmanager/contenttreecontroller.js"></script>
 	<script src="tokenmanager/tokenextradatadirective.js"></script>
 	<script src="tokenmanager/dirpagination.js"></script>
-
+<preset></preset>
+<datasource></datasource>
 
 </body>
 

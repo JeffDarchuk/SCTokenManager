@@ -8,6 +8,7 @@ using Sitecore.Data.Items;
 using Sitecore.Globalization;
 using Sitecore.Pipelines.RenderField;
 using TokenManager.ContentSearch;
+using TokenManager.Data.Tokens;
 
 namespace TokenManager.Data.Interfaces
 {
@@ -23,6 +24,12 @@ namespace TokenManager.Data.Interfaces
 		/// </summary>
 		/// <param name="collection"></param>
 		void LoadTokenCollection(ITokenCollection<IToken> collection);
+
+		/// <summary>
+		/// Loads up a self contained token instance
+		/// </summary>
+		/// <param name="token">The token reference</param>
+		void LoadAutoToken(AutoToken token);
 
 		/// <summary>
 		/// handles replacing the text from a render field pipeline
@@ -214,6 +221,12 @@ namespace TokenManager.Data.Interfaces
 		/// <param name="itemId"></param>
 		/// <param name="fieldId"></param>
 		void ResetTokenLocations(ID itemId, ID fieldId, Language language, int versionNumber);
+
+		/// <summary>
+		/// refreshes the cache for the token collection, if passed in null it refreshes all tokens
+		/// </summary>
+		/// <param name="collection"></param>
+		ITokenCollection<IToken> RefreshTokenCollection(string collection = null);
 
 		/// <summary>
 		/// given an item that represents a token collection it will return the collection

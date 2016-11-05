@@ -5,14 +5,17 @@ using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Web;
+using Microsoft.CSharp.RuntimeBinder;
 using Newtonsoft.Json;
 using Sitecore;
 using Sitecore.Configuration;
 using Sitecore.Data;
 using Sitecore.Data.Items;
+using Sitecore.Data.Managers;
 using Sitecore.Diagnostics;
 using TokenManager.Collections;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.Tokens;
 using TokenManager.Handlers.ContentTree;
 using TokenManager.Handlers.TokenOperations;
 using TokenManager.Management;
@@ -47,8 +50,26 @@ namespace TokenManager.Handlers
 		{
 			using (StreamReader sr = new StreamReader(context.Request.InputStream))
 			{
-				return JsonConvert.DeserializeObject<ExpandoObject>(sr.ReadToEnd());
+				dynamic ret = JsonNetWrapper.DeserializeObject<ExpandoObject>(sr.ReadToEnd());
+				try
+				{
+					HttpContext.Current.Items["datasource"] = ret.sc_itemid;
+				}
+				catch (RuntimeBinderException)
+				{
+				}
+				return ret;
 			}
+		}
+
+		public static Item GetDatasourceItem()
+		{
+			string id = HttpContext.Current.Items["datasource"]?.ToString();
+			if (!string.IsNullOrWhiteSpace(id))
+			{
+				return TokenKeeper.CurrentKeeper.GetDatabase().GetItem(id);
+			}
+			return null;
 		}
 
 		public static IToken GetSelectedToken(HttpContextBase context)
@@ -86,7 +107,20 @@ namespace TokenManager.Handlers
 				{
 					_userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value] =
 						context.Request.QueryString["token"];
-					ReturnResource(context, "index.html", "text/html");
+					string preset = context.Request.QueryString["preset"];
+					string html = GetResource("index.html").Replace("<datasource></datasource>", $"<script>var tmDatasource='{context.Request.QueryString["sc_itemid"]}';</script>");
+					if (!string.IsNullOrWhiteSpace(preset))
+					{
+						var selectedToken =
+							TokenKeeper.CurrentKeeper.TokenProperties(_userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value]);
+						var presetToken =
+							TokenKeeper.CurrentKeeper.TokenProperties(preset);
+						if (selectedToken["Category"] != presetToken["Category"] || selectedToken["Token"] != presetToken["Token"])
+							_userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value] = preset;
+					}
+					if (!string.IsNullOrWhiteSpace(_userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value]))
+						html = html.Replace("<preset></preset>", "<script>var tmPreset=true;</script>");
+					ReturnResponse(context, html, "text/html");
 				}
 				else if (file.EndsWith(".js"))
 					ReturnResource(context, file, "application/javascript");
@@ -99,6 +133,10 @@ namespace TokenManager.Handlers
 					ReturnResource(context, file, "text/css");
 				else if (file.EndsWith(".gif"))
 					ReturnImage(context, file, ImageFormat.Gif, "image/gif");
+				else if (file.EndsWith(".png"))
+					ReturnImage(context, file, ImageFormat.Png, "image/png");
+				else if (file.EndsWith(".jpg"))
+					ReturnImage(context, file, ImageFormat.Jpeg, "image/jpg");
 				else if (file == "categories.json")
 					ReturnJson(context, GetTokenCategories());
 				else if (file == "tokens.json")
@@ -125,6 +163,10 @@ namespace TokenManager.Handlers
 					ReturnJson(context, GetContentSelectedRelated(context));
 				else if (file == "tokenselected.json")
 					ReturnJson(context, GetRichTextSelectedToken(context));
+				else if (file == "anytokensvalid.json")
+					ReturnJson(context, TokenKeeper.CurrentKeeper.GetTokenCollections().Any(x => x.IsCurrentContextValid(TokenKeeper.CurrentKeeper.GetDatabase().GetItem(context.Request.QueryString["sc_itemid"]))));
+				else if (file == "tokenvalid.json")
+					ReturnJson(context, IsTokenValid(context));
 				else
 					NotFound(context);
 			}
@@ -133,6 +175,24 @@ namespace TokenManager.Handlers
 				Log.Error("TokenManager failed to return the proper resource", e, this);
 				Error(context, e);
 			}
+		}
+		/// <summary>
+		/// returns true if the requested token is valid in this instance
+		/// </summary>
+		/// <param name="context"></param>
+		/// <returns></returns>
+		private object IsTokenValid(HttpContextBase context)
+		{
+			var tokenData = HttpUtility.ParseQueryString(context.Request.Form["tokenString"]);
+			HttpContext.Current.Items["datasource"] = context.Request.Form["datasource"];
+			bool? catValid = TokenKeeper.CurrentKeeper.GetTokenCollections().FirstOrDefault(x => x.GetCollectionLabel() == tokenData["category"])?
+				.IsCurrentContextValid(GetDatasourceItem());
+			if (catValid == null || !catValid.Value)
+				return false;
+			var token = TokenKeeper.CurrentKeeper.GetToken(tokenData["category"], tokenData["token"]) as AutoToken;
+			if (token == null)
+				return true;
+			return token.IsCurrentContextValid(GetDatasourceItem());
 		}
 
 		/// <summary>
@@ -144,8 +204,8 @@ namespace TokenManager.Handlers
 		{
 			var data = GetPostData(context);
 			var db = TokenKeeper.CurrentKeeper.GetDatabase();
-			Item current = db.GetItem(data.currentId);
-			Item selected = db.GetItem(data.selectedId);
+			Item current = db.GetItem(new ID(data.currentId));
+			Item selected = db.GetItem(new ID(data.selectedId));
 			return selected.Paths.FullPath.StartsWith(current.Paths.FullPath);
 		}
 
@@ -309,7 +369,7 @@ namespace TokenManager.Handlers
 		private static object GetTokens(HttpContextBase context)
 		{
 			var data = GetPostData(context);
-			return ((IEnumerable<IToken>)TokenKeeper.CurrentKeeper.GetTokens(data.category)).Select(ResolveToken);
+			return ((IEnumerable<IToken>)TokenKeeper.CurrentKeeper.GetTokens(data.category)).Where(x => !(x is AutoToken) || ((AutoToken)x).IsCurrentContextValid(GetDatasourceItem())).Select(ResolveToken);
 		}
 
 		private static dynamic ResolveToken(IToken token)
@@ -324,13 +384,16 @@ namespace TokenManager.Handlers
 				ret.Icon = "";
 				if (tokenItem != null)
 				{
-					ret.Icon = tokenItem[FieldIDs.Icon];
+					ret.Icon = GetIcon(tokenItem[FieldIDs.Icon]);
 					if (string.IsNullOrWhiteSpace(ret.Icon))
-						ret.Icon = tokenItem.Template.InnerItem[FieldIDs.Icon];
+						ret.Icon = GetIcon(tokenItem.Template.InnerItem[FieldIDs.Icon]);
 				}
 			}
+			AutoToken autoToken = token as AutoToken;
+			if (autoToken != null)
+				ret.Icon = GetIcon(autoToken.TokenIcon);
 			if (string.IsNullOrWhiteSpace(ret.Icon))
-				ret.Icon = "Office/32x32/package.png";
+				ret.Icon = TokenKeeper.IsSc8 ? GetIcon("Office/32x32/package.png") : GetIcon("People/32x32/cube_green.png");
 			return ret;
 
 		}
@@ -341,21 +404,23 @@ namespace TokenManager.Handlers
 		/// <returns></returns>
 		private static object GetTokenCategories()
 		{
-			var db = TokenKeeper.CurrentKeeper.GetDatabase();
-			var item = Context.Item;
-			if (item == null)
-			{
-				var itemId = HttpContext.Current.Request.QueryString.Get("sc_itemid");
-				if (string.IsNullOrWhiteSpace(itemId))
-					return null;
-				item = db.GetItem(itemId);
-				if (item != null)
-				{
-					Context.Item = item;
-					if (item.IsTokenManagerItem())
-						return null;
-				}
-			}
+			//var db = TokenKeeper.CurrentKeeper.GetDatabase();
+			//var item = GetDatasourceItem();
+			//if (item == null)
+			//	item = Context.Item;
+			//if (item == null)
+			//{
+			//	var itemId = HttpContext.Current.Request.QueryString.Get("sc_itemid");
+			//	if (string.IsNullOrWhiteSpace(itemId))
+			//		return null;
+			//	item = db.GetItem(itemId);
+			//	if (item != null)
+			//	{
+			//		Context.Item = item;
+			//		if (item.IsTokenManagerItem())
+			//			return null;
+			//	}
+			//}
 			return TokenKeeper.CurrentKeeper.GetTokenCollections().Select(GetTokenLabelAndIcon);
 		}
 
@@ -368,10 +433,26 @@ namespace TokenManager.Handlers
 		{
 			dynamic ret = new ExpandoObject();
 			ret.Label = arg.GetCollectionLabel();
-			ret.Icon = arg.SitecoreIcon;
+			ret.Icon =arg.SitecoreIcon;
 			if (string.IsNullOrWhiteSpace(ret.Icon))
-				ret.Icon = "Office/32x32/package.png";
+				ret.Icon = TokenKeeper.IsSc8 ? GetIcon("Office/32x32/package.png") : GetIcon("People/32x32/cube_green.png");
+			else
+				ret.Icon = GetIcon(ret.Icon);
 			return ret;
+		}
+		private static string GetIcon(string icon)
+		{
+			return GetSrc(ThemeManager.GetImage(icon, 32, 32));
+		}
+		private static string GetSrc(string imgTag)
+		{
+			int i1 = imgTag.IndexOf("src=\"", StringComparison.Ordinal) + 5;
+			if (i1 == 4)
+				return "";
+			int i2 = imgTag.IndexOf("\"", i1, StringComparison.Ordinal);
+			if (i2 <= i1 || i2 == -1)
+				return "";
+			return imgTag.Substring(i1, i2 - i1);
 		}
 
 	}

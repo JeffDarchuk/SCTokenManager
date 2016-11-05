@@ -93,6 +93,10 @@
 		}
 		if (typeof (window.parent.scTokenSelectorCallback) !== "undefined")
 			tokenfactory.getSelectedToken().then(function (response) {
+				if (typeof (tmPreset) !== "undefined" && tmPreset) {
+					document.getElementById("tmtitle").innerText = document.getElementById("tmtitle").innerText.replace("Token Manager",response.data.Category + " " +  response.data.Token);
+					vm.preset = true;
+				}
 				if (response.data.Category !== null)
 					vm.loadTokens(response.data.Category);
 				vm.fields = response.data.Fields;

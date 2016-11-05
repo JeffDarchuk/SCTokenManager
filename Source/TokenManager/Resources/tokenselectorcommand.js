@@ -1,9 +1,11 @@
 ﻿var scEditor = null;
 var scTool = null;
 var range = null;
+var tmPreset = new Object();
 //Set the Id of your button into the RadEditorCommandList[]
 if (typeof RadEditorCommandList == "undefined")
 	RadEditorCommandList = Telerik.Web.UI.Editor.CommandList;
+
 RadEditorCommandList["TokenSelector"] = function (commandName, editor, args) {
 	var d = Telerik.Web.UI.Editor.CommandList._getLinkArgument(editor);
 	Telerik.Web.UI.Editor.CommandList._getDialogArguments(d, "A", editor, "DocumentManager");
@@ -12,7 +14,7 @@ RadEditorCommandList["TokenSelector"] = function (commandName, editor, args) {
 
 	var token = getToken(editor);
 	editor.showExternalDialog(
-        "/TokenManager?sc_itemid=" + scItemID + "&token=" + encodeURIComponent(token),
+        "/TokenManager?sc_itemid=" + scItemID + "&token=" + encodeURIComponent(token) + "&preset=" + encodeURIComponent(tmPreset[commandName]),
         null, //argument
         600,
         500,
@@ -25,6 +27,39 @@ RadEditorCommandList["TokenSelector"] = function (commandName, editor, args) {
         false //showTitleBar
         );
 };
+setInterval(function() {
+	var els = document.getElementById("Editor_contentIframe").contentWindow.document.getElementsByClassName("token-manager-token");
+	for (var i = 0; i < els.length; i++) {
+		var el = els[i];
+		el.onclick = function () {
+			var tm = window.parent.document.getElementById('scContentIframeId0').contentWindow.jQuery('.TokenSelector');
+			tm.click();
+		}
+	}
+}, 500);
+
+jQuery("[class^='TokenSelector']").each(function (i, el) {
+	if (el.className !== "TokenSelector") {
+		RadEditorCommandList[el.className] = RadEditorCommandList["TokenSelector"];
+		var index = el.parentNode.title.indexOf("(");
+		var tokenString = el.parentNode.title.substring(el.parentNode.title.indexOf("?")+1, el.parentNode.title.indexOf(")"));
+		tmPreset[el.className] = "href=\"/TokenManager?" + tokenString + "\"";
+		el.parentNode.title = el.parentNode.title.substring(0, index);
+		jQuery.post("/tokenmanager/tokenvalid.json", { "tokenString": tokenString, "datasource": scItemID }).done(function (data) {
+			if (!data) {
+				el.parentNode.parentNode.style.display = "none";
+			}
+		});
+	} else {
+		tmPreset[el.className] = "";
+	}
+});
+jQuery.get("/tokenmanager/anytokensvalid.json?sc_itemid=" + scItemID)
+	.done(function (data) {
+		if (!data) {
+			jQuery(".TokenSelector").parent().parent().css("display", "none");
+		}
+	});
 
 function scTokenSelectorCallback(sender, returnValue) {
 	if (!returnValue || returnValue.text == "") {
@@ -38,7 +73,7 @@ function scTokenSelectorCallback(sender, returnValue) {
 			el.outerHTML = returnValue;
 			return;
 		}
-	} 
+	}
 	scEditor.pasteHtml(returnValue, "DocumentManager");
 }
 
