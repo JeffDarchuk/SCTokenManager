@@ -96,7 +96,7 @@ namespace TokenManager.Management
 					Item parent = db.DataManager.DataEngine.GetItem(new ID(Constants.Core.RteParent),
 						LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
 					if (parent == null) return;
-					button = db.DataManager.DataEngine.CreateItem("Insert A Demandbase Attribute", parent,
+					button = db.DataManager.DataEngine.CreateItem(tb.Name, parent,
 						new ID(Constants.Core.ButtonTemplate), buttonId);
 				}
 				using (new SecurityDisabler())
