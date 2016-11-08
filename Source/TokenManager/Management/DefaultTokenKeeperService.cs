@@ -86,18 +86,18 @@ namespace TokenManager.Management
 						button[FieldIDs.DisplayName] == tb.Name &&
 						button["Shortcut"] == $"?Category={token.CollectionName}&Token={token.Token}" &&
 						button[FieldIDs.Sortorder] == tb.SortOrder.ToString() &&
-						button[FieldIDs.Icon] == tb.Icon)
+						button[FieldIDs.Icon] == (string.IsNullOrWhiteSpace(tb.Icon) ? token.TokenIcon : tb.Icon))
 					{
 						return;
 					}
 				}
 				else
 				{
-					Item parent = db.DataManager.DataEngine.GetItem(new ID(Constants.RteParent),
+					Item parent = db.DataManager.DataEngine.GetItem(new ID(Constants.Core.RteParent),
 						LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
 					if (parent == null) return;
 					button = db.DataManager.DataEngine.CreateItem("Insert A Demandbase Attribute", parent,
-						new ID(Constants.ButtonTemplate), buttonId);
+						new ID(Constants.Core.ButtonTemplate), buttonId);
 				}
 				using (new SecurityDisabler())
 				{
@@ -106,7 +106,7 @@ namespace TokenManager.Management
 					button[FieldIDs.DisplayName] = tb.Name;
 					button["Shortcut"] = $"?Category={token.CollectionName}&Token={token.Token}";
 					button[FieldIDs.Sortorder] = tb.SortOrder.ToString();
-					button[FieldIDs.Icon] = tb.Icon;
+					button[FieldIDs.Icon] = string.IsNullOrWhiteSpace(tb.Icon) ? token.TokenIcon : tb.Icon;
 					button.Editing.EndEdit();
 				}
 			}

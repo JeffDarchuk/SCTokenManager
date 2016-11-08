@@ -156,7 +156,7 @@ namespace TokenManager.Pipelines.Initialize
 			if (_needRebuild)
 				return true;
 			return typeof(Constants)
-				.GetFields(BindingFlags.Static | BindingFlags.Public)
+				.GetFields(BindingFlags.Static | BindingFlags.Public).Where(x => x.FieldType == typeof(string))
 				.Any(f => TokenKeeper.CurrentKeeper.GetDatabase().GetItem(f.GetValue(null).ToString()) == null);
 		}
 

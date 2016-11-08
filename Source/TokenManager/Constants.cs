@@ -19,8 +19,6 @@ namespace TokenManager
 		public const string TokenRootTemplateId = "{D48A879D-2142-4DFB-A773-C8AF686AE779}";
 		public const string TokenStripOuterPTagsFieldId = "{01038533-5010-4BD2-A2E5-C08D263CCC7A}";
 
-		public const string RteParent = "{7E9759CA-21FC-4091-ABE1-931D6BCA4615}";
-		public const string ButtonTemplate = "{3C8BD8A1-280B-4278-BB8B-21FA3B87AF0F}";
 		public static readonly Guid IdGenerationId = new Guid("{9068084E-CB06-450D-90AC-DB9CCE2B2F0D}");
 	#region Token Types
 	//Method Token
@@ -38,5 +36,11 @@ namespace TokenManager
 		public const string TokenCollectionTemplateId = "{B49DB165-E3A5-45D1-B4E7-F5E707B73C9E}";
 
 		#endregion
+
+		public static class Core
+		{
+			public const string RteParent = "{7E9759CA-21FC-4091-ABE1-931D6BCA4615}";
+			public const string ButtonTemplate = "{3C8BD8A1-280B-4278-BB8B-21FA3B87AF0F}";
+		}
 	}
 }
