@@ -13,6 +13,7 @@ using Sitecore.ContentSearch.Security;
 using Sitecore.Data;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
+using Sitecore.Data.Managers;
 using Sitecore.Globalization;
 using Sitecore.Pipelines;
 using Sitecore.Pipelines.RenderField;
@@ -20,6 +21,7 @@ using Sitecore.SecurityModel;
 using TokenManager.Collections;
 using TokenManager.ContentSearch;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.TokenExtensions;
 using TokenManager.Data.Tokens;
 using TokenManager.Pipelines;
 
@@ -32,7 +34,7 @@ namespace TokenManager.Management
 		public string TokenRegex = "<[^>]*?/TokenManager?.*?>";
 		public string TokenCss { get; set; }
 		private static readonly ConcurrentDictionary<string, ITokenCollection<IToken>> TokenCollections = new ConcurrentDictionary<string, ITokenCollection<IToken>>();
-		private static readonly ConcurrentDictionary<string, DateTime> TokenCacheUpdateTimes = new ConcurrentDictionary<string, DateTime>(); 
+		private static readonly ConcurrentDictionary<string, DateTime> TokenCacheUpdateTimes = new ConcurrentDictionary<string, DateTime>();
 		private static readonly ConcurrentDictionary<string, Tuple<DateTime, List<Tuple<int, int>>>> TokenLocations = new ConcurrentDictionary<string, Tuple<DateTime, List<Tuple<int, int>>>>();
 
 		public DefaultTokenKeeperService()
@@ -69,6 +71,52 @@ namespace TokenManager.Management
 				TokenCollections[token.CollectionName] = new AutoTokenCollection(token);
 				TokenCollections[token.CollectionName].AddOrUpdateToken(token.Token, token);
 			}
+			var db = Factory.GetDatabase("core", false);
+			if (db == null) return;
+			TokenButton tb = token.TokenButton();
+			ID buttonId = GuidUtility.GetId("tokenmanager", $"{token.CollectionName}{token.Token}");
+			Item button = db.DataManager.DataEngine.GetItem(buttonId,
+				LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
+			if (tb != null)
+			{
+				if (button != null)
+				{
+					if (
+						button["Click"] == $"TokenSelector{token.CollectionName}{token.Token}" &&
+						button[FieldIDs.DisplayName] == tb.Name &&
+						button["Shortcut"] == $"?Category={token.CollectionName}&Token={token.Token}" &&
+						button[FieldIDs.Sortorder] == tb.SortOrder.ToString() &&
+						button[FieldIDs.Icon] == tb.Icon)
+					{
+						return;
+					}
+				}
+				else
+				{
+					Item parent = db.DataManager.DataEngine.GetItem(new ID(Constants.RteParent),
+						LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
+					if (parent == null) return;
+					button = db.DataManager.DataEngine.CreateItem("Insert A Demandbase Attribute", parent,
+						new ID(Constants.ButtonTemplate), buttonId);
+				}
+				using (new SecurityDisabler())
+				{
+					button.Editing.BeginEdit();
+					button["Click"] = $"TokenSelector{token.CollectionName}{token.Token}";
+					button[FieldIDs.DisplayName] = tb.Name;
+					button["Shortcut"] = $"?Category={token.CollectionName}&Token={token.Token}";
+					button[FieldIDs.Sortorder] = tb.SortOrder.ToString();
+					button[FieldIDs.Icon] = tb.Icon;
+					button.Editing.EndEdit();
+				}
+			}
+			else if (button != null)
+			{
+				using (new SecurityDisabler())
+				{
+					button.Recycle();
+				}
+			}
 		}
 
 		public virtual string ReplaceRTETokens(RenderFieldArgs args, string text)
@@ -99,7 +147,7 @@ namespace TokenManager.Management
 
 		public virtual IEnumerable<IToken> ParseTokens(Field field, Item item = null)
 		{
-			return ParseTokenIdentifiers(field).Select(x=>ParseITokenFromText(x, item));
+			return ParseTokenIdentifiers(field).Select(x => ParseITokenFromText(x, item));
 		}
 
 		public virtual IEnumerable<string> ParseTokenIdentifiers(Field field)
@@ -226,7 +274,7 @@ namespace TokenManager.Management
 			{
 				RefreshTokenCollection(collectionName);
 				var collection = TokenCollections.ContainsKey(collectionName) &&
-				                 !IsCollectionValid(TokenCollections[collectionName])
+								 !IsCollectionValid(TokenCollections[collectionName])
 					? TokenCollections[collectionName]
 					: null;
 				if (collection != null)
@@ -308,7 +356,7 @@ namespace TokenManager.Management
 			var qsRoot = "href=\"/TokenManager";
 			int start = tokenIdentifier.IndexOf(qsRoot, StringComparison.Ordinal) + qsRoot.Length;
 			int end = -1;
-			if (start > qsRoot.Length-1)
+			if (start > qsRoot.Length - 1)
 				end = tokenIdentifier.IndexOf('"', start);
 			if (start > qsRoot.Length - 1 && end > start)
 				return HttpUtility.ParseQueryString(HttpUtility.HtmlDecode(tokenIdentifier.Substring(start, end - start)));

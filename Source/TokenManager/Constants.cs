@@ -1,4 +1,6 @@
-﻿namespace TokenManager
+﻿using System;
+
+namespace TokenManager
 {
 	public static class Constants
 	{
@@ -16,9 +18,13 @@
 
 		public const string TokenRootTemplateId = "{D48A879D-2142-4DFB-A773-C8AF686AE779}";
 		public const string TokenStripOuterPTagsFieldId = "{01038533-5010-4BD2-A2E5-C08D263CCC7A}";
-		#region Token Types
-		//Method Token
-		public const string TokenMethodCollectionTemplateId = "{BB9FBFD1-1C36-4B1C-95C1-E02DEA5B2C8B}";
+
+		public const string RteParent = "{7E9759CA-21FC-4091-ABE1-931D6BCA4615}";
+		public const string ButtonTemplate = "{3C8BD8A1-280B-4278-BB8B-21FA3B87AF0F}";
+		public static readonly Guid IdGenerationId = new Guid("{9068084E-CB06-450D-90AC-DB9CCE2B2F0D}");
+	#region Token Types
+	//Method Token
+	public const string TokenMethodCollectionTemplateId = "{BB9FBFD1-1C36-4B1C-95C1-E02DEA5B2C8B}";
 		//Shared Link Token
 		public const string TokenSharedLinkCollectionTemplateId = "{5273E95E-6857-4CEE-900C-ABCA5EED44C3}";
 		public const string TokenSharedLinkTemplateId = "{98850963-EC5A-4A3C-A292-78103D3AC6E9}";

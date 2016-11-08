@@ -9,6 +9,7 @@ using Sitecore.Data;
 using Sitecore.Data.Items;
 using Sitecore.StringExtensions;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.TokenExtensions;
 using TokenManager.Management;
 
 namespace TokenManager.Data.Tokens
@@ -41,6 +42,11 @@ namespace TokenManager.Data.Tokens
 		public virtual ID GetBackingItemId()
 		{
 			return default(ID);
+		}
+
+		public virtual TokenButton TokenButton()
+		{
+			return null;
 		}
 
 		public virtual IEnumerable<ID> ValidTemplates()
