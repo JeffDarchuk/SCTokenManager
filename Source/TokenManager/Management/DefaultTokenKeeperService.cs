@@ -82,7 +82,7 @@ namespace TokenManager.Management
 				if (button != null)
 				{
 					if (
-						button["Click"] == $"TokenSelector{token.CollectionName}{token.Token}" &&
+						button["Click"] == $"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}" &&
 						button[FieldIDs.DisplayName] == tb.Name &&
 						button["Shortcut"] == $"?Category={token.CollectionName}&Token={token.Token}" &&
 						button[FieldIDs.Sortorder] == tb.SortOrder.ToString() &&
@@ -102,7 +102,7 @@ namespace TokenManager.Management
 				using (new SecurityDisabler())
 				{
 					button.Editing.BeginEdit();
-					button["Click"] = $"TokenSelector{token.CollectionName}{token.Token}";
+					button["Click"] = $"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}";
 					button[FieldIDs.DisplayName] = tb.Name;
 					button["Shortcut"] = $"?Category={token.CollectionName}&Token={token.Token}";
 					button[FieldIDs.Sortorder] = tb.SortOrder.ToString();
