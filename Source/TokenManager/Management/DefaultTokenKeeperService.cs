@@ -29,8 +29,8 @@ namespace TokenManager.Management
 {
 	class DefaultTokenKeeperService : ITokenKeeperService
 	{
-		public string TokenPrefix => "<span  contenteditable=\"false\" unselectable=\"on\" class=\"token-manager-token\" href=\"/TokenManager?";
-		public string TokenSuffix => "</span>";
+		public string TokenPrefix => "<section contenteditable=\"false\" unselectable=\"on\" class=\"token-manager-token\" href=\"/TokenManager?";
+		public string TokenSuffix => "</section>";
 		public string TokenRegex = "<[^>]*?/TokenManager?.*?>";
 		public string TokenCss { get; set; }
 		private static readonly ConcurrentDictionary<string, ITokenCollection<IToken>> TokenCollections = new ConcurrentDictionary<string, ITokenCollection<IToken>>();

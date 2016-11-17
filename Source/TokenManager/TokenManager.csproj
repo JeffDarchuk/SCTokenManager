@@ -196,7 +196,7 @@
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="C:\inetpub\wwwroot\Debut\Source\Debut.Web\bin" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="C:\inetpub\wwwroot\connectivedx.com\Source\Connective.Web\bin" />
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="C:\inetpub\wwwroot\Sim\sc72rev140228\Website\bin" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="C:\inetpub\wwwroot\KNOW\Source\KNOW.Web\bin" />
     <Copy SourceFiles="C:\Development\TokenManager\Source\TokenManager\Tokens.config" DestinationFolder="C:\inetpub\wwwroot\Debut\Source\Debut.Web\App_Config\Include" />
   </Target>
 </Project>

@@ -1,6 +1,8 @@
 ﻿var scEditor = null;
 var scTool = null;
 var range = null;
+var tokenElement = null;
+var usingTokenElement = false;
 var tmPreset = new Object();
 //Set the Id of your button into the RadEditorCommandList[]
 if (typeof RadEditorCommandList == "undefined")
@@ -11,7 +13,8 @@ RadEditorCommandList["TokenSelector"] = function (commandName, editor, args) {
 	Telerik.Web.UI.Editor.CommandList._getDialogArguments(d, "A", editor, "DocumentManager");
 
 	scEditor = editor;
-
+	if (!usingTokenElement)
+		tokenElement = null;
 	var token = getToken(editor);
 	editor.showExternalDialog(
         "/TokenManager?sc_itemid=" + scItemID + "&token=" + encodeURIComponent(token) + "&preset=" + encodeURIComponent(tmPreset[commandName]),
@@ -32,8 +35,11 @@ setInterval(function() {
 	for (var i = 0; i < els.length; i++) {
 		var el = els[i];
 		el.onclick = function () {
+			usingTokenElement = true;
 			var tm = window.parent.document.getElementById('scContentIframeId0').contentWindow.jQuery('.TokenSelector');
+			tokenElement = this;
 			tm.click();
+			usingTokenElement = false;
 		}
 	}
 }, 500);
@@ -65,19 +71,25 @@ function scTokenSelectorCallback(sender, returnValue) {
 	if (!returnValue || returnValue.text == "") {
 		return;
 	}
-	scEditor.getSelection().selectRange(range);
-	if (scEditor.getSelectedElement() != null) {
-		var el = scEditor.getSelectedElement();
-		el = getWrapper(el);
-		if (el && el.className === "token-manager-token") {
-			el.outerHTML = returnValue;
-			return;
+	if (tokenElement)
+		tokenElement.outerHTML = returnValue;
+	else {
+		scEditor.getSelection().selectRange(range);
+		if (scEditor.getSelectedElement() != null) {
+			var el = scEditor.getSelectedElement();
+			el = getWrapper(el);
+			if (el && el.className === "token-manager-token") {
+				el.outerHTML = returnValue;
+				return;
+			}
 		}
+		scEditor.pasteHtml(returnValue, "DocumentManager");
 	}
-	scEditor.pasteHtml(returnValue, "DocumentManager");
 }
 
 function getToken(editor) {
+	if (tokenElement)
+		return tokenElement.outerHTML;
 	range = editor.getSelection().GetRange();
 	var el = editor.getSelectedElement();
 	el = getWrapper(el);
