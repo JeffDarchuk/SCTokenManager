@@ -7,7 +7,9 @@ Generic rich text token management system.  Easily inject dynamic content into r
 # How to install
 Nuget - PM> Install-Package TokenManager
 
-[Getting Started](https://jeffdarchuk.wordpress.com/2016/08/21/getting-started-with-token-manager/)
+[Getting Started with author controlled tokens](https://jeffdarchuk.wordpress.com/2016/08/21/getting-started-with-token-manager/)
+
+For general purpose dynamic tokens, take a look at AutoTokens below.
 
 #In Depth Tutorials
 
