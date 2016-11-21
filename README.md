@@ -16,3 +16,7 @@ Nuget - PM> Install-Package TokenManager
 [Dynamic Tokens](https://jeffdarchuk.wordpress.com/2016/01/11/tokenmanager-dynamic-tokens/)
 
 [Rules Tokens](https://jeffdarchuk.wordpress.com/2015/10/27/tokenmanager-rules-token/)
+
+[Custom Token button](https://jeffdarchuk.com/2016/11/21/token-manager-custom-token-button/)
+
+[AutoTokens](https://jeffdarchuk.com/2016/11/21/token-manager-autotoken/) (Simple dynamic data tokens without any content author intervention)
