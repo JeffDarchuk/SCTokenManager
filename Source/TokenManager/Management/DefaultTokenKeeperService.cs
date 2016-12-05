@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -14,6 +15,7 @@ using Sitecore.Data;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
 using Sitecore.Data.Managers;
+using Sitecore.Diagnostics;
 using Sitecore.Globalization;
 using Sitecore.Pipelines;
 using Sitecore.Pipelines.RenderField;
@@ -122,10 +124,13 @@ namespace TokenManager.Management
 		public virtual string ReplaceRTETokens(RenderFieldArgs args, string text)
 		{
 			StringBuilder sb = new StringBuilder(text);
+
 			var current = args.GetField().ID;
 			if (!TrackTokens(args.Item, current, args.Item.Language, args.Item.Version.Number, text))
 				return text;
-			foreach (var location in TokenLocations[args.Item.ID.ToString() + current + args.Item.Language.Name + args.Item.Version.Number].Item2)
+			foreach (
+				var location in
+					TokenLocations[args.Item.ID.ToString() + current + args.Item.Language.Name + args.Item.Version.Number].Item2)
 			{
 				if (location.Item1 + location.Item2 > text.Length && !args.WebEditParameters.ContainsKey("reseted"))
 				{
@@ -133,13 +138,21 @@ namespace TokenManager.Management
 					args.WebEditParameters["reseted"] = "1";
 					return ReplaceRTETokens(args, text);
 				}
-				string token = sb.ToString(location.Item1, location.Item2);
-				if (Regex.IsMatch(token, TokenRegex))
-					sb.Replace(token, ParseTokenValueFromTokenIdentifier(token, args.Item), location.Item1, location.Item2);
-				else
+				try
 				{
-					ResetTokenLocations(args.Item.ID, current, args.Item.Language, args.Item.Version.Number);
-					return ReplaceRTETokens(args, text);
+					string token = sb.ToString(location.Item1, location.Item2);
+					if (Regex.IsMatch(token, TokenRegex))
+						sb.Replace(token, ParseTokenValueFromTokenIdentifier(token, args.Item), location.Item1, location.Item2);
+					else if (!args.WebEditParameters.ContainsKey("reseted"))
+					{
+						ResetTokenLocations(args.Item.ID, current, args.Item.Language, args.Item.Version.Number);
+						args.WebEditParameters["reseted"] = "1";
+						return ReplaceRTETokens(args, text);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Error("unable to expand tokens for item " + args.Item.ID, e, this);
 				}
 			}
 			return sb.ToString();
@@ -421,14 +434,9 @@ namespace TokenManager.Management
 
 		private int FindTokenEnd(int index, string text)
 		{
-			int scope = 0;
-			for (int i = index; i < text.Length; i++)
-			{
-				if (text[i] == '<' && text[i + 1] != '/') scope++;
-				if ((text[i] == '<' && text[i + 1] == '/') || (text[i] == '/' && text[i + 1] == '>')) scope--;
-				if (text[i] == '>' && scope == 0) return i + 1 - index;
-			}
-			return text.Length;
+			int end = text.IndexOf(' ', index);
+			string tag = $"</{text.Substring(index + 1, end - index - 1)}>";
+			return text.IndexOf(tag, index, StringComparison.CurrentCulture) + tag.Length - index;
 		}
 
 		/// <summary>
@@ -470,6 +478,12 @@ namespace TokenManager.Management
 		/// <returns>token collection</returns>
 		public ITokenCollection<IToken> RefreshTokenCollection(string category = null)
 		{
+			var autoTokens =
+				AppDomain.CurrentDomain.GetAssemblies()
+					.SelectMany(GetAutoTokenTypes)
+						.Select(t => (AutoToken)Activator.CreateInstance(t));
+							foreach (AutoToken token in autoTokens)
+								TokenKeeper.CurrentKeeper.LoadAutoToken(token);
 			var tokenManagerItems =
 				GetDatabase().SelectItems($"fast:/sitecore/content//*[@@templateid = '{Constants.TokenRootTemplateId}']").Union(Globals.LinkDatabase.GetReferrers(this.GetDatabase().GetItem(Constants.TokenRootTemplateId)).Select(x => this.GetDatabase().GetItem(x.SourceItemID)));
 			HashSet<ID> dups = new HashSet<ID>();
@@ -513,6 +527,21 @@ namespace TokenManager.Management
 				}
 			}
 			return null;
+		}
+		private IEnumerable<Type> GetAutoTokenTypes(Assembly a)
+		{
+			IEnumerable<Type> types = null;
+			try
+			{
+				types = a.GetTypes().Where(t => t.IsSubclassOf(typeof(AutoToken)) && !t.IsAbstract);
+			}
+			catch (ReflectionTypeLoadException e)
+			{
+				types = e.Types.Where(t => t != null && t.IsSubclassOf(typeof(AutoToken)) && !t.IsAbstract);
+			}
+			if (types == null) yield break;
+			foreach (var type in types)
+				yield return type;
 		}
 	}
 }

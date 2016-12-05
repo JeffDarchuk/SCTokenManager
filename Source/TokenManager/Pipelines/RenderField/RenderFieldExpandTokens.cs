@@ -25,7 +25,7 @@ namespace TokenManager.Pipelines.RenderField
 				return;
 			try
 			{
-				if (!Context.PageMode.IsPageEditorEditing)
+				if (Context.PageMode.IsNormal || Context.PageMode.IsPreview)
 					args.Result.FirstPart = TokenKeeper.CurrentKeeper.ReplaceRTETokens(args, args.Result.FirstPart);
 			}
 			catch (MethodAccessException e)

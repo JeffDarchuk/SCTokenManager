@@ -196,29 +196,7 @@ namespace TokenManager.Pipelines.Initialize
 		private void RegisterSitecoreTokens()
 		{
 			Tokens.RefreshTokenCollection();
-			var autoTokens =
-				AppDomain.CurrentDomain.GetAssemblies()
-					.SelectMany(GetAutoTokenTypes)
-						.Select(t => (AutoToken) Activator.CreateInstance(t));
-			foreach (AutoToken token in autoTokens)
-				Tokens.LoadAutoToken(token);
 		}
-
-		private IEnumerable<Type> GetAutoTokenTypes(Assembly a)
-		{
-			IEnumerable<Type> types = null;
-			try
-			{
-				types = a.GetTypes().Where(t => t.IsSubclassOf(typeof (AutoToken)) && !t.IsAbstract);
-			}
-			catch (ReflectionTypeLoadException e)
-			{
-				types = e.Types.Where(t => t != null && t.IsSubclassOf(typeof (AutoToken)) && !t.IsAbstract);
-			}
-			if (types == null) yield break;
-			foreach (var type in types)
-				yield return type;
-		} 
 
 		/// <summary>
 		/// Registers the MVC routes for the TokenManager web app
@@ -226,6 +204,8 @@ namespace TokenManager.Pipelines.Initialize
 		/// <param name="route"></param>
 		public static void RegisterRoutes(string route)
 		{
+			if (Factory.GetDatabase("master", false) == null)
+				return;
 			var routes = RouteTable.Routes;
 			var handler = new TokenManagerHandler(route);
 			using (routes.GetWriteLock())
