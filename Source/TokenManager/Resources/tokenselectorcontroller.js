@@ -20,6 +20,9 @@
 		vm.events = {
 			'click': function (val) { }
 		};
+		vm.groupedClicked = function(field) {
+			vm.data[field].grouped.id = vm.events.selectedItem;
+		}
 		vm.clicked = function (field) {
 			vm.data[field] = vm.events.selectedItem;
 		}

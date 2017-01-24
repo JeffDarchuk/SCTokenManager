@@ -257,3 +257,7 @@ a.scContentTreeNodeActive {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
+  .field-data input[type="text"], .field-data select {
+    margin: 3px;
+    display: block;
+}

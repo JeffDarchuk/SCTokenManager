@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using Sitecore;
+using Sitecore.Collections;
 using Sitecore.Configuration;
 using Sitecore.ContentSearch;
 using Sitecore.ContentSearch.Security;
@@ -218,16 +219,56 @@ namespace TokenManager.Management
 
 		public virtual string GetTokenIdentifier(string category, string token, IDictionary<string, object> fields)
 		{
+			List<ID> ids = new IdList();
 			var ret = HttpUtility.ParseQueryString("");
 			ret["Category"] = category;
 			ret["Token"] = token;
 			IToken itoken = GetToken(category, token);
 			if (fields != null)
 				foreach (string key in fields.Keys.Where(x => x != "Category" && x != "Token"))
-					ret.Add(key, fields[key].ToString());
-			return string.Format("{0}{1}\" {4}>{2}{3}", TokenPrefix, ret, itoken.TokenIdentifierText(ret).Replace("\n", "").Replace("\r", ""), TokenSuffix, $"style='{itoken.TokenIdentifierStyle(ret)}'");
+				{
+					var grouped = (IDictionary<string, object>) (fields[key] as IDictionary<string, object>)?["grouped"];
+					if (grouped == null)
+					{
+						var value = fields[key]?.ToString() ?? "";
+						ret.Add(key, value);
+						ID tmp;
+						if (ID.TryParse(value, out tmp))
+						{
+							ids.Add(tmp);
+						}
+					}
+					else
+					{
+						StringBuilder sb = new StringBuilder();
+						foreach (KeyValuePair<string, object> group in grouped)
+						{
+							sb.Append(group.Key);
+							sb.Append("|=|");
+							sb.Append(group.Value);
+							sb.Append("|||");
+							ID tmp;
+							if (ID.TryParse(group.Value, out tmp))
+							{
+								ids.Add(tmp);
+							}
+						}
+						if (sb.Length > 3)
+							ret.Add(key, sb.ToString(0, sb.Length - 3));
+					}
+				}
+			return string.Format("{0}{1}\" {4}>{2}<span style='display:none;'>{5}</span>{3}", TokenPrefix, ret, itoken.TokenIdentifierText(ret).Replace("\n", "").Replace("\r", ""), TokenSuffix, $"style='{itoken.TokenIdentifierStyle(ret)}'", GenerateScLinks(ids));
 		}
 
+		private string GenerateScLinks(List<ID> ids)
+		{
+			StringBuilder sb = new StringBuilder();
+			foreach (ID id in ids)
+			{
+				sb.Append($"<a href=\"~/link.aspx?_id={id.ToShortID().ToString().ToUpper()}&amp;_z=z\">link</a>");
+			}
+			return sb.ToString();
+		}
 		public virtual string GetTokenValue(string category, string token, NameValueCollection extraData)
 		{
 			if (TokenCollections.ContainsKey(category) && TokenCollections[category].IsCurrentContextValid() && IsCollectionValid(TokenCollections[category]))

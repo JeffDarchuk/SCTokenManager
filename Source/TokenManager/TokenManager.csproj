@@ -57,9 +57,9 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="System.Web.Mvc, Version=5.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Dependencies\Libraries\Sitecore\System.Web.Mvc.dll</HintPath>
+      <HintPath>bin\Release\System.Web.Mvc.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -80,9 +80,11 @@
     <Compile Include="Data\Interfaces\ITokenIdentifier.cs" />
     <Compile Include="Data\Interfaces\ITokenKeeper.cs" />
     <Compile Include="Data\TokenDataTypes\BooleanTokenData.cs" />
+    <Compile Include="Data\TokenDataTypes\GeneralLinkTokenData.cs" />
     <Compile Include="Data\TokenDataTypes\IdTokenData.cs" />
     <Compile Include="Data\TokenDataTypes\IntegerTokenData.cs" />
     <Compile Include="Data\TokenDataTypes\StringTokenData.cs" />
+    <Compile Include="Data\TokenDataTypes\Support\GeneralLink.cs" />
     <Compile Include="Data\TokenExtensions\TokenButton.cs" />
     <Compile Include="Data\Tokens\AutoToken.cs" />
     <Compile Include="Data\Tokens\BasicToken.cs" />

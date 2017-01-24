@@ -28,7 +28,10 @@ namespace TokenManager.Data.TokenDataTypes
 		public dynamic Data { get; }
 		public object GetValue(string value)
 		{
-			return int.Parse(value);
+			int ret;
+			if (int.TryParse(value, out ret))
+				return ret;
+			return "";
 		}
 	}
 }
