@@ -1,27 +1,28 @@
 ﻿<div ng-controller="contenttreecontroller as vm" ng-init="init(parent, selected, events)">
-    {{parentItem}}
-    <div class="scContentTreeNode">
-        <span ng-if="vm.data.Nodes.length>0">
-            <img ng-if="!vm.Open" src="/sitecore/shell/themes/standard/images/treemenu_collapsed.png" class="scContentTreeNodeGlyph" alt="" border="0" ng-click="vm.Open = true">
-            <img ng-if="vm.Open" src="/sitecore/shell/themes/standard/images/treemenu_expanded.png" class="scContentTreeNodeGlyph" alt="" border="0" ng-click="vm.Open = false">
-        </span>
-        <span ng-if="vm.data.Nodes.length ===0">
-            <img src="/sitecore/shell/themes/standard/images/noexpand15x15.gif" class="scContentTreeNodeGlyph" alt="" border="0">
-        </span>
-        <div class="scContentTreeNodeGutter">
+	{{parentItem}}
+	<div class="scContentTreeNode">
+		<span ng-if="vm.data.Nodes.length>0">
+			<img ng-if="!vm.Open" src="tokenmanager/treemenu_collapsed.png" class="scContentTreeNodeGlyph" alt="" border="0" ng-click="vm.Open = true">
+			<img ng-if="vm.Open" src="tokenmanager/treemenu_expanded.png" class="scContentTreeNodeGlyph" alt="" border="0" ng-click="vm.Open = false">
+		</span>
+		<span ng-if="vm.data.Nodes.length ===0">
+			<img src="tokenmanager/noexpand15x15.gif" class="scContentTreeNodeGlyph" alt="" border="0">
+		</span>
+		<div class="scContentTreeNodeGutter">
 
-        </div>
-        <a hidefocus="true" ng-class="events.selectedItem == vm.data.Id ? 'scContentTreeNodeActive':'scContentTreeNodeNormal'" style="position: relative;" ng-click="events.click(vm.data);events.selectedItem = vm.data.Id">
-            <span ng-if="vm.data.Icon" class="scContentTreeSelectable">
-                <img ng-src="/temp/IconCache/{{vm.data.Icon}}" width="16" height="16" class="scContentTreeNodeIcon" alt="" border="0">
-                {{vm.data.DisplayName}}
-            </span>
-            <span ng-hide="vm.data.Icon">
-                <img src="/sitecore/shell/themes/standard/images/sc-spinner16.gif" />
-            </span>
-        </a>
-        <div ng-if="vm.Open" class="scContentTreeIndent" ng-repeat="item in vm.data.Nodes">
-            <contenttree parent="item.Id" selected="selected" events="events"></contenttree>
-        </div>
-    </div>
+		</div>
+		<a hidefocus="true" ng-class="events.selectedItem == vm.data.Id ? 'scContentTreeNodeActive':'scContentTreeNodeNormal'" style="position: relative;" ng-click="events.click(vm.data);events.selectedItem = vm.data.Id">
+			<span ng-if="vm.data.Icon" class="scContentTreeSelectable">
+				<img ng-src="{{vm.data.Icon}}" width="16" height="16" class="scContentTreeNodeIcon" alt="" border="0">
+				{{vm.data.DisplayName}}
+			</span>
+			<span ng-hide="vm.data.Icon">
+				<img src="tokenmanager/sc-spinner16.gif" />
+			</span>
+		</a>
+		<div ng-if="vm.Open" class="scContentTreeIndent" ng-repeat="item in vm.data.Nodes">
+			<contenttree parent="item.Id" selected="selected" events="events"></contenttree>
+		</div>
+		<pre ng-if="vm.error" class="scserror">{{vm.error}}</pre>
+	</div>
 </div>

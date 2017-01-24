@@ -1,4 +1,5 @@
-﻿using Sitecore;
+﻿using System;
+using Sitecore;
 using Sitecore.Data;
 using Sitecore.Diagnostics;
 using Sitecore.Pipelines.RenderField;
@@ -22,8 +23,15 @@ namespace TokenManager.Pipelines.RenderField
 				args.Result.FirstPart = string.IsNullOrEmpty(fieldValue) ? args.Item[args.FieldName] : fieldValue;
 			if (args.FieldTypeKey != "rich text")
 				return;
-			if (!Context.PageMode.IsPageEditorEditing)
+			try
+			{
+				if (Context.PageMode.IsNormal || Context.PageMode.IsPreview)
+					args.Result.FirstPart = TokenKeeper.CurrentKeeper.ReplaceRTETokens(args, args.Result.FirstPart);
+			}
+			catch (MethodAccessException e)
+			{
 				args.Result.FirstPart = TokenKeeper.CurrentKeeper.ReplaceRTETokens(args, args.Result.FirstPart);
+			}
 			WordFieldValue wordFieldValue = WordFieldValue.Parse(args.Result.FirstPart);
 			if (wordFieldValue.BlobId == ID.Null)
 				return;

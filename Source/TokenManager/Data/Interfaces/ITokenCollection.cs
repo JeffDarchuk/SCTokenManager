@@ -6,12 +6,12 @@ namespace TokenManager.Data.Interfaces
 {
 
 	public interface ITokenCollection<T>
-        where T : IToken
+		where T : IToken
 	{
 		T this[string token] { get; }
-        string SitecoreIcon { get; }
+		string SitecoreIcon { get; }
 		string GetCollectionLabel();
-		IEnumerable<IToken> GetTokens(); 
+		IEnumerable<IToken> GetTokens();
 		void RemoveToken(string token);
 		bool HasToken(string token);
 		T GetToken(string token);

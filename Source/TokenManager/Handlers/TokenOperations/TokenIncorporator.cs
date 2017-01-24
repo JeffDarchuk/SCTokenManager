@@ -19,7 +19,7 @@ namespace TokenManager.Handlers.TokenOperations
 	/// </summary>
 	class TokenIncorporator
 	{
-	    private readonly string _root;
+		private readonly string _root;
 		private readonly Database _database;
 		private readonly Item _item;
 		private readonly string _category;
@@ -45,7 +45,7 @@ namespace TokenManager.Handlers.TokenOperations
 		/// <param name="tokenValue"></param>
 		public TokenIncorporator(string root, string category, string tokenName, string tokenValue)
 		{
-		    _root = root;
+			_root = root;
 			_database = TokenKeeper.CurrentKeeper.GetDatabase();
 			_category = category;
 			_item = _database.GetItem(TokenCollection.GetBackingItemId());
@@ -60,8 +60,8 @@ namespace TokenManager.Handlers.TokenOperations
 		/// <returns>dynamic object with information about what happened</returns>
 		public dynamic Incorporate(bool preview = false, string type = "plain")
 		{
-		    if (type == "plain")
-		        _tokenValue = Regex.Escape(_tokenValue);
+			if (type == "plain")
+				_tokenValue = Regex.Escape(_tokenValue);
 			dynamic ret = new ExpandoObject();
 			ret.Count = 0;
 			ret.Converted = new List<ExpandoObject>();
@@ -85,71 +85,71 @@ namespace TokenManager.Handlers.TokenOperations
 					while (itemStack.Any())
 					{
 						var cur = itemStack.Pop();
-					    if (cur.IsTokenManagerItem())
-					        continue;
-                        foreach (var field in cur.Fields.Where(f => f.Type == "Rich Text" ))
-                        {
-                            Regex r = new Regex(_tokenValue);
-                            MatchCollection m = r.Matches(field.Value);
-                            if (m.Count > 0)
-                            {
-                                var ttt = ConvertTextToToken(field, m, preview);
-                                if (ttt != null)
-                                {
-                                    ret.Count++;
+						if (cur.IsTokenManagerItem() || !_tokenCollection.IsCurrentContextValid(cur))
+							continue;
+						foreach (var field in cur.Fields.Where(f => f.Type == "Rich Text"))
+						{
+							Regex r = new Regex(_tokenValue);
+							MatchCollection m = r.Matches(field.Value);
+							if (m.Count > 0)
+							{
+								var ttt = ConvertTextToToken(field, m, preview);
+								if (ttt != null)
+								{
+									ret.Count++;
 
-                                    ret.Converted.Add(ttt);
-                                }
-                            }
-                        }
-                        if (LanguageManager.DefaultLanguage.Name == cur.Language.Name)
-						    foreach (Item child in cur.Children.Where(c=>!TemplateManager.GetTemplate(c).IsDerived(new ID(Constants.TokenTemplateBaseId))))
-							    LoadAllLanguageItems(child, itemStack);
+									ret.Converted.Add(ttt);
+								}
+							}
+						}
+						if (LanguageManager.DefaultLanguage.Name == cur.Language.Name)
+							foreach (Item child in cur.Children.Where(c => !TemplateManager.GetTemplate(c).IsDerived(new ID(Constants.TokenTemplateBaseId))))
+								LoadAllLanguageItems(child, itemStack);
 					}
 				}
 			}
 			return ret;
 		}
 
-	    /// <summary>
-	    /// tracks down the text in the rich text field and transforms it into a token
-	    /// </summary>
-	    /// <param name="field"></param>
-	    /// <param name="match"></param>
-	    /// <param name="regex"></param>
-	    /// <param name="preview"></param>
-	    /// <returns>dynamic object related to how the field changed</returns>
-	    private dynamic ConvertTextToToken(Field field, MatchCollection matches, bool preview)
-        {
-            dynamic ret = new ExpandoObject();
-	        ret.InstancesReplaced = 0;
-	        var sb = new StringBuilder(field.Value);
-            for (int i = matches.Count-1;i>=0;i--)
-            {
-                var match = matches[i];
-                var group = match.Groups[0];
-	            if (!TokenKeeper.CurrentKeeper.IsInToken(field, group.Index, group.Length))
-	            {
-	                ret.InstancesReplaced++;
-	                sb.Remove(group.Index, group.Length);
-	                sb.Insert(group.Index, _tokenIdentifier);
-	            }
-	        }
-	        if (ret.InstancesReplaced == 0)
-	            return null;
-            ret.DisplayName = field.Item.DisplayName;
-            ret.ID = field.Item.ID;
-            ret.FieldName = field.Name;
-            ret.Path = field.Item.Paths.FullPath;
-            ret.Language = field.Language.Name;
-            if (!preview)
-            {
-                field.Item.Editing.BeginEdit();
-                field.Value = sb.ToString();
-                field.Item.Editing.EndEdit();
-            }
-            return ret;
-        }
+		/// <summary>
+		/// tracks down the text in the rich text field and transforms it into a token
+		/// </summary>
+		/// <param name="field"></param>
+		/// <param name="match"></param>
+		/// <param name="regex"></param>
+		/// <param name="preview"></param>
+		/// <returns>dynamic object related to how the field changed</returns>
+		private dynamic ConvertTextToToken(Field field, MatchCollection matches, bool preview)
+		{
+			dynamic ret = new ExpandoObject();
+			ret.InstancesReplaced = 0;
+			var sb = new StringBuilder(field.Value);
+			for (int i = matches.Count - 1; i >= 0; i--)
+			{
+				var match = matches[i];
+				var group = match.Groups[0];
+				if (!TokenKeeper.CurrentKeeper.IsInToken(field, group.Index, group.Length))
+				{
+					ret.InstancesReplaced++;
+					sb.Remove(group.Index, group.Length);
+					sb.Insert(group.Index, _tokenIdentifier);
+				}
+			}
+			if (ret.InstancesReplaced == 0)
+				return null;
+			ret.DisplayName = field.Item.DisplayName;
+			ret.ID = field.Item.ID;
+			ret.FieldName = field.Name;
+			ret.Path = field.Item.Paths.FullPath;
+			ret.Language = field.Language.Name;
+			if (!preview)
+			{
+				field.Item.Editing.BeginEdit();
+				field.Value = sb.ToString();
+				field.Item.Editing.EndEdit();
+			}
+			return ret;
+		}
 
 		/// <summary>
 		/// constructs the token identifier for the current context
@@ -157,15 +157,15 @@ namespace TokenManager.Handlers.TokenOperations
 		/// <returns></returns>
 		private string GetTokenString()
 		{
-		    return TokenKeeper.CurrentKeeper.GetTokenIdentifier(_category, _tokenName, (dynamic)null);
+			return TokenKeeper.CurrentKeeper.GetTokenIdentifier(_category, _tokenName, (dynamic)null);
 		}
 
-	    private void LoadAllLanguageItems(Item master, Stack<Item> itemStack )
-	    {
-	        foreach (Item i in ItemManager.GetContentLanguages(master).Select(l => master.Database.GetItem(master.ID, l)))
-	        {
-	            itemStack.Push(i);
-	        }
-	    } 
+		private void LoadAllLanguageItems(Item master, Stack<Item> itemStack)
+		{
+			foreach (Item i in ItemManager.GetContentLanguages(master).Select(l => master.Database.GetItem(master.ID, l)))
+			{
+				itemStack.Push(i);
+			}
+		}
 	}
 }

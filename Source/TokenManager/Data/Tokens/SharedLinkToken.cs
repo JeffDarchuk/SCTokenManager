@@ -3,37 +3,29 @@ using System.Collections.Specialized;
 using Sitecore.Data;
 using Sitecore.Data.Fields;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.TokenDataTypes;
 using TokenManager.Management;
 
 namespace TokenManager.Data.Tokens
 {
-    public class SharedLinkToken : IToken
-    {
-        private readonly ID _backingItem;
-        public SharedLinkToken(string token, ID backingItem)
-        {
-            _backingItem = backingItem;
-            Token = token;
-        }
+	public class SharedLinkToken : SitecoreBasedToken
+	{
+		public SharedLinkToken(string name, ID backingId) : base(name, backingId)
+		{
+		}
 
-        public string Token { get; private set; }
+		public override string Value(NameValueCollection extraData)
+		{
+			LinkField f = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(BackingId).Fields["Link"];
+			return string.Format("<a href='{0}' target='{1}' class='{2}' title='{3}'>{4}</a>", f.GetFriendlyUrl(), f.Target,
+				f.Class, f.Title, extraData["Link Text"]);
+		}
 
-        public string Value(NameValueCollection extraData)
-        {
-            LinkField f = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(_backingItem).Fields["Link"];
-            return string.Format("<a href='{0}' target='{1}' class='{2}' title='{3}'>{4}</a>", f.GetFriendlyUrl(), f.Target,
-                f.Class, f.Title, extraData["Text"]);
-        }
+		public override IEnumerable<ITokenData> ExtraData()
+		{
+			yield return new StringTokenData("Text", "Link Text", "Enter the text that will appear as the link", true);
+		}
 
-        public IEnumerable<ITokenData> ExtraData()
-        {
-            yield return new BasicTokenData("Text", "Link Text", "Enter the text that will appear as the link", true, TokenDataType.String);
-        }
 
-        public ID GetBackingItemId()
-        {
-            return _backingItem;
-        }
-
-    }
+	}
 }

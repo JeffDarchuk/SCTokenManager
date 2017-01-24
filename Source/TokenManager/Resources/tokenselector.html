@@ -1,55 +1,56 @@
 ﻿<div ng-controller="tokenselectorcontroller as vm">
 	<div class="token-form">
-	    <ul ng-if="!vm.selectedToken && !vm.fields">
+	    <ul ng-if="!vm.selectedToken && (!vm.fields || vm.fields.length == 0)">
 	        <p ng-if="!master.isRTE">Select a token to view token statistics.</p>
 	        <li ng-repeat="category in vm.categories">
 	            <span ng-click="vm.loadTokens(category.Label);">
-                    <img ng-if="category.Label != vm.category" src="/sitecore/shell/themes/standard/images/treemenu_collapsed.png" class="scContentTreeNodeGlyph" alt="" border="0" />
-                    <img ng-if="category.Label == vm.category" src="/sitecore/shell/themes/standard/images/treemenu_expanded.png" class="scContentTreeNodeGlyph" alt="" border="0" />
-                    <img ng-src="/temp/IconCache/{{category.Icon}}" width="16" height="16" class="scContentTreeNodeIcon" alt="" border="0" />
+                    <img ng-if="category.Label != vm.category" src="tokenmanager/treemenu_collapsed.png" class="scContentTreeNodeGlyph" alt="" border="0" />
+                    <img ng-if="category.Label == vm.category" src="tokenmanager/treemenu_expanded.png" class="scContentTreeNodeGlyph" alt="" border="0" />
+                    <img ng-src="{{category.Icon}}" width="16" height="16" class="scContentTreeNodeIcon" alt="" border="0" />
                     {{category.Label}}
                 </span>
 	            <ul ng-if="category.Label == vm.category">
 	                <li ng-repeat="token in vm.tokens">
-	                    <img src="/sitecore/shell/themes/standard/images/noexpand15x15.gif" class="scContentTreeNodeGlyph" alt="" border="0"><span ng-click="vm.returnToken(category.Label, token.Label);"><img ng-src="/temp/IconCache/{{token.Icon}}" width="16" height="16" class="scContentTreeNodeGlyph" alt="" border="0"> {{token.Label}}</span>
+	                    <img src="/sitecore/shell/themes/standard/images/noexpand15x15.gif" class="scContentTreeNodeGlyph" alt="" border="0"><span ng-click="vm.returnToken(category.Label, token.Label);"><img ng-src="{{token.Icon}}" width="16" height="16" class="scContentTreeNodeGlyph" alt="" border="0"> {{token.Label}}</span>
 	                </li>
 	            </ul>
 	            <div></div>
 	        </li>
 	    </ul>
-	    <div ng-if="vm.fields">
+	    <div ng-if="vm.fields && vm.fields.length > 0">
 	        <tokenextradata token="vm"></tokenextradata>
 	    </div>
 		<div ng-if="vm.selectedToken" class="response">
 			<h4><strong>&#9655;</strong> {{vm.tokenStats.TokenCategory}} <strong>&#9654;</strong> {{vm.tokenStats.Token}} <strong>=</strong> {{vm.tokenStats.TokenValue}}</h4>
 			<a href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{vm.tokenStats.TokenCollectionItemId}}" class="btn fancybox fancybox.iframe">Edit Token Collection</a>
 			<a ng-if="vm.tokenStats.TokenItemId !== null" href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{vm.tokenStats.TokenItemId}}" class="btn fancybox fancybox.iframe">Edit Token</a>
-		    <p>Token is used {{vm.tokenStats.Uses}} times.</p>
-            <dir-pagination-controls pagination-id="pagination" template-url="/tokenmanager/dirpagination.html">
-            </dir-pagination-controls>
-		    <table>
-		        <tr>
-		            <th></th>
-		            <th>Display Name</th>
-		            <th>Times Used</th>
-		            <th>Item Id</th>
-		            <th>Item Path</th>
-		            <th>Field Name</th>
-                    <th>Language</th>
-		        </tr>
-		        <tr dir-paginate="stats in vm.tokenStats.ByItem | itemsPerPage:20" pagination-id="pagination" ng-class="{even: $even, odd: $odd}">
-		            <td><a href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{stats.ID}}" class="btn fancybox fancybox.iframe">Edit Item</a></td>
-		            <td>{{stats.DisplayName}}</td>
-		            <td>{{stats.Count}}</td>
-		            <td>{{stats.ID}}</td>
-		            <td>{{stats.Path}}</td>
-		            <td>{{stats.FieldName}}</td>
-                    <td>{{stats.Language}}</td>
-		        </tr>
-		    </table>
+			<p>Token is used {{vm.tokenStats.Uses}} times.</p>
+			<dir-pagination-controls pagination-id="pagination" template-url="tokenmanager/dirpagination.html">
+			</dir-pagination-controls>
+			<table>
+				<tr>
+					<th></th>
+					<th>Display Name</th>
+					<th>Times Used</th>
+					<th>Item Id</th>
+					<th>Item Path</th>
+					<th>Field Name</th>
+					<th>Language</th>
+				</tr>
+				<tr dir-paginate="stats in vm.tokenStats.ByItem | itemsPerPage:20" pagination-id="pagination" ng-class="{even: $even, odd: $odd}">
+					<td><a href="/sitecore/shell/Applications/Content%20Editor.aspx?sc_content=master&fo={{stats.ID}}" class="btn fancybox fancybox.iframe">Edit Item</a></td>
+					<td>{{stats.DisplayName}}</td>
+					<td>{{stats.Count}}</td>
+					<td>{{stats.ID}}</td>
+					<td>{{stats.Path}}</td>
+					<td>{{stats.FieldName}}</td>
+					<td>{{stats.Language}}</td>
+				</tr>
+			</table>
 
 			<p><a class="btn" ng-click="vm.reset()">Select another token</a>
 			</p>
 		</div>
+		<pre ng-if="vm.error" class="scserror">{{vm.error}}</pre>
 	</div>
 </div>

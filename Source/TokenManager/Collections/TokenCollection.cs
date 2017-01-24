@@ -6,6 +6,7 @@ using Sitecore;
 using Sitecore.Data;
 using Sitecore.Data.Items;
 using TokenManager.Data.Interfaces;
+using TokenManager.Handlers;
 using TokenManager.Management;
 
 namespace TokenManager.Collections
@@ -47,7 +48,7 @@ namespace TokenManager.Collections
 		/// constructs the token collection based on the backing item
 		/// </summary>
 		/// <param name="backingItem"></param>
-		public TokenCollection(Item backingItem)
+		protected TokenCollection(Item backingItem)
 		{
 			InitializeCollection(backingItem);
 		}
@@ -67,10 +68,20 @@ namespace TokenManager.Collections
 		/// </summary>
 		/// <param name="backingItem"></param>
 		/// <param name="tokensToLoad"></param>
-		public TokenCollection(Item backingItem, IEnumerable<T> tokensToLoad)
+		protected TokenCollection(Item backingItem, IEnumerable<T> tokensToLoad)
 			: this(backingItem)
 		{
 			InitializeCollection(backingItem);
+			foreach (var token in tokensToLoad)
+				_tokens.Add(token.Token, token);
+		}
+
+		protected TokenCollection()
+		{
+		}
+
+		protected TokenCollection(IEnumerable<T> tokensToLoad)
+		{
 			foreach (var token in tokensToLoad)
 				_tokens.Add(token.Token, token);
 		}
@@ -92,35 +103,45 @@ namespace TokenManager.Collections
 		/// <returns>token object</returns>
 		public virtual T GetToken(string token)
 		{
-			var item = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(_itemID);
-			if (item == null)
-				ResetTokenCache();
-			else if (item.Statistics.Updated > _itemUpdated)
+			if ((object)_itemID == null)
 			{
-				InitializeCollection(item);
-				ResetTokenCache();
+				if (_tokens.ContainsKey(token))
+					return _tokens[token];
+				return default(T);
 			}
-			if (_tokens.ContainsKey(token))
+			else if (_tokens.ContainsKey(token))
 			{
-				IToken t = _tokens[token];
-				if (t != null)
+				var item = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(_itemID);
+				if (item == null)
+					ResetTokenCache();
+				else if (item.Statistics.Updated > _itemUpdated)
 				{
-					if (t.GetBackingItemId() != (ID)null)
+					InitializeCollection(item);
+					ResetTokenCache();
+				}
+				if (_tokens.ContainsKey(token))
+				{
+					IToken t = _tokens[token];
+					if (t != null)
 					{
-						var tokenItem = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(t.GetBackingItemId());
-						if (tokenItem != null)
-							if (!CacheTime.ContainsKey(t.GetBackingItemId()) || tokenItem.Statistics.Updated > CacheTime[t.GetBackingItemId()])
-							{
-								_tokens[token] = InitiateToken(token);
-								CacheTime[t.GetBackingItemId()] = tokenItem.Statistics.Updated;
-								return _tokens[token];
-							}
-					}
-					else
-					{
-						return _tokens[token];
-					}
+						if (t.GetBackingItemId() != (ID)null)
+						{
+							var tokenItem = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(t.GetBackingItemId());
+							if (tokenItem != null)
+								if (!CacheTime.ContainsKey(t.GetBackingItemId()) ||
+									tokenItem.Statistics.Updated > CacheTime[t.GetBackingItemId()])
+								{
+									_tokens[token] = InitiateToken(token);
+									CacheTime[t.GetBackingItemId()] = tokenItem.Statistics.Updated;
+									return _tokens[token];
+								}
+						}
+						else
+						{
+							return _tokens[token];
+						}
 
+					}
 				}
 			}
 			_tokens[token] = InitiateToken(token);
@@ -134,6 +155,8 @@ namespace TokenManager.Collections
 		/// <param name="newToken"></param>
 		public virtual void AddOrUpdateToken(string oldToken, T newToken)
 		{
+			if (newToken == null)
+				return;
 			if (oldToken != null && oldToken != newToken.Token)
 				RemoveToken(oldToken);
 			_tokens[newToken.Token] = newToken;
@@ -183,27 +206,39 @@ namespace TokenManager.Collections
 			if (item == null || item.Database.Name != TokenKeeper.CurrentKeeper.GetDatabase().Name)
 				return true;
 			var collectionItem = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(_itemID);
-			if (collectionItem != null &&
-				collectionItem.Parent.TemplateID.ToString() == Constants.TokenCollectionFolderTemplateId)
-			{
-				var parent = collectionItem.Parent;
-				var tmp = parent.Database.GetItem(parent["Item Ancestor"]);
-				var parentFilterPath = "";
-				if (tmp != null)
-					parentFilterPath = tmp.Paths.Path;
-				var parentFilterTemplateId = parent["Item Template"];
-				if (!string.IsNullOrWhiteSpace(parentFilterPath) && !item.Paths.Path.StartsWith(parentFilterPath))
-					return false;
-				if (!string.IsNullOrWhiteSpace(parentFilterTemplateId) && item.TemplateID.ToString() != parentFilterTemplateId)
-					return false;
-			}
-			if (string.IsNullOrWhiteSpace(_ancestorPath) && string.IsNullOrWhiteSpace(_templateId))
-				return true;
-			if ((string.IsNullOrWhiteSpace(_ancestorPath) || item.Paths.Path.StartsWith(_ancestorPath)) &&
-				(string.IsNullOrWhiteSpace(_templateId) || item.TemplateID.ToString() == _templateId))
-				return true;
 
-			return false;
+			if (collectionItem != null && !IsAllowed(item, collectionItem))
+				return false;
+
+			return true;
+		}
+
+		private static bool IsAllowed(Item tokenTarget, Item filterable)
+		{
+			Item Datasource = TokenManagerHandler.GetDatasourceItem();
+			if (Datasource == null)
+				Datasource = tokenTarget;
+			while (filterable.Fields["Item Ancestor"] != null && filterable.Fields["Item Template"] != null)
+			{
+				if (
+					!filterable["Item Ancestor"].Split('|')
+						.Any(x => IsAllowedForItem(tokenTarget, filterable, filterable.Database.GetItem(x))))
+					return false;
+				if (!string.IsNullOrWhiteSpace(filterable["Item Template"]) && filterable["Item Template"].Split('|').All(x => x != tokenTarget.TemplateID.ToString()))
+					return false;
+				filterable = filterable.Parent;
+			}
+			return true;
+		}
+
+		private static bool IsAllowedForItem(Item tokenTarget, Item filterable, Item tmp)
+		{
+			var parentFilterPath = "";
+			if (tmp != null)
+				parentFilterPath = tmp.Paths.Path;
+			if (!string.IsNullOrWhiteSpace(parentFilterPath) && !tokenTarget.Paths.Path.StartsWith(parentFilterPath))
+				return false;
+			return true;
 		}
 
 		/// <summary>

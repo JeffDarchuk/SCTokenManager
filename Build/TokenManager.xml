@@ -1,0 +1,154 @@
+<project>
+  <Metadata>
+    <metadata>
+      <PackageName>TokenManager</PackageName>
+      <Author>Jeff Darchuk</Author>
+      <Version>2.0.2</Version>
+      <Revision />
+      <License />
+      <Comment />
+      <Attributes />
+      <Readme />
+      <Publisher />
+      <PostStep />
+      <PackageID />
+    </metadata>
+  </Metadata>
+  <SaveProject>True</SaveProject>
+  <Sources>
+    <xitems>
+      <Entries>
+        <x-item>/master/sitecore/system/Settings/Rules/Definitions/Elements/token/{49F201D5-1629-43F5-B2A6-C8048F9AC4B1}/invariant/0</x-item>
+        <x-item>/master/sitecore/system/Settings/Rules/Definitions/Elements/token/SetTokenValue/{68958C52-F800-4B7D-9234-DE08190A3C19}/invariant/0</x-item>
+        <x-item>/master/sitecore/system/Settings/Rules/Definitions/Elements/token/Tags/{C701653E-D8B5-41F0-8A99-9F2946DF7836}/invariant/0</x-item>
+        <x-item>/master/sitecore/system/Settings/Rules/Definitions/Elements/token/Tags/Default/{620C82EF-8593-4B66-A3F8-0C1219F25C4B}/invariant/0</x-item>
+        <x-item>/master/sitecore/system/Settings/Rules/Definitions/Elements/token/Visibility/{797519DB-3D1C-41E1-90A5-B9D782D29258}/invariant/0</x-item>
+        <x-item>/master/sitecore/system/Settings/Rules/Definitions/Tags/token/{584A08B0-5758-4F72-AA06-8065DDD5B1C4}/invariant/0</x-item>
+        <x-item>/master/sitecore/system/Settings/Rules/Definitions/Tags/token/Visibility/{5DA60A15-E4F6-488A-9B29-8E1693832979}/invariant/0</x-item>
+        <x-item>/master/sitecore/system/Settings/Rules/token/{23964DB7-E42B-4832-8E5B-25ED455E1DC1}/invariant/0</x-item>
+        <x-item>/master/sitecore/system/Settings/Rules/token/Rules/{3434A21F-ADE5-4338-9E51-F352F49B61DA}/invariant/0</x-item>
+        <x-item>/master/sitecore/system/Settings/Rules/token/Tags/{BF50DF7F-B9CF-4C5D-B3C2-458EDA55B3CA}/invariant/0</x-item>
+        <x-item>/master/sitecore/system/Settings/Rules/token/Tags/Default/{0177D8D6-98A2-4CF4-85B3-954FEE5C3206}/invariant/0</x-item>
+      </Entries>
+      <SkipVersions>False</SkipVersions>
+      <Converter>
+        <ItemToEntryConverter>
+          <Transforms>
+            <InstallerConfigurationTransform>
+              <Options>
+                <BehaviourOptions>
+                  <ItemMode>Undefined</ItemMode>
+                  <ItemMergeMode>Undefined</ItemMergeMode>
+                </BehaviourOptions>
+              </Options>
+            </InstallerConfigurationTransform>
+          </Transforms>
+        </ItemToEntryConverter>
+      </Converter>
+      <Include />
+      <Exclude />
+      <Name>Rules</Name>
+    </xitems>
+    <xitems>
+      <Entries>
+        <x-item>/core/sitecore/system/Settings/Html Editor Profiles/Rich Text Default/Toolbar 1/Token Manager Divider/{110669A7-8A48-478F-AC7B-7D8AEC7F8F7D}/invariant/0</x-item>
+        <x-item>/core/sitecore/system/Settings/Html Editor Profiles/Rich Text Default/Toolbar 1/Token Manager/{AFA8831E-F5DD-4DF2-A96A-8E223A68D4EB}/invariant/0</x-item>
+      </Entries>
+      <SkipVersions>False</SkipVersions>
+      <Converter>
+        <ItemToEntryConverter>
+          <Transforms>
+            <InstallerConfigurationTransform>
+              <Options>
+                <BehaviourOptions>
+                  <ItemMode>Undefined</ItemMode>
+                  <ItemMergeMode>Undefined</ItemMergeMode>
+                </BehaviourOptions>
+              </Options>
+            </InstallerConfigurationTransform>
+          </Transforms>
+        </ItemToEntryConverter>
+      </Converter>
+      <Include />
+      <Exclude />
+      <Name>RTE profile</Name>
+    </xitems>
+    <xitems>
+      <Entries>
+        <x-item>/master/sitecore/templates/System/Token Manager/{194EB242-15C1-48E9-8DAB-19B917FFDA5A}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/General Token Collection/__Standard Values/{0EFE827A-6BA2-4FC2-ADCD-7B5E71796819}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/General Token Collection/{D31BC00A-F078-4D5D-A93F-CD0E5C850237}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Method Token Collection/__Standard Values/{DCF3B216-8447-4C28-B37D-CC03F9A7F1BC}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Method Token Collection/{BB9FBFD1-1C36-4B1C-95C1-E02DEA5B2C8B}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Method Token Collection/Token Type/{BFFEAF98-CFBD-4138-9D70-475580FCB4DA}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Method Token Collection/Token Type/Type/{A721E26D-3439-4FA5-AEBE-AEA286760629}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Rendering Token Collection/__Standard Values/{593B1DB6-BBB1-4C4A-AC79-11DE7EAA5213}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Rendering Token Collection/{A4875CC7-BACE-4F5A-AE35-B9C5502DA26A}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Rendering Token/{B5C519E3-9EEE-4914-9FCE-51B0B0800697}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Rendering Token/Data/{11C5FD22-E9EB-4530-8CFB-0F7FE008E39E}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Rendering Token/Data/Rendering/{39C00DD8-E2D6-4EBC-B55F-CF438522D9D2}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Root/__Standard Values/{CFB979FF-8740-4E5D-8669-A38E7CA12909}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Root/{D48A879D-2142-4DFB-A773-C8AF686AE779}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Rule Token Collection/__Standard Values/{75F06657-EA40-4A22-B2B9-94A9E1612193}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Rule Token Collection/{147C5339-DB74-413F-A749-AE4C29B7C1F0}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Rule Token/__Standard Values/{87707A6D-EC87-4DA1-B306-5AFEE3558FE4}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Rule Token/{7D6A72CC-D346-43D2-A279-EF6CA27BCF31}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Rule Token/Token/{F0F47D15-1387-48F7-8C11-9600AB99AE37}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Rule Token/Token/Value/{83B5AD5F-6B7A-4531-8019-24F23D10A771}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Shared Link Collection/__Standard Values/{08EC7D0F-9510-4519-A5AF-EC6BC6A18117}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Shared Link Collection/{5273E95E-6857-4CEE-900C-ABCA5EED44C3}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Shared Link Token/{98850963-EC5A-4A3C-A292-78103D3AC6E9}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Shared Link Token/Data/{91E9FB37-9029-4907-9482-54B712920EF9}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Shared Link Token/Data/Link/{C4651EE3-EEA4-4A24-911D-4FF73B5B3735}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/System/{F9D363A7-17C2-42EA-9ADA-230B765C45EB}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/System/Token Base/__Standard Values/{A126149E-850B-48BF-BEE0-C6E85E37EAAA}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/System/Token Base/{13632250-8E53-4A36-9E9B-B1DC6452D4C5}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/System/Token Base/Data/{1F814CB2-CC18-4D10-950A-6616C9449391}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/System/Token Base/Data/Token/{273E8C26-5BF0-4DC1-8430-BDB5C2665853}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/System/Token Collection Base/__Standard Values/{41D3DFB4-B38A-448A-A124-B812E70844D7}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/System/Token Collection Base/{4645BD90-1874-4456-8338-D7440C20A477}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/System/Token Collection Base/Data/{01FFA4BD-AFE7-412C-ACF4-51D6A0542872}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/System/Token Collection Base/Data/Category Label/{81941697-38C9-4B03-A045-EB065A690B9E}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/System/Token Filtering/{88EEC855-5BC4-4E9B-B471-07B8DD284A9C}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/System/Token Filtering/Filtering/{AC4DBA6B-FEB0-4408-9237-297488AA3D56}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/System/Token Filtering/Filtering/Item Ancestor/{1B5B3FA4-90C5-43B2-AC26-0206320EFC92}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/System/Token Filtering/Filtering/Item Template/{FC501498-6263-407A-9F5F-EDF04079DB20}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Token Collection Folder/__Standard Values/{AC597221-EAB9-4471-907F-C2F2328E38E6}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Token Collection Folder/{1068A0B2-91C4-44F2-A7E4-62CE737C595D}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Token Collection/__Standard Values/{D627C02A-7DD7-4FA6-A1F5-1FBFD869B6F2}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Token Collection/{B49DB165-E3A5-45D1-B4E7-F5E707B73C9E}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Token/__Standard Values/{254E3915-F590-427C-8B4D-9C18986970BD}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Token/{87BFAA2C-2E2F-42C6-A135-9F2AE7D32807}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Token/Data/{9A5584FB-9D66-49EE-B55A-64BB9904B59F}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Token/Data/Strip Outer P Tags/{01038533-5010-4BD2-A2E5-C08D263CCC7A}/invariant/0</x-item>
+        <x-item>/master/sitecore/templates/System/Token Manager/Token/Data/Value/{6C722899-8A6D-4CBB-9EE1-862696255C96}/invariant/0</x-item>
+      </Entries>
+      <SkipVersions>False</SkipVersions>
+      <Converter>
+        <ItemToEntryConverter>
+          <Transforms>
+            <InstallerConfigurationTransform>
+              <Options>
+                <BehaviourOptions>
+                  <ItemMode>Undefined</ItemMode>
+                  <ItemMergeMode>Undefined</ItemMergeMode>
+                </BehaviourOptions>
+              </Options>
+            </InstallerConfigurationTransform>
+          </Transforms>
+        </ItemToEntryConverter>
+      </Converter>
+      <Include />
+      <Exclude />
+      <Name>templates</Name>
+    </xitems>
+  </Sources>
+  <Converter>
+    <TrivialConverter>
+      <Transforms />
+    </TrivialConverter>
+  </Converter>
+  <Include />
+  <Exclude />
+  <Name />
+</project>

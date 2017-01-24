@@ -2,6 +2,8 @@
 using Sitecore.Data;
 using Sitecore.Diagnostics;
 using TokenManager.Collections;
+using TokenManager.Data.Interfaces;
+using TokenManager.Management;
 
 namespace TokenManager.Pipelines.GetTokenCollection
 {
@@ -14,15 +16,18 @@ namespace TokenManager.Pipelines.GetTokenCollection
 		/// <param name="args"></param>
 		public void Process(GetTokenCollectionTypeArgs args)
 		{
-			if (args.CollectionItem.TemplateID.ToString() != Constants.TokenCollectionTemplateId) return;
 			try
 			{
-				args.Collection = new SimpleSitecoreTokenCollection(args.CollectionItem, new ID(Constants.TokenTemplateId));
-				args.AbortPipeline();
+				var collection = TokenIdentifier.Current.ResolveCollection<ITokenCollection<IToken>>(args.CollectionItem);
+				if (collection != null)
+				{
+					args.Collection = collection;
+					args.AbortPipeline();
+				}
 			}
 			catch (Exception e)
 			{
-				Log.Error("Unable to load sitecore based token", e, this);
+				Log.Error("Issue resolving token collection " + args.CollectionItem + " this could be due to the link database needing to be rebuilt or a database cleanup operation needs to be run", e, this);
 			}
 		}
 	}

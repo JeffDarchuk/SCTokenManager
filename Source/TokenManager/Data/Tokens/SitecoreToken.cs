@@ -9,75 +9,56 @@ using TokenManager.Management;
 namespace TokenManager.Data.Tokens
 {
 
-    public class SitecoreToken : IToken
-    {
-        private readonly ConcurrentDictionary<string, string> _databaseToValue = new ConcurrentDictionary<string, string>();
-	    private readonly ID _backingItem;
-        public string Token { get; set; }
+	public class SitecoreToken : SitecoreBasedToken
+	{
+		private readonly ConcurrentDictionary<string, string> _databaseToValue = new ConcurrentDictionary<string, string>();
 
-        /// <summary>
-        /// sets up the token with where to look in sitecore for the token value, to be lazy loaded later
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="scId"></param>
-        public SitecoreToken(string token, ID scId)
-        {
-            Token = token;
-            _backingItem = scId;
-        }
+		public SitecoreToken(string name, ID backingId) : base(name, backingId)
+		{
+		}
 
-        public IEnumerable<ITokenData> ExtraData()
-        {
-            return null;
-        }
+		public override IEnumerable<ITokenData> ExtraData()
+		{
+			return null;
+		}
 
-        /// <summary>
-        /// returns id for sitecore backing item
-        /// </summary>
-        /// <returns>sitecore item id</returns>
-        public ID GetBackingItemId()
-        {
-            return _backingItem;
-        }
 
-        public string Value(NameValueCollection extraData)
-        {
-	        Database db = TokenKeeper.CurrentKeeper.GetDatabase();
-	        var lang = Context.Language.Name;
-	        int? version = db?.GetItem(GetBackingItemId())?.Version.Number;
-	        var key = db?.Name + lang + version;
-            if (_databaseToValue.ContainsKey(key))
-                return _databaseToValue[key];
-            if (LoadValue(db, key))
-                return _databaseToValue[key];
-            return null;
-        }
+		public override string Value(NameValueCollection extraData)
+		{
+			Database db = TokenKeeper.CurrentKeeper.GetDatabase();
+			var lang = Context.Language.Name;
+			int? version = db?.GetItem(GetBackingItemId())?.Version.Number;
+			var key = db?.Name + lang + version;
+			if (_databaseToValue.ContainsKey(key))
+				return _databaseToValue[key];
+			if (LoadValue(db, key))
+				return _databaseToValue[key];
+			return null;
+		}
 
-        public IToken LoadExtraData(NameValueCollection props)
-        {
-            return this;
-        }
+		/// <summary>
+		/// caches the token value for the spedified database
+		/// </summary>
+		/// <param name="db"></param>
+		/// <param name="key"></param>
+		/// <returns>was the token found</returns>
+		private bool LoadValue(Database db, string key)
+		{
+			if (db != null)
+			{
+				if (!_databaseToValue.ContainsKey(db.Name))
+				{
 
-	    /// <summary>
-	    /// caches the token value for the spedified database
-	    /// </summary>
-	    /// <param name="db"></param>
-	    /// <param name="key"></param>
-	    /// <returns>was the token found</returns>
-	    private bool LoadValue(Database db, string key)
-        {
-            if (db != null)
-            {
-                if (!_databaseToValue.ContainsKey(db.Name))
-                {
-
-                    var item = db.GetItem(_backingItem);
-                    _databaseToValue[key] = item["Value"];
-                    return true;
-                }
-                _databaseToValue[key] = null;
-            }
-            return false;
-        }
-    }
+					var item = db.GetItem(BackingId);
+					var val = item["Value"];
+					if (item["Strip Outer P Tags"] == "1" && val.StartsWith("<p>") && val.EndsWith("</p>"))
+						val = val.Substring(3, val.Length - 7);
+					_databaseToValue[key] = val;
+					return true;
+				}
+				_databaseToValue[key] = null;
+			}
+			return false;
+		}
+	}
 }

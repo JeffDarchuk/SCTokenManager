@@ -22,23 +22,20 @@ namespace TokenManager.Pipelines.Moved
 			var item = Event.ExtractParameter<Item>(e, 0);
 			if (!item.Template.IsDerived(new ID(Constants.TokenTemplateBaseId))) return;
 			var from = Event.ExtractParameter<ID>(e, 1);
-			var fromItem = item.Database.GetItem(from);
 			var toItem = item.Parent;
-            var fromCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(from);
-            var toCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(toItem.ID);
-			if (fromItem.TemplateID.ToString() == toItem.TemplateID.ToString() )
+			ITokenCollection<IToken> fromCollection = null;
+			ITokenCollection<IToken> toCollection = null;
+			fromCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(from);
+			toCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(toItem.ID);
+			if (fromCollection != null && toCollection != null)
 			{
-			    if (fromCollection != null && toCollection != null)
-			    {
-			        var token = fromCollection.GetTokens().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
-			        if (token != null)
-			        {
-                        TokenRootPropertyChanger changer = new TokenRootPropertyChanger(fromCollection.GetCollectionLabel(), token.Token);
-                        changer.Change(toCollection.GetCollectionLabel(), token.Token);
-			        }
-			    }
+				var token = fromCollection.GetTokens().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
+				if (token != null)
+				{
+					TokenRootPropertyChanger changer = new TokenRootPropertyChanger(fromCollection.GetCollectionLabel(), token.Token);
+					changer.Change(toCollection.GetCollectionLabel(), token.Token);
+				}
 			}
-
 			fromCollection?.ResetTokenCache();
 			toCollection?.ResetTokenCache();
 		}

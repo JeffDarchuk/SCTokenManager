@@ -28,21 +28,21 @@ namespace TokenManager.ContentSearch
 		/// <returns></returns>
 		public List<string> GetTokens(Item item)
 		{
-            if (item != null && !item.IsTokenManagerItem())
-			    return item.Fields.Where(f => f.Type == "Rich Text").SelectMany(GetAllTokenUniqueIds).ToList();
-		    return null;
+			if (item != null && !item.IsTokenManagerItem())
+				return item.Fields.Where(f => f.Type == "Rich Text").SelectMany(GetAllTokenUniqueIds).ToList();
+			return null;
 		}
 
 		public string FieldName { get; set; }
 
 		public string ReturnType { get; set; }
 
-	    private IEnumerable<string> GetAllTokenUniqueIds(Field f)
-	    {
-	        return
-	            TokenKeeper.CurrentKeeper.ParseTokenIdentifiers(f)
-	                .Select(TokenKeeper.CurrentKeeper.TokenProperties)
-	                .Select(t => t["Category"] + t["Token"]);
-	    }
+		private IEnumerable<string> GetAllTokenUniqueIds(Field f)
+		{
+			return
+				TokenKeeper.CurrentKeeper.ParseTokenIdentifiers(f)
+					.Select(TokenKeeper.CurrentKeeper.TokenProperties)
+					.Select(t => t["Category"] + t["Token"]);
+		}
 	}
 }

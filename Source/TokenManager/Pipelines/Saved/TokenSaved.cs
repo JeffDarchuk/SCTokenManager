@@ -29,25 +29,30 @@ namespace TokenManager.Pipelines.Saved
 			{
 				var parent = item.Parent;
 				while (parent != null &&
-				       !TemplateManager.GetTemplate(parent).IsDerived(new ID(Constants.TokenCollectionTemplateBaseId)))
+					   !TemplateManager.GetTemplate(parent).IsDerived(new ID(Constants.TokenCollectionTemplateBaseId)))
 				{
 					parent = parent.Parent;
 				}
 				if (parent == null) return;
 				var collection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(parent.ID);
-				IToken token = collection.GetTokens().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
-				collection.ResetTokenCache();
-				IToken newToken = collection.GetTokens().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
-				if (token == null || newToken == null || newToken.Token == token.Token) return;
-				TokenRootPropertyChanger changer = new TokenRootPropertyChanger(collection.GetCollectionLabel(), token.Token);
-				changer.Change(collection.GetCollectionLabel(), newToken.Token);
+				if (collection != null)
+				{
+					IToken token = collection.GetTokens().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
+					collection.ResetTokenCache();
+					IToken newToken = collection.GetTokens().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
+					if (token == null || newToken == null || newToken.Token == token.Token) return;
+					TokenRootPropertyChanger changer = new TokenRootPropertyChanger(collection.GetCollectionLabel(), token.Token);
+					changer.Change(collection.GetCollectionLabel(), newToken.Token);
+				}
 			}
 			// if it's a token collection that's changed
 			else if (TemplateManager.GetTemplate(item).IsDerived(new ID(Constants.TokenCollectionTemplateBaseId)))
 			{
-				var collection = TokenKeeper.CurrentKeeper.GetTokenCollections().FirstOrDefault(x=>x.GetBackingItemId()==item.ID);
+				var collection = TokenKeeper.CurrentKeeper.GetTokenCollections().FirstOrDefault(x => x.GetBackingItemId() == item.ID);
 				if (collection != null)
 				{
+					TokenKeeper.CurrentKeeper.RemoveCollection(collection.GetCollectionLabel());
+					TokenKeeper.CurrentKeeper.RefreshTokenCollection();
 					var newCollection = TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(item.ID);
 					if (newCollection == null || collection.GetCollectionLabel() == newCollection.GetCollectionLabel()) return;
 					foreach (var token in collection.GetTokens())
@@ -59,7 +64,6 @@ namespace TokenManager.Pipelines.Saved
 				}
 				else
 					TokenKeeper.CurrentKeeper.GetTokenCollection<IToken>(item.ID);
-
 			}
 			else
 			{
