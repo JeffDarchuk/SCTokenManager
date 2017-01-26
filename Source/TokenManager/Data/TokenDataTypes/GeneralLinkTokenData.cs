@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing.Printing;
-using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Dynamic;
 using TokenManager.Data.Interfaces;
 using TokenManager.Data.TokenDataTypes.Support;
 
@@ -12,6 +6,13 @@ namespace TokenManager.Data.TokenDataTypes
 {
 	public class GeneralLinkTokenData : ITokenData
 	{
+		/// <summary>
+		/// Adds an analog of a general link field into a token's data fields. The link is tracked by the links database.
+		/// </summary>
+		/// <param name="label">The label that is shown for this field when editing the token</param>
+		/// <param name="name">The key in the token data collection this will be stored in (use this when getting the value out of the NameValueCollection; use the <see cref="GeneralLink" /> class to parse the retrieved string)</param>
+		/// <param name="required">Whether this token field is required or not</param>
+		/// <param name="root">For internal links, this sets the item ID of the root item in the content tree to choose an item from</param>
 		public GeneralLinkTokenData(string label, string name, bool required, string root = "{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}")
 		{
 			Name = name;
