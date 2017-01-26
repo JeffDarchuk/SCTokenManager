@@ -17,12 +17,8 @@ obj/
 *.user
 *.suo
 
-# Ignore generated Version.cs files
-/*/Properties/Version.cs
-
 # NuGet packages
 Packages/*
 !Packages/repositories.config
 
-# Any Sitecore assemblies copied local
-Dependencies/Libraries/Sitecore/*
+Build/*.nupkg
