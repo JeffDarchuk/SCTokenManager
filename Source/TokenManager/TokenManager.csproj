@@ -95,11 +95,13 @@
     <Compile Include="Data\Interfaces\ITokenIdentifier.cs" />
     <Compile Include="Data\Interfaces\ITokenKeeper.cs" />
     <Compile Include="Data\TokenDataTypes\BooleanTokenData.cs" />
+    <Compile Include="Data\TokenDataTypes\DroplistTokenData.cs" />
     <Compile Include="Data\TokenDataTypes\GeneralLinkTokenData.cs" />
     <Compile Include="Data\TokenDataTypes\IdTokenData.cs" />
     <Compile Include="Data\TokenDataTypes\IntegerTokenData.cs" />
     <Compile Include="Data\TokenDataTypes\StringTokenData.cs" />
     <Compile Include="Data\TokenDataTypes\Support\GeneralLink.cs" />
+    <Compile Include="Data\TokenDataTypes\Support\TokenDataCollection.cs" />
     <Compile Include="Data\TokenExtensions\TokenButton.cs" />
     <Compile Include="Data\Tokens\AutoToken.cs" />
     <Compile Include="Data\Tokens\BasicToken.cs" />

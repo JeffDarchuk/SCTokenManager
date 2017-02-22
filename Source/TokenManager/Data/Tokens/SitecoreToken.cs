@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using Sitecore;
 using Sitecore.Data;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.TokenDataTypes.Support;
 using TokenManager.Management;
 
 namespace TokenManager.Data.Tokens
@@ -23,7 +24,7 @@ namespace TokenManager.Data.Tokens
 		}
 
 
-		public override string Value(NameValueCollection extraData)
+		public override string Value(TokenDataCollection extraData)
 		{
 			Database db = TokenKeeper.CurrentKeeper.GetDatabase();
 			var lang = Context.Language.Name;

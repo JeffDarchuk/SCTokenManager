@@ -3,7 +3,7 @@
   <metadata>
     <id>TokenManager.Core</id>
     <version>$version$</version>
-    <title>$title$</title>
+    <title>TokenManager.Core</title>
     <authors>Jeff Darchuk</authors>
     <owners>Jeff Darchuk</owners>
         <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>

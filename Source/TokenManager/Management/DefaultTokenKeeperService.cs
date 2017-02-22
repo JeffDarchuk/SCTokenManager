@@ -24,6 +24,7 @@ using Sitecore.SecurityModel;
 using TokenManager.Collections;
 using TokenManager.ContentSearch;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.TokenDataTypes.Support;
 using TokenManager.Data.TokenExtensions;
 using TokenManager.Data.Tokens;
 using TokenManager.Pipelines;
@@ -32,8 +33,8 @@ namespace TokenManager.Management
 {
 	class DefaultTokenKeeperService : ITokenKeeperService
 	{
-		public string TokenPrefix => "<section contenteditable=\"false\" unselectable=\"on\" class=\"token-manager-token\" href=\"/TokenManager?";
-		public string TokenSuffix => "</section>";
+		public string TokenPrefix => "<code contenteditable=\"false\" unselectable=\"on\" class=\"token-manager-token\" href=\"/TokenManager?";
+		public string TokenSuffix => "</code>";
 		public string TokenRegex = "<[^>]*?/TokenManager?.*?>";
 		public string TokenCss { get; set; }
 		private static readonly ConcurrentDictionary<string, ITokenCollection<IToken>> TokenCollections = new ConcurrentDictionary<string, ITokenCollection<IToken>>();
@@ -110,7 +111,7 @@ namespace TokenManager.Management
 					button["Shortcut"] = $"?Category={token.CollectionName}&Token={token.Token}";
 					button[FieldIDs.Sortorder] = tb.SortOrder.ToString();
 					button[FieldIDs.Icon] = string.IsNullOrWhiteSpace(tb.Icon) ? token.TokenIcon : tb.Icon;
-					button.Editing.EndEdit();
+					button.Editing.EndEdit(false, true);
 				}
 			}
 			else if (button != null)
@@ -204,7 +205,7 @@ namespace TokenManager.Management
 		{
 			var props = TokenProperties(token);
 			IToken t = ParseITokenFromProps(props, item);
-			return t != null ? t.Value(props) : string.Empty;
+			return t != null ? t.Value(new TokenDataCollection(props)) : string.Empty;
 		}
 
 		public virtual string GetTokenIdentifier(NameValueCollection data)
@@ -243,9 +244,9 @@ namespace TokenManager.Management
 						StringBuilder sb = new StringBuilder();
 						foreach (KeyValuePair<string, object> group in grouped)
 						{
-							sb.Append(group.Key);
+							sb.Append(HttpUtility.UrlEncode(group.Key));
 							sb.Append("|=|");
-							sb.Append(group.Value);
+							sb.Append(HttpUtility.UrlEncode(group.Value.ToString()));
 							sb.Append("|||");
 							ID tmp;
 							if (ID.TryParse(group.Value, out tmp))
@@ -257,7 +258,8 @@ namespace TokenManager.Management
 							ret.Add(key, sb.ToString(0, sb.Length - 3));
 					}
 				}
-			return string.Format("{0}{1}\" {4}>{2}<span style='display:none;'>{5}</span>{3}", TokenPrefix, ret, itoken.TokenIdentifierText(ret).Replace("\n", "").Replace("\r", ""), TokenSuffix, $"style='{itoken.TokenIdentifierStyle(ret)}'", GenerateScLinks(ids));
+			TokenDataCollection td = new TokenDataCollection(ret);
+			return string.Format("{0}{1}\" {4}>{2}<span style='display:none;'>{5}</span>{3}", TokenPrefix, ret, itoken.TokenIdentifierText(td).Replace("\n", "").Replace("\r", ""), TokenSuffix, $"style='{itoken.TokenIdentifierStyle(td)}'", GenerateScLinks(ids));
 		}
 
 		private string GenerateScLinks(List<ID> ids)
@@ -272,7 +274,7 @@ namespace TokenManager.Management
 		public virtual string GetTokenValue(string category, string token, NameValueCollection extraData)
 		{
 			if (TokenCollections.ContainsKey(category) && TokenCollections[category].IsCurrentContextValid() && IsCollectionValid(TokenCollections[category]))
-				return TokenCollections[category][token].Value(extraData);
+				return TokenCollections[category][token].Value(new TokenDataCollection(extraData));
 			return null;
 		}
 

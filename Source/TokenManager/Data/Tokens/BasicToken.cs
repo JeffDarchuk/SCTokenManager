@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using Sitecore.Data;
 using Sitecore.StringExtensions;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.TokenDataTypes.Support;
 using TokenManager.Management;
 
 namespace TokenManager.Data
@@ -14,7 +15,7 @@ namespace TokenManager.Data
 
 		public string Value { get; set; }
 
-		string IToken.Value(NameValueCollection extraData)
+		string IToken.Value(TokenDataCollection extraData)
 		{
 			return Value;
 		}
@@ -24,12 +25,12 @@ namespace TokenManager.Data
 			return null;
 		}
 
-		public string TokenIdentifierText(NameValueCollection extraData)
+		public string TokenIdentifierText(TokenDataCollection extraData)
 		{
 			return "{0} > {1}".FormatWith(extraData["Category"], extraData["Token"]);
 		}
 
-		public string TokenIdentifierStyle(NameValueCollection extraData)
+		public string TokenIdentifierStyle(TokenDataCollection extraData)
 		{
 			return TokenKeeper.CurrentKeeper.TokenCss;
 		}

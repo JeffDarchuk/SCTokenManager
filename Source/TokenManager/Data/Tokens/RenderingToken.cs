@@ -9,6 +9,7 @@ using Sitecore.Data.Fields;
 using Sitecore.Mvc.Helpers;
 using TokenManager.Data.Interfaces;
 using TokenManager.Data.TokenDataTypes;
+using TokenManager.Data.TokenDataTypes.Support;
 using TokenManager.Management;
 
 namespace TokenManager.Data.Tokens
@@ -24,7 +25,7 @@ namespace TokenManager.Data.Tokens
 			yield return new IdTokenData("Datasource", "Datasource for the rendering", true);
 		}
 
-		public override string Value(NameValueCollection extraData)
+		public override string Value(TokenDataCollection extraData)
 		{
 			InternalLinkField renderingItem = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(BackingId).Fields["Rendering"];
 			TextWriter tw = new StringWriter();

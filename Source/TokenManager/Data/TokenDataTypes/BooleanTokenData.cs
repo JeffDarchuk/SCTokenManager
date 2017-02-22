@@ -9,11 +9,16 @@ namespace TokenManager.Data.TokenDataTypes
 {
 	public class BooleanTokenData : ITokenData
 	{
-		public BooleanTokenData(string label, string name, bool required)
+		/// <summary>
+		/// Creates a field that gathers a boolean from the user in the form of a checkbox
+		/// </summary>
+		/// <param name="label">The label displayed to the authors describing what the field is for</param>
+		/// <param name="name">The key that's used when placing/retrieving information into the token definition</param>
+		public BooleanTokenData(string label, string name)
 		{
 			Name = name;
 			Label = label;
-			Required = required;
+			Required = false;
 		}
 		public string Name { get; set; }
 		public string Label { get; set; }

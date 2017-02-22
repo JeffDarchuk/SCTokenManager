@@ -2,6 +2,7 @@
 <package>
 	<metadata>
 		<id>TokenManager</id>
+		<title>TokenManager</title>
 		<version>$version$</version>
 		<authors>Jeff Darchuk</authors>
 		<owners>Jeff Darchuk</owners>

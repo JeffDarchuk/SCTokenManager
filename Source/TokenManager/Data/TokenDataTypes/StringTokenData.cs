@@ -10,6 +10,14 @@ namespace TokenManager.Data.TokenDataTypes
 {
 	public class StringTokenData : ITokenData
 	{
+		/// <summary>
+		/// Creates a field that gathers a sitecore item's ID from the user in the form of a Sitecore content tree
+		/// </summary>
+		/// <param name="label">The label displayed to the authors describing what the field is for</param>
+		/// <param name="name">The key that's used when placing/retrieving information into the token definition</param>
+		/// <param name="placeholder">The text that appears in light gray that is over the top of the input field guiding users suggested input</param>
+		/// <param name="required">If true, the user will not be able to leave this field blank</param>
+
 		public StringTokenData(string label, string name, string placeholder, bool required)
 		{
 			Name = name;

@@ -10,6 +10,13 @@ namespace TokenManager.Data.TokenDataTypes
 {
 	public class IdTokenData : ITokenData
 	{
+		/// <summary>
+		/// Creates a field that gathers a sitecore item's ID from the user in the form of a Sitecore content tree
+		/// </summary>
+		/// <param name="label">The label displayed to the authors describing what the field is for</param>
+		/// <param name="name">The key that's used when placing/retrieving information into the token definition</param>
+		/// <param name="required">If true, the user will not be able to leave this field blank</param>
+		/// <param name="root">The string GUID that corresponds to the root of the content tree used for item selection</param>
 		public IdTokenData(string label, string name, bool required, string root = "{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}")
 		{
 			Name = name;

@@ -4,6 +4,7 @@ using Sitecore.Data;
 using Sitecore.Data.Fields;
 using TokenManager.Data.Interfaces;
 using TokenManager.Data.TokenDataTypes;
+using TokenManager.Data.TokenDataTypes.Support;
 using TokenManager.Management;
 
 namespace TokenManager.Data.Tokens
@@ -14,7 +15,7 @@ namespace TokenManager.Data.Tokens
 		{
 		}
 
-		public override string Value(NameValueCollection extraData)
+		public override string Value(TokenDataCollection extraData)
 		{
 			LinkField f = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(BackingId).Fields["Link"];
 			return string.Format("<a href='{0}' target='{1}' class='{2}' title='{3}'>{4}</a>", f.GetFriendlyUrl(), f.Target,

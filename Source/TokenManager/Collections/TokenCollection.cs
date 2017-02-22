@@ -6,6 +6,7 @@ using Sitecore;
 using Sitecore.Data;
 using Sitecore.Data.Items;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.TokenDataTypes.Support;
 using TokenManager.Handlers;
 using TokenManager.Management;
 
@@ -180,7 +181,7 @@ namespace TokenManager.Collections
 		public virtual string GetTokenValue(string token, NameValueCollection extraData)
 		{
 			var ret = GetToken(token);
-			return ret == null ? string.Empty : ret.Value(extraData);
+			return ret == null ? string.Empty : ret.Value(new TokenDataCollection(extraData));
 		}
 
 		/// <summary>

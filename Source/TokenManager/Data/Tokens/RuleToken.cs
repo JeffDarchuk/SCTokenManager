@@ -4,6 +4,7 @@ using Sitecore;
 using Sitecore.Data;
 using Sitecore.Data.Items;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.TokenDataTypes.Support;
 using TokenManager.Management;
 using TokenManager.Rules;
 
@@ -15,7 +16,7 @@ namespace TokenManager.Data.Tokens
 		public RuleToken(string name, ID backingId) : base(name, backingId)
 		{
 		}
-		public override string Value(NameValueCollection extraData)
+		public override string Value(TokenDataCollection extraData)
 		{
 			Database db = TokenKeeper.CurrentKeeper.GetDatabase();
 			Item item = db.GetItem(BackingId);

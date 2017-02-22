@@ -124,11 +124,12 @@ namespace TokenManager.Data.TokenDataTypes.Support
 
 		public GeneralLink(string tokenData)
 		{
+			if (tokenData == null) return;
 			foreach (string keyval in tokenData.Split(new [] {"|||"}, StringSplitOptions.RemoveEmptyEntries))
 			{
 				var vals = keyval.Split(new[] {"|=|"}, StringSplitOptions.RemoveEmptyEntries);
 				if (vals.Length != 2) continue;
-				JsFields.Add(vals[0], vals[1]);
+				JsFields.Add(HttpUtility.UrlDecode(vals[0]), HttpUtility.UrlDecode(vals[1]));
 			}
 		}
 
