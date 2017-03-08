@@ -13,7 +13,11 @@ namespace TokenManager.Data.TokenDataTypes.Support
 	{
 		private NameValueCollection _source;
 
-		public string this[string tokenDataName] => _source[tokenDataName];
+		public string this[string tokenDataName]
+		{
+			get { return _source[tokenDataName]; }
+			set { _source[tokenDataName] = value; }
+		}
 
 		public TokenDataCollection(NameValueCollection source)
 		{
@@ -62,6 +66,17 @@ namespace TokenManager.Data.TokenDataTypes.Support
 		public string GetDropdownValue(string tokenDataName)
 		{
 			return _source[tokenDataName];
+		}
+
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+			foreach (string key in _source.Keys)
+			{
+				sb.Append($"{key}={_source[key]}&");
+			}
+			sb.Remove(sb.Length - 1, 1);
+			return sb.ToString();
 		}
 	}
 }

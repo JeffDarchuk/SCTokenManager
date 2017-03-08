@@ -172,14 +172,22 @@ namespace TokenManager.Management
 			var locations = ParseTokenLocations(field);
 			List<string> ret = new List<string>();
 			if (locations == null) return ret;
-			foreach (var tokenProps in locations.Item2.Select(location => sb.ToString(location.Item1, location.Item2)))
+			try
 			{
-				if (!Regex.IsMatch(tokenProps, TokenRegex))
+				foreach (var tokenProps in locations.Item2.Select(location => sb.ToString(location.Item1, location.Item2)))
 				{
-					ResetTokenLocations(field.Item.ID, field.ID, field.Language, field.Item.Version.Number);
-					return ParseTokenIdentifiers(field);
+					if (!Regex.IsMatch(tokenProps, TokenRegex))
+					{
+						ResetTokenLocations(field.Item.ID, field.ID, field.Language, field.Item.Version.Number);
+						return ParseTokenIdentifiers(field);
+					}
+					ret.Add(tokenProps);
 				}
-				ret.Add(tokenProps);
+			}
+			catch (ArgumentOutOfRangeException e) //our location cache is invalid, resetting
+			{
+				ResetTokenLocations(field.Item.ID, field.ID, field.Language, field.Item.Version.Number);
+				return ParseTokenIdentifiers(field);
 			}
 			return ret;
 		}
@@ -221,7 +229,7 @@ namespace TokenManager.Management
 		public virtual string GetTokenIdentifier(string category, string token, IDictionary<string, object> fields)
 		{
 			List<ID> ids = new IdList();
-			var ret = HttpUtility.ParseQueryString("");
+			var ret = new TokenDataCollection(new NameValueCollection());
 			ret["Category"] = category;
 			ret["Token"] = token;
 			IToken itoken = GetToken(category, token);
@@ -232,7 +240,7 @@ namespace TokenManager.Management
 					if (grouped == null)
 					{
 						var value = fields[key]?.ToString() ?? "";
-						ret.Add(key, value);
+						ret[key] = value;
 						ID tmp;
 						if (ID.TryParse(value, out tmp))
 						{
@@ -244,9 +252,9 @@ namespace TokenManager.Management
 						StringBuilder sb = new StringBuilder();
 						foreach (KeyValuePair<string, object> group in grouped)
 						{
-							sb.Append(HttpUtility.UrlEncode(group.Key));
+							sb.Append(HttpUtility.HtmlEncode(group.Key));
 							sb.Append("|=|");
-							sb.Append(HttpUtility.UrlEncode(group.Value.ToString()));
+							sb.Append(HttpUtility.HtmlEncode(group.Value.ToString()));
 							sb.Append("|||");
 							ID tmp;
 							if (ID.TryParse(group.Value, out tmp))
@@ -255,11 +263,10 @@ namespace TokenManager.Management
 							}
 						}
 						if (sb.Length > 3)
-							ret.Add(key, sb.ToString(0, sb.Length - 3));
+							ret[key] = sb.ToString(0, sb.Length - 3);
 					}
 				}
-			TokenDataCollection td = new TokenDataCollection(ret);
-			return string.Format("{0}{1}\" {4}>{2}<span style='display:none;'>{5}</span>{3}", TokenPrefix, ret, itoken.TokenIdentifierText(td).Replace("\n", "").Replace("\r", ""), TokenSuffix, $"style='{itoken.TokenIdentifierStyle(td)}'", GenerateScLinks(ids));
+			return string.Format("{0}{1}\" {4}>{2}<span style='display:none;'>{5}</span>{3}", TokenPrefix, ret, itoken.TokenIdentifierText(ret).Replace("\n", "").Replace("\r", ""), TokenSuffix, $"style='{itoken.TokenIdentifierStyle(ret)}'", GenerateScLinks(ids));
 		}
 
 		private string GenerateScLinks(List<ID> ids)

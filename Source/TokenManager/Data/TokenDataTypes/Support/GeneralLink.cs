@@ -129,7 +129,7 @@ namespace TokenManager.Data.TokenDataTypes.Support
 			{
 				var vals = keyval.Split(new[] {"|=|"}, StringSplitOptions.RemoveEmptyEntries);
 				if (vals.Length != 2) continue;
-				JsFields.Add(HttpUtility.UrlDecode(vals[0]), HttpUtility.UrlDecode(vals[1]));
+				JsFields.Add(HttpUtility.HtmlDecode(vals[0]), HttpUtility.HtmlDecode(vals[1]));
 			}
 		}
 
