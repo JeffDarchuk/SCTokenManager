@@ -464,6 +464,13 @@ namespace TokenManager.Management
 			return Factory.GetDatabases().FirstOrDefault(x => x.HasContentItem);
 		}
 
+		public virtual bool HasTokens(Item item)
+		{
+			return
+				item.Fields.Where(x => x.Type == "Rich Text")
+					.Any(x => TokenLocations.ContainsKey(item.ID.ToString() + x.ID + item.Language.Name + item.Version.Number));
+		}
+
 		/// <summary>
 		/// finds the token locations and stores it in a cache
 		/// </summary>

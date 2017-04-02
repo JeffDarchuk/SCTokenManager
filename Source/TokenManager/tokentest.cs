@@ -7,27 +7,20 @@ using System.Threading.Tasks;
 using TokenManager.Data.Interfaces;
 using TokenManager.Data.TokenDataTypes;
 using TokenManager.Data.TokenDataTypes.Support;
+using TokenManager.Data.TokenExtensions;
 using TokenManager.Data.Tokens;
 
 namespace TokenManager
 {
-	public class tokentest : AutoToken
+	public class tokentest : ViewAutoToken
 	{
 		public tokentest() : base("test", "people/16x16/cubes_blue.png", "terkan")
 		{
 		}
-
-		public override string Value(TokenDataCollection extraData)
+		public override TokenButton TokenButton()
 		{
-			return $@"
-<div>{extraData.GetLink("link").LinkDescription}</div>
-<div>{extraData.GetDropdownValue("dd")}</div>
-<div>{extraData.GetBoolean("bool")}</div>
-<div>{extraData.GetId("id")}</div>
-<div>{extraData.GetInt("int")}</div>
-";
+			return new Data.TokenExtensions.TokenButton("test", "people/16x16/cubes_blue.png", 1000);
 		}
-
 		public override IEnumerable<ITokenData> ExtraData()
 		{
 			yield return new GeneralLinkTokenData("LINK", "link", true);
@@ -39,6 +32,16 @@ namespace TokenManager
 			yield return new BooleanTokenData("bool", "bool");
 			yield return new IdTokenData("id", "id", true);
 			yield return new IntegerTokenData("int", "int", true);
+		}
+
+		public override object GetModel(TokenDataCollection extraData)
+		{
+			return extraData;
+		}
+
+		public override string GetViewPath(TokenDataCollection extraData)
+		{
+			return "/views/terkan.cshtml";
 		}
 	}
 }

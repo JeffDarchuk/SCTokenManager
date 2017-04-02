@@ -4,6 +4,7 @@ using System.Dynamic;
 using System.Text;
 using System.Web;
 using Sitecore.Links;
+using Sitecore.Resources.Media;
 
 namespace TokenManager.Data.TokenDataTypes.Support
 {
@@ -114,8 +115,7 @@ namespace TokenManager.Data.TokenDataTypes.Support
 					var targetItem = (Sitecore.Context.ContentDatabase ?? Sitecore.Context.Database)?.GetItem(InternalLinkId);
 
 					if (targetItem == null) return string.Empty;
-
-					return ProcessUrlQuery(LinkManager.GetItemUrl(targetItem));
+					return ProcessUrlQuery(targetItem.Paths.IsMediaItem ? MediaManager.GetMediaUrl(targetItem) : LinkManager.GetItemUrl(targetItem));
 				}
 
 				return ProcessUrlQuery(ExternalUrl);

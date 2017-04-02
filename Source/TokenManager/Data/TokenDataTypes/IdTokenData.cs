@@ -34,7 +34,7 @@ namespace TokenManager.Data.TokenDataTypes
 			get { return $@"<div class=""field-row {{{{ field.class}}}}"">
 		<span class=""field-label"">{{{{field.Label}}}} </span>
 		<div class=""field-data"">
-			<contenttree parent = ""'{Data.Root}'"" selected=""token.data[field.Name]"" events=""token.events"" ng-click=""token.clicked(field.Name)""></contenttree>
+			<contenttree parent = ""'{Data.Root}'"" selected=""token.data[field.Name]"" events=""token.events"" ng-click=""token.clicked(field.Name)"" field=""'{Name}'""></contenttree>
 		</div>
 	</div>"; }
 		}

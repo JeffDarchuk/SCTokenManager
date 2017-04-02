@@ -15,11 +15,11 @@
 		vm.selectNode = function (id) {
 			vm.selected = id;
 		}
-		$scope.init = function (nodeId, selectedId, events) {
+		$scope.init = function (nodeId, selectedId, events, field) {
 			tokenfactory.contentTree(nodeId, "master").then(function (response) {
 				vm.data = response.data;
 				if (selectedId === nodeId) {
-					events.selectedItem = vm.data.Id;
+					events[field] = vm.data.Id;
 					events.click(vm.data);
 				}
 			}, function (response) {

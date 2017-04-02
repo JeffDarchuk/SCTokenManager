@@ -21,6 +21,3 @@
 		function activate() { }
 	}
 })();
-$('.fancybox').fancybox({
-	width: '90%', height: '90%', fitToView: false, autoSize: false
-});

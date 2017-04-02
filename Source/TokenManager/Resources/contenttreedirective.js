@@ -16,7 +16,8 @@
 			scope: {
 				parent: '=',
 				events: '=',
-				selected: '='
+				selected: '=',
+				field: '='
 			},
 			compile: function (tElement, tAttr) {
 				var contents = tElement.contents().remove();

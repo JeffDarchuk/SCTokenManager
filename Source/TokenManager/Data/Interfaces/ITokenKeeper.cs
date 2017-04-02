@@ -256,5 +256,7 @@ namespace TokenManager.Data.Interfaces
 		/// </summary>
 		/// <returns></returns>
 		Database GetDatabase();
+
+		bool HasTokens(Item item);
 	}
 }

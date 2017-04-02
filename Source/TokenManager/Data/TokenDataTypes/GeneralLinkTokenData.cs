@@ -34,7 +34,7 @@ namespace TokenManager.Data.TokenDataTypes
 					<label style=""margin-bottom:4px""><input type=""radio"" ng-model=""token.data[field.Name].grouped.type"" value=""internal""><span style='position:relative;top:-2px'>Internal Link</span></label><br/>
 					<div ng-if=""token.data[field.Name].grouped.type == 'internal'"">
 						<label>Sitecore Internal Link Item</label>
-						<contenttree parent = ""'{Data.root}'"" selected=""token.data[field.Name].grouped.id"" events=""token.events"" ng-click=""token.groupedClicked(field.Name)""></contenttree>
+						<contenttree parent = ""'{Data.root}'"" selected=""token.data[field.Name].grouped.id"" events=""token.events"" field=""'{Name}'"" ng-click=""token.groupedClicked(field.Name)""></contenttree>
 					</div>
 					<div ng-if=""token.data[field.Name].grouped.type == 'external'"">
 						<label>External Url</label>

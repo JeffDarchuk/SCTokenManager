@@ -21,10 +21,10 @@
 			'click': function (val) { }
 		};
 		vm.groupedClicked = function(field) {
-			vm.data[field].grouped.id = vm.events.selectedItem;
+			vm.data[field].grouped.id = vm.events[field];
 		}
 		vm.clicked = function (field) {
-			vm.data[field] = vm.events.selectedItem;
+			vm.data[field] = vm.events[field];
 		}
 		tokenfactory.tokenCategories().then(function (response) {
 			vm.categories = response.data;

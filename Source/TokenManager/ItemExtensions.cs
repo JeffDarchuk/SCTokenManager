@@ -1,10 +1,16 @@
-﻿using Sitecore.Data.Items;
+﻿using System.Linq;
+using Sitecore.Data.Items;
 using Sitecore.Rules;
+using TokenManager.Management;
 
 namespace TokenManager
 {
 	public static class ItemExtensions
 	{
+		public static bool HasTokens(this Item item)
+		{
+			return TokenKeeper.CurrentKeeper.HasTokens(item);
+		}
 		/// <summary>
 		/// returns true if the item belongs to the token manager
 		/// </summary>

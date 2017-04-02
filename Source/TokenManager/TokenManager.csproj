@@ -113,6 +113,7 @@
     <Compile Include="Data\Tokens\SitecoreBasedToken.cs" />
     <Compile Include="Data\Tokens\SitecoreToken.cs" />
     <Compile Include="Data\Tokens\SharedLinkToken.cs" />
+    <Compile Include="Data\Tokens\ViewAutoToken.cs" />
     <Compile Include="GuidUtility.cs" />
     <Compile Include="Handlers\BaseHttpHandler.cs" />
     <Compile Include="Handlers\ContentTree\ContentTreeNode.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="Pipelines\GetTokenCollection\GetSitecoreCollection.cs" />
     <Compile Include="Pipelines\Initialize\InitializeTokenManager.cs" />
     <Compile Include="Pipelines\Moved\TokenMoved.cs" />
+    <Compile Include="Pipelines\Mvc.RenderRendering\SetCacheAbility.cs" />
     <Compile Include="Pipelines\RenderField\RenderFieldExpandTokens.cs" />
     <Compile Include="Management\TokenKeeper.cs" />
     <Compile Include="Pipelines\Saved\TokenSaved.cs" />
@@ -143,6 +145,8 @@
     <Compile Include="Rules\TokenRuleContext.cs" />
     <Compile Include="TemplateExtensions.cs" />
     <Compile Include="TokenException.cs" />
+    <Compile Include="tokentest.cs" />
+    <Compile Include="ViewRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\app.js" />
@@ -199,7 +203,9 @@
     <EmbeddedResource Include="Resources\TokenManagerSc7.zip" />
     <None Include="packages.config" />
     <None Include="TokenManager.nuspec" />
-    <None Include="Tokens.config" />
+    <None Include="Tokens.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\noexpand15x15.gif" />

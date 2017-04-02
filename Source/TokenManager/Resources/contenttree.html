@@ -1,4 +1,4 @@
-﻿<div ng-controller="contenttreecontroller as vm" ng-init="init(parent, selected, events)">
+﻿<div ng-controller="contenttreecontroller as vm" ng-init="init(parent, selected, events, field)">
 	{{parentItem}}
 	<div class="scContentTreeNode">
 		<span ng-if="vm.data.Nodes.length>0">
@@ -11,7 +11,7 @@
 		<div class="scContentTreeNodeGutter">
 
 		</div>
-		<a hidefocus="true" ng-class="events.selectedItem == vm.data.Id ? 'scContentTreeNodeActive':'scContentTreeNodeNormal'" style="position: relative;" ng-click="events.click(vm.data);events.selectedItem = vm.data.Id">
+		<a hidefocus="true" ng-class="events[field] == vm.data.Id ? 'scContentTreeNodeActive':'scContentTreeNodeNormal'" style="position: relative;" ng-click="events.click(vm.data);events[field] = vm.data.Id">
 			<span ng-if="vm.data.Icon" class="scContentTreeSelectable">
 				<img ng-src="{{vm.data.Icon}}" width="16" height="16" class="scContentTreeNodeIcon" alt="" border="0">
 				{{vm.data.DisplayName}}
@@ -21,7 +21,7 @@
 			</span>
 		</a>
 		<div ng-if="vm.Open" class="scContentTreeIndent" ng-repeat="item in vm.data.Nodes">
-			<contenttree parent="item.Id" selected="selected" events="events"></contenttree>
+			<contenttree parent="item.Id" selected="selected" events="events" field="field"></contenttree>
 		</div>
 		<pre ng-if="vm.error" class="scserror">{{vm.error}}</pre>
 	</div>
