@@ -1,4 +1,4 @@
-#TokenButton
+# TokenButton
 
 There is a method to override for TokenButton that will automatically create a button for the default RTE profile for the particular token implementation.
 Each TokenButton consists of three parts
