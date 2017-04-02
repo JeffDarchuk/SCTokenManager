@@ -10,8 +10,8 @@ Nuget - PM> Install-Package TokenManager
 [Getting Started with author controlled tokens](https://jeffdarchuk.wordpress.com/2016/08/21/getting-started-with-token-manager/)
 
 For general purpose dynamic tokens, take a look at AutoTokens below.
-
-#In Depth Tutorials
+### Documentation can be found under the documentation folder.
+# Legacy In Depth Tutorials
 
 [Build your own tokens](https://jeffdarchuk.wordpress.com/2016/08/21/creating-custom-tokens-with-token-manager/)
 
