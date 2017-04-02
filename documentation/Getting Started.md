@@ -1,12 +1,12 @@
-#Getting Started
+# Getting Started
 
 This document will focus on getting started using the most common use case for Token Manager
-##Install TokenManager
+## Install TokenManager
 
 	Using nuget `Install-Package TokenManager` will add the binaries and single configuration patch file to your sitecore environment.  
 	Note that if you may need to move your config file if your solution is not set up on your webroot.
 
-##Implement an AutoToken
+## Implement an AutoToken
 
 1.  Create a new class that implements the abstract class AutoToken
 2.  Modify constructor to have no parameters and in the base constructor add
