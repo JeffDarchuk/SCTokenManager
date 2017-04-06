@@ -4,20 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.TokenDataTypes;
 using TokenManager.Data.TokenDataTypes.Support;
 
 namespace TokenManager.Data.Tokens
 {
-	public abstract class ViewAutoToken : AutoToken
+	public abstract class ViewAutoToken<T> : ModelAutoToken<T>
+		where T : class, new()
 	{
-		public ViewAutoToken(string collectionName, string tokenIcon, string tokenName) : base(collectionName, tokenIcon, tokenName)
+		protected ViewAutoToken(string collectionName, string tokenIcon, string tokenName) : base(collectionName, tokenIcon, tokenName)
 		{
 		}
-		public abstract object GetModel(TokenDataCollection extraData);
-		public abstract string GetViewPath(TokenDataCollection extraData);
-		public override string Value(TokenDataCollection extraData)
+		public abstract string GetViewPath(T model);
+		public override string Render(T model)
 		{
-			return ViewRenderer.RenderPartialView(GetViewPath(extraData), GetModel(extraData));
+			return ViewRenderer.RenderPartialView(GetViewPath(model), model);
 		}
 	}
 }

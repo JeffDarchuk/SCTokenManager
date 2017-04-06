@@ -15,8 +15,7 @@ using TokenManager.Management;
 
 namespace TokenManager.Data.Tokens
 {
-	public abstract class AutoToken : IToken
-	{
+	public abstract class AutoToken : IToken	{
 		protected AutoToken(string collectionName, string tokenIcon, string tokenName)
 		{
 			this.CollectionName = collectionName;
@@ -26,10 +25,6 @@ namespace TokenManager.Data.Tokens
 		public string CollectionName { get; }
 		public string TokenIcon { get; }
 		public string Token { get; }
-		public abstract string Value(TokenDataCollection extraData);
-
-		public abstract IEnumerable<ITokenData> ExtraData();
-
 		public virtual string TokenIdentifierText(TokenDataCollection extraData)
 		{
 			return "{0} > {1}".FormatWith(extraData["Category"], extraData["Token"]);
@@ -59,6 +54,8 @@ namespace TokenManager.Data.Tokens
 		{
 			yield break;
 		}
+
+
 		public virtual bool IsCurrentContextValid(Item item = null)
 		{
 			if (item == null)
@@ -97,5 +94,10 @@ namespace TokenManager.Data.Tokens
 				return false;
 			return true;
 		}
+
+
+
+		public abstract string Value(TokenDataCollection extraData);
+		public abstract IEnumerable<ITokenData> ExtraData();
 	}
 }

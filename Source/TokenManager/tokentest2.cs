@@ -12,15 +12,16 @@ using TokenManager.Data.Tokens;
 
 namespace TokenManager
 {
-	public class tokentest : ViewAutoToken<tokentestmodel>
+	public class tokentest2 : ModelAutoToken<tokentestmodel>
 	{
 		//Make sure you have a parameterless constructor.
-		public tokentest() : base("test", "people/16x16/cubes_blue.png", "terkan")
+		public tokentest2() : base("test", "people/16x16/cubes_blue.png", "terkan2")
 		{
 		}
-		public override string GetViewPath(tokentestmodel extraData)
+
+		public override string Render(tokentestmodel model)
 		{
-			return "/views/terkan.cshtml";
+			return model.dropy + model.booly + model.stringy;
 		}
 	}
 }

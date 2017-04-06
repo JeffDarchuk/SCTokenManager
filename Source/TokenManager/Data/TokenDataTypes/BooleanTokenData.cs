@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TokenManager.Data.Interfaces;
+using TokenManager.Data.TokenDataTypes.Support;
 
 namespace TokenManager.Data.TokenDataTypes
 {
@@ -23,7 +24,6 @@ namespace TokenManager.Data.TokenDataTypes
 		public string Name { get; set; }
 		public string Label { get; set; }
 		public bool Required { get; set; }
-
 		public string AngularMarkup
 		{
 			get { return @"

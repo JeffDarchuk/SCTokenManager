@@ -12,15 +12,21 @@ using TokenManager.Data.Tokens;
 
 namespace TokenManager
 {
-	public class tokentest : ViewAutoToken<tokentestmodel>
+	public class tokentest3 : AutoToken
 	{
 		//Make sure you have a parameterless constructor.
-		public tokentest() : base("test", "people/16x16/cubes_blue.png", "terkan")
+		public tokentest3() : base("test", "people/16x16/cubes_blue.png", "terkan3")
 		{
 		}
-		public override string GetViewPath(tokentestmodel extraData)
+
+		public override string Value(TokenDataCollection extraData)
 		{
-			return "/views/terkan.cshtml";
+			return extraData.GetString("pie");
+		}
+
+		public override IEnumerable<ITokenData> ExtraData()
+		{
+			yield return new StringTokenData("pie", "pie", "pie", true);
 		}
 	}
 }
