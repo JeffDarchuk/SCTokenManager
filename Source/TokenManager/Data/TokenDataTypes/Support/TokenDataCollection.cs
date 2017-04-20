@@ -1,22 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
+using Sitecore;
+using Sitecore.Configuration;
 using Sitecore.Data;
+using Sitecore.Data.Items;
 
 namespace TokenManager.Data.TokenDataTypes.Support
 {
 	public class TokenDataCollection
 	{
-		private NameValueCollection _source;
+		private readonly NameValueCollection _source;
 
 		public string this[string tokenDataName]
 		{
-			get { return _source[tokenDataName]; }
-			set { _source[tokenDataName] = value; }
+			get => _source[tokenDataName];
+			set => _source[tokenDataName] = value;
 		}
 
 		public TokenDataCollection(NameValueCollection source)
@@ -32,6 +31,32 @@ namespace TokenManager.Data.TokenDataTypes.Support
 		public GeneralLink GetLink(string tokenDataName)
 		{
 			return new GeneralLink(_source[tokenDataName]);
+		}
+
+		public Item GetItem(string name)
+		{
+			var db = Context.ContentDatabase ?? Context.Database ?? Factory.GetDatabase("master");
+
+			var value = this[name];
+
+			if (string.IsNullOrWhiteSpace(value)) return null;
+
+			Item item = db?.GetItem(value);
+
+			return item;
+		}
+
+		public MediaItem GetMedia(string name)
+		{
+			var db = Context.ContentDatabase ?? Context.Database ?? Factory.GetDatabase("master");
+
+			var value = this[name];
+
+			if (string.IsNullOrWhiteSpace(value)) return null;
+
+			MediaItem item = db?.GetItem(value);
+
+			return item;
 		}
 
 		public int GetInt(string tokenDataName)
@@ -52,7 +77,7 @@ namespace TokenManager.Data.TokenDataTypes.Support
 			{
 				return new ID(_source[tokenDataName]);
 			}
-			catch (FormatException e)
+			catch (FormatException)
 			{
 				return null;
 			}
@@ -63,7 +88,16 @@ namespace TokenManager.Data.TokenDataTypes.Support
 			return _source[tokenDataName];
 		}
 
-		public string GetDropdownValue(string tokenDataName)
+		public string GetString(string tokenDataName, string defaultValue)
+		{
+			var value = _source[tokenDataName];
+
+			if (string.IsNullOrEmpty(value)) return defaultValue;
+
+			return value;
+		}
+
+		public string GetDroplistValue(string tokenDataName)
 		{
 			return _source[tokenDataName];
 		}
