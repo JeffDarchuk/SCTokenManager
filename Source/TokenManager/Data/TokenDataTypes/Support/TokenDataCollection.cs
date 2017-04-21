@@ -5,19 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Sitecore;
+using Sitecore.Configuration;
 using Sitecore.Data;
+using Sitecore.Data.Items;
 using Sitecore.Diagnostics;
 
 namespace TokenManager.Data.TokenDataTypes.Support
 {
 	public class TokenDataCollection
 	{
-		private NameValueCollection _source;
+		private readonly NameValueCollection _source;
 
-		public string[] AllKeys
-		{
-			get { return _source.AllKeys; }
-		}
+		public string[] AllKeys => _source.AllKeys;
 
 		public void Add(string name, string value)
 		{
@@ -72,6 +72,32 @@ namespace TokenManager.Data.TokenDataTypes.Support
 			return new GeneralLink(this[tokenDataName]);
 		}
 
+		public Item GetItem(string name)
+		{
+			var db = Context.ContentDatabase ?? Context.Database ?? Factory.GetDatabase("master");
+
+			var value = this[name];
+
+			if (string.IsNullOrWhiteSpace(value)) return null;
+
+			Item item = db?.GetItem(value);
+
+			return item;
+		}
+
+		public MediaItem GetMedia(string name)
+		{
+			var db = Context.ContentDatabase ?? Context.Database ?? Factory.GetDatabase("master");
+
+			var value = this[name];
+
+			if (string.IsNullOrWhiteSpace(value)) return null;
+
+			MediaItem item = db?.GetItem(value);
+
+			return item;
+		}
+
 		public int GetInt(string tokenDataName)
 		{
 			int ret;
@@ -90,7 +116,7 @@ namespace TokenManager.Data.TokenDataTypes.Support
 			{
 				return new ID(this[tokenDataName]);
 			}
-			catch (FormatException e)
+			catch (FormatException)
 			{
 				return null;
 			}
@@ -99,6 +125,15 @@ namespace TokenManager.Data.TokenDataTypes.Support
 		public string GetString(string tokenDataName)
 		{
 			return this[tokenDataName];
+		}
+
+		public string GetString(string tokenDataName, string defaultValue)
+		{
+			var value = this[tokenDataName];
+
+			if (string.IsNullOrEmpty(value)) return defaultValue;
+
+			return value;
 		}
 
 		public string GetDropdownValue(string tokenDataName)
@@ -111,7 +146,7 @@ namespace TokenManager.Data.TokenDataTypes.Support
 			StringBuilder sb = new StringBuilder();
 			foreach (string key in _source.Keys)
 			{
-				sb.Append($"{key}={_source[key]}&");
+				sb.Append($"{key}={this[key]}&");
 			}
 			sb.Remove(sb.Length - 1, 1);
 			return sb.ToString();
