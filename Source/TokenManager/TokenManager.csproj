@@ -154,10 +154,6 @@
     <Compile Include="Rules\TokenRuleContext.cs" />
     <Compile Include="TemplateExtensions.cs" />
     <Compile Include="TokenException.cs" />
-    <Compile Include="tokentest3.cs" />
-    <Compile Include="tokentest2.cs" />
-    <Compile Include="tokentest.cs" />
-    <Compile Include="tokentestmodel.cs" />
     <Compile Include="ViewRenderer.cs" />
   </ItemGroup>
   <ItemGroup>

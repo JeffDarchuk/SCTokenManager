@@ -8,6 +8,7 @@ using Sitecore.Data.Items;
 using Sitecore.Globalization;
 using Sitecore.Pipelines.RenderField;
 using TokenManager.ContentSearch;
+using TokenManager.Data.TokenDataTypes.Support;
 using TokenManager.Data.Tokens;
 
 namespace TokenManager.Data.Interfaces
@@ -73,7 +74,7 @@ namespace TokenManager.Data.Interfaces
 		/// <param name="props"></param>
 		/// <param name="item"></param>
 		/// <returns>IToken for the identifier</returns>
-		IToken ParseITokenFromProps(NameValueCollection props, Item item = null);
+		IToken ParseITokenFromProps(TokenDataCollection props, Item item = null);
 
 		/// <summary>
 		/// given a token identifier this returns the value of the token with an optional item for checking context validity
@@ -89,7 +90,7 @@ namespace TokenManager.Data.Interfaces
 		/// <param name="category"></param>
 		/// <param name="token"></param>
 		/// <returns>token identifier</returns>
-		string GetTokenIdentifier(NameValueCollection data);
+		string GetTokenIdentifier(TokenDataCollection data);
 
 		/// <summary>
 		/// based on current token keeper properties it constructs a token identifier
@@ -114,7 +115,7 @@ namespace TokenManager.Data.Interfaces
 		/// <param name="token">Token name</param>
 		/// <param name="extraData">Extra data owned by the token</param>
 		/// <returns></returns>
-		string GetTokenValue(string category, string token, NameValueCollection extraData);
+		string GetTokenValue(string category, string token, TokenDataCollection extraData);
 
 		/// <summary>
 		/// finds everywhere a specified token is used
@@ -240,7 +241,7 @@ namespace TokenManager.Data.Interfaces
 		/// </summary>
 		/// <param name="tokenIdentifier"></param>
 		/// <returns></returns>
-		NameValueCollection TokenProperties(string tokenIdentifier);
+		TokenDataCollection TokenProperties(string tokenIdentifier);
 
 		/// <summary>
 		/// Identifies if the specified range has any part of it inside a token

@@ -204,7 +204,7 @@ namespace TokenManager.Management
 			return ParseITokenFromProps(props, item);
 		}
 
-		public virtual IToken ParseITokenFromProps(NameValueCollection props, Item item = null)
+		public virtual IToken ParseITokenFromProps(TokenDataCollection props, Item item = null)
 		{
 			return GetToken(props["Category"], props["Token"], item);
 		}
@@ -213,10 +213,10 @@ namespace TokenManager.Management
 		{
 			var props = TokenProperties(token);
 			IToken t = ParseITokenFromProps(props, item);
-			return t != null ? t.Value(new TokenDataCollection(props)) : string.Empty;
+			return t != null ? t.Value(props) : string.Empty;
 		}
 
-		public virtual string GetTokenIdentifier(NameValueCollection data)
+		public virtual string GetTokenIdentifier(TokenDataCollection data)
 		{
 			return GetTokenIdentifier(data["Category"], data["Token"], data.AllKeys.Where(k => k != "Category" && k != "Token").ToDictionary(k => k, k => data[k]));
 		}
@@ -229,7 +229,7 @@ namespace TokenManager.Management
 		public virtual string GetTokenIdentifier(string category, string token, IDictionary<string, object> fields)
 		{
 			List<ID> ids = new IdList();
-			var ret = new TokenDataCollection(new NameValueCollection());
+			var ret = new TokenDataCollection();
 			ret["Category"] = category;
 			ret["Token"] = token;
 			IToken itoken = GetToken(category, token);
@@ -278,10 +278,10 @@ namespace TokenManager.Management
 			}
 			return sb.ToString();
 		}
-		public virtual string GetTokenValue(string category, string token, NameValueCollection extraData)
+		public virtual string GetTokenValue(string category, string token, TokenDataCollection extraData)
 		{
 			if (TokenCollections.ContainsKey(category) && TokenCollections[category].IsCurrentContextValid() && IsCollectionValid(TokenCollections[category]))
-				return TokenCollections[category][token].Value(new TokenDataCollection(extraData));
+				return TokenCollections[category][token].Value(extraData);
 			return null;
 		}
 
@@ -412,18 +412,18 @@ namespace TokenManager.Management
 			return args.Collection;
 		}
 
-		public virtual NameValueCollection TokenProperties(string tokenIdentifier)
+		public virtual TokenDataCollection TokenProperties(string tokenIdentifier)
 		{
 			if (string.IsNullOrWhiteSpace(tokenIdentifier))
-				return new NameValueCollection();
+				return new TokenDataCollection();
 			var qsRoot = "href=\"/TokenManager";
 			int start = tokenIdentifier.IndexOf(qsRoot, StringComparison.Ordinal) + qsRoot.Length;
 			int end = -1;
 			if (start > qsRoot.Length - 1)
 				end = tokenIdentifier.IndexOf('"', start);
 			if (start > qsRoot.Length - 1 && end > start)
-				return HttpUtility.ParseQueryString(HttpUtility.HtmlDecode(tokenIdentifier.Substring(start, end - start)));
-			return new NameValueCollection();
+				return new TokenDataCollection(HttpUtility.ParseQueryString(HttpUtility.HtmlDecode(tokenIdentifier.Substring(start, end - start))));
+			return new TokenDataCollection();
 		}
 
 		public virtual bool IsInToken(Field field, int startIndex, int length)
