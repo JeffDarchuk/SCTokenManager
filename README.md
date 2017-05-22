@@ -176,7 +176,7 @@ There are a number of data types that are available for application to tokens.  
 	* Request one of several options from the author.
 + GeneralLinkTokenData
 	* Request a Sitecore style general link information from the author.
-These Token Data types are applied to a model using attributes.
+##### These Token Data types are applied to a model using attributes.
 ```cs
 	[TokenString(label: "Give us a string",placeholder: "Enter string here", required: true)]
 	public string MyString;
