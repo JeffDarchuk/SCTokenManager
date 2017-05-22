@@ -231,7 +231,7 @@ By overriding the rendering method you can customize your model to pass to your 
 	}
 ```
 ### Legacy Sitecore wired tokens
-These tokens are designed primarilly for authors.  They take more development effort to set up, but allows the authors to maintain their own tokens.
+These tokens are designed primarily for authors.  They take more development effort to set up, but allows the authors to maintain their own tokens.
 In practice these tokens have not proven to be particularly useful, but they still exist for now.  You can read more about them [here](https://jeffdarchuk.com/2015/10/26/sitecore-tokenmanager/)
 + Basic Token
 	* A simple token that injects content from an RTE.
