@@ -15,7 +15,7 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 	{
 		private IdTokenData Data;
 		/// <summary>
-		/// Marks this property or field as being a general link token value, this is applicable to a ID, Item or string type.
+		/// Marks this property or field as being a sitecore item id token value, this is applicable to a ID, Item or string type.
 		/// </summary>
 		/// <param name="label">The description given to content authors filling in the field</param>
 		/// <param name="required">Is this value required or not</param>
@@ -25,7 +25,7 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 			Data = new IdTokenData(label, "", required, root);
 		}
 		/// <summary>
-		/// Marks this property or field as being a general link token value, this is applicable to a ID, Item or string type.
+		/// Marks this property or field as being a sitecore item id token value, this is applicable to a ID, Item or string type.
 		/// </summary>
 		/// <param name="label">The description given to content authors filling in the field</param>
 		/// <param name="required">Is this value required or not</param>

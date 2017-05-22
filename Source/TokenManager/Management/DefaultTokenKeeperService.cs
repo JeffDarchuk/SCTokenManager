@@ -68,55 +68,56 @@ namespace TokenManager.Management
 
 		public void LoadAutoToken(AutoToken token)
 		{
-			if (TokenCollections.ContainsKey(token.CollectionName))
-				TokenCollections[token.CollectionName].AddOrUpdateToken(token.Token, token);
-			else
+			using (new SecurityDisabler())
 			{
-				TokenCollections[token.CollectionName] = new AutoTokenCollection(token);
-				TokenCollections[token.CollectionName].AddOrUpdateToken(token.Token, token);
-			}
-			var db = Factory.GetDatabase("core", false);
-			if (db == null) return;
-			TokenButton tb = token.TokenButton();
-			ID buttonId = GuidUtility.GetId("tokenmanager", $"{token.CollectionName}{token.Token}");
-			Item button = db.DataManager.DataEngine.GetItem(buttonId,
-				LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
-			if (tb != null)
-			{
-				if (button != null)
-				{
-					if (
-						button["Click"] == $"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}" &&
-						button[FieldIDs.DisplayName] == tb.Name &&
-						button["Shortcut"] == $"?Category={token.CollectionName}&Token={token.Token}" &&
-						button[FieldIDs.Sortorder] == tb.SortOrder.ToString() &&
-						button[FieldIDs.Icon] == (string.IsNullOrWhiteSpace(tb.Icon) ? token.TokenIcon : tb.Icon))
-					{
-						return;
-					}
-				}
+				if (TokenCollections.ContainsKey(token.CollectionName))
+					TokenCollections[token.CollectionName].AddOrUpdateToken(token.Token, token);
 				else
 				{
-					Item parent = db.DataManager.DataEngine.GetItem(new ID(Constants.Core.RteParent),
-						LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
-					if (parent == null) return;
-					button = db.DataManager.DataEngine.CreateItem(tb.Name, parent,
-						new ID(Constants.Core.ButtonTemplate), buttonId);
+					TokenCollections[token.CollectionName] = new AutoTokenCollection(token);
+					TokenCollections[token.CollectionName].AddOrUpdateToken(token.Token, token);
 				}
-				using (new SecurityDisabler())
+				var db = Factory.GetDatabase("core", false);
+				if (db == null) return;
+				TokenButton tb = token.TokenButton();
+				ID buttonId = GuidUtility.GetId("tokenmanager", $"{token.CollectionName}{token.Token}");
+				Item button = db.DataManager.DataEngine.GetItem(buttonId,
+					LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
+				if (tb != null)
 				{
+					if (button != null)
+					{
+						if (
+							button["Click"] ==
+							$"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}" &&
+							button[FieldIDs.DisplayName] == tb.Name &&
+							button["Shortcut"] == $"?Category={token.CollectionName}&Token={token.Token}" &&
+							button[FieldIDs.Sortorder] == tb.SortOrder.ToString() &&
+							button[FieldIDs.Icon] == (string.IsNullOrWhiteSpace(tb.Icon) ? token.TokenIcon : tb.Icon))
+						{
+							return;
+						}
+					}
+					else
+					{
+						Item parent = db.DataManager.DataEngine.GetItem(new ID(Constants.Core.RteParent),
+							LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
+						if (parent == null) return;
+						button = db.DataManager.DataEngine.CreateItem(tb.Name, parent,
+							new ID(Constants.Core.ButtonTemplate), buttonId);
+					}
 					button.Editing.BeginEdit();
-					button["Click"] = $"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}";
+					button["Click"] =
+						$"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}";
 					button[FieldIDs.DisplayName] = tb.Name;
 					button["Shortcut"] = $"?Category={token.CollectionName}&Token={token.Token}";
 					button[FieldIDs.Sortorder] = tb.SortOrder.ToString();
 					button[FieldIDs.Icon] = string.IsNullOrWhiteSpace(tb.Icon) ? token.TokenIcon : tb.Icon;
 					button.Editing.EndEdit(false, true);
+					button.Database.Caches.ItemCache.RemoveItem(buttonId);
+					button.Database.Caches.DataCache.RemoveItemInformation(buttonId);
 				}
-			}
-			else if (button != null)
-			{
-				using (new SecurityDisabler())
+				else if (button != null)
 				{
 					button.Recycle();
 				}
@@ -184,7 +185,7 @@ namespace TokenManager.Management
 					ret.Add(tokenProps);
 				}
 			}
-			catch (ArgumentOutOfRangeException e) //our location cache is invalid, resetting
+			catch (ArgumentOutOfRangeException) //our location cache is invalid, resetting
 			{
 				ResetTokenLocations(field.Item.ID, field.ID, field.Language, field.Item.Version.Number);
 				return ParseTokenIdentifiers(field);

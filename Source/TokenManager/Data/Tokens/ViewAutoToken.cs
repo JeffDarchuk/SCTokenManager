@@ -9,7 +9,7 @@ using TokenManager.Data.TokenDataTypes.Support;
 
 namespace TokenManager.Data.Tokens
 {
-	public abstract class ViewAutoToken<T> : ModelAutoToken<T>
+	public abstract class ViewAutoToken<T> : AutoToken<T>
 		where T : class, new()
 	{
 		protected ViewAutoToken(string collectionName, string tokenIcon, string tokenName) : base(collectionName, tokenIcon, tokenName)

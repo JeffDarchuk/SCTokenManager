@@ -94,10 +94,12 @@ namespace TokenManager.Data.Tokens
 				return false;
 			return true;
 		}
-
-
+		public virtual IEnumerable<ITokenData> ExtraData()
+		{
+			yield break;
+		}
 
 		public abstract string Value(TokenDataCollection extraData);
-		public abstract IEnumerable<ITokenData> ExtraData();
+
 	}
 }

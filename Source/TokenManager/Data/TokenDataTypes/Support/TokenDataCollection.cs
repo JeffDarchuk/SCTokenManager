@@ -42,15 +42,17 @@ namespace TokenManager.Data.TokenDataTypes.Support
 					return ret;
 				try
 				{
-					return System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(ret));
+					if (ret.StartsWith("TMB64-"))
+						return Encoding.UTF8.GetString(System.Convert.FromBase64String(ret.Substring(6)));
+					return ret;
 				}
 				catch (Exception e)
 				{
-					Log.Warn("Unable to process token data field "+tokenDataName +" because it is not valid base64", e, this);
+					Log.Error("Unable to process token data field "+tokenDataName +" because it is not valid base64.", e,  this);
 					return "";
 				}
 			}
-			set { _source[tokenDataName] = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(value)); }
+			set { _source[tokenDataName] = $"TMB64-{System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(value))}"; }
 		}
 
 		public TokenDataCollection()
@@ -146,7 +148,7 @@ namespace TokenManager.Data.TokenDataTypes.Support
 			StringBuilder sb = new StringBuilder();
 			foreach (string key in _source.Keys)
 			{
-				sb.Append($"{key}={this[key]}&");
+				sb.Append($"{key}={_source[key]}&");
 			}
 			sb.Remove(sb.Length - 1, 1);
 			return sb.ToString();

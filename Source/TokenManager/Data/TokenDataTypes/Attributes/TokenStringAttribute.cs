@@ -16,7 +16,7 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 		private StringTokenData Data;
 
 		/// <summary>
-		/// Marks this property or field as being a general link token value, this is applicable to a string type.
+		/// Marks this property or field as being a string token value, this is applicable to a string type.
 		/// </summary>
 		/// <param name="label">The description given to content authors filling in the field</param>
 		/// <param name="placeholder">The example text that shadows in the textbox</param>
