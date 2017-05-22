@@ -24,16 +24,6 @@ These tokens are designed primarilly for developers.  They're quick and easy to 
 	* General use token, will fit a wide variety of situations with the full array of extra data options.
 + ViewAutoToken
 	* Same as the AutoToken except utilizes cshtml view.
-### Sitecore wired tokens
-These tokens are designed primarilly for authors.  They take more development effort to set up, but allows the authors to maintain their own tokens.
-+ Basic Token
-	* A simple token that injects content from an RTE.
-+ Rendering Token
-	* A token that is configured with a particular rendering which the author is prompted to specify a datasource item on insertion.
-+ Rules Token
-	* A token that  has its value resolved based on the rules engine.
-+ Shared Link Token
-	* A token that resolves to a link, useful if you have a link used in many places that changes often.
 ## Installing TokenManager
 The [Nuget package](https://www.nuget.org/packages/TokenManager/) is recommended to use for installation.
 The package contains a config and a DLL.  The Sitecore items are installed by an initialize process that unpacks an embedded sitecore package that contains the templates.
@@ -131,22 +121,6 @@ AutoTokens and ViewAutoTokens can have an RTE button automatically applied to in
 	}
 ```
 ![TokenManager TokenButton](documentation/TokenButton.gif)
-### Optional token appearance
-You have a limited amount of control as to what the token looks like in the RTE.  This is limited by the way the RTE works and how browsers re-arrange invalid markup.
-For example if you try to use a div tag inside a p tag chrome will automatically re-arrange it.  Normally this probably wouldn't cause horrible things to happen, however the modifications that chrome makes will end up being saved and very likely corrupt the token.
-However if you stick to things that are symantically correct to go in a p tag you'll be fine.
-```cs
-	/// <summary>
-	/// Modifies the default way the token is displayed in the RTE
-	/// </summary>
-	/// <param name="model">The tokens model</param>
-	/// <returns>Markup for the token for the RTE</returns>
-	public override string TokenIdentifierText(DemoAutoToken2Model model)
-	{
-		return $"<span style='color:red;font-size:large'>hey</span><span>now</span>{model.MySecretValue}";
-	}
-```
-![TokenManager TokenButton](documentation/CustomRTE.gif)
 ### Limiting token scope
 There are a few ways to limit what tokens are available in particular RTE contexts.
 + Override IsCurrentContextValid
@@ -171,6 +145,23 @@ There are a few ways to limit what tokens are available in particular RTE contex
 		yield return new ID("11111111-1111-1111-1111-111111111111");
 	}
 ```
+### Optional token appearance
+You have a limited amount of control as to what the token looks like in the RTE.  This is limited by the way the RTE works and how browsers re-arrange invalid markup.
+For example if you try to use a div tag inside a p tag chrome will automatically re-arrange it.  Normally this probably wouldn't cause horrible things to happen, however the modifications that chrome makes will end up being saved and very likely corrupt the token.
+However if you stick to things that are symantically correct to go in a p tag you'll be fine.  Additionally, in the example below it's outputting some text entered by the authors, This is dangerous too as content authors could attempt to write html and likewise break the token.
+A good rule of thumb is to not use this feature unless there is a really great reason to.
+```cs
+	/// <summary>
+	/// Modifies the default way the token is displayed in the RTE
+	/// </summary>
+	/// <param name="model">The tokens model</param>
+	/// <returns>Markup for the token for the RTE</returns>
+	public override string TokenIdentifierText(DemoAutoToken2Model model)
+	{
+		return $"<span style='color:red;font-size:large'>hey</span><span>now</span>{model.MySecretValue}";
+	}
+```
+![TokenManager TokenButton](documentation/CustomRTE.gif)
 ## Token Parameters
 There are a number of data types that are available for application to tokens.  These end up prompting the user to enter a particular value when inserted into an RTE.
 + StringTokenData
@@ -185,27 +176,7 @@ There are a number of data types that are available for application to tokens.  
 	* Request one of several options from the author.
 + GeneralLinkTokenData
 	* Request a Sitecore style general link information from the author.
-```cs
-	/// <summary>
-	/// Defines what extra data to collect from the user when the token was inserted into the RTE.
-	/// </summary>
-	/// <returns>List of token data types to collect from the user when the token was inserted into the RTE.</returns>
-	public override IEnumerable<ITokenData> ExtraData()
-	{
-		yield return new StringTokenData(label: "Give us a string", name:"mystring",  placeholder: "Enter string here", required: true);
-		yield return new IntegerTokenData(label: "Give us an integer", name:"myint", required:true);
-		yield return new BooleanTokenData(label: "Give us a boolean", name:"mybool");
-		yield return new IdTokenData(label: "Give us a sitecore Item", name: "myitem", required:true, root: "{51C9E0EB-C6C8-45B0-A646-7B6E78C286B6}");
-		yield return new DroplistTokenData(label: "Give us an option", name: "myoption", required:true, options: new []
-		{
-			new KeyValuePair<string, string>("Option 1", "op1"), 
-			new KeyValuePair<string, string>("Option 2", "op2")
-		});
-		yield return new GeneralLinkTokenData(label: "Give us a link", name: "mylink", root: "{51C9E0EB-C6C8-45B0-A646-7B6E78C286B6}", required: true);
-	}
-```
-These options additionally have attributes for model decoration for the model based tokens.
-```cs
+	```cs
 	[TokenString(label: "Give us a string",placeholder: "Enter string here", required: true)]
 	public string MyString;
 
@@ -228,6 +199,26 @@ These options additionally have attributes for model decoration for the model ba
 	[TokenGeneralLink(label: "Give us a link", required: true, root:"{110D559F-DEA5-42EA-9C1C-8A5DF7E70EF9}")]
 	public string MyLink;
 ```
+If not using a model based token, which you should, these are available as an override on the AutoToken class.
+```cs
+	/// <summary>
+	/// Defines what extra data to collect from the user when the token was inserted into the RTE.
+	/// </summary>
+	/// <returns>List of token data types to collect from the user when the token was inserted into the RTE.</returns>
+	public override IEnumerable<ITokenData> ExtraData()
+	{
+		yield return new StringTokenData(label: "Give us a string", name:"mystring",  placeholder: "Enter string here", required: true);
+		yield return new IntegerTokenData(label: "Give us an integer", name:"myint", required:true);
+		yield return new BooleanTokenData(label: "Give us a boolean", name:"mybool");
+		yield return new IdTokenData(label: "Give us a sitecore Item", name: "myitem", required:true, root: "{51C9E0EB-C6C8-45B0-A646-7B6E78C286B6}");
+		yield return new DroplistTokenData(label: "Give us an option", name: "myoption", required:true, options: new []
+		{
+			new KeyValuePair<string, string>("Option 1", "op1"), 
+			new KeyValuePair<string, string>("Option 2", "op2")
+		});
+		yield return new GeneralLinkTokenData(label: "Give us a link", name: "mylink", root: "{51C9E0EB-C6C8-45B0-A646-7B6E78C286B6}", required: true);
+	}
+```
 ![TokenManager TokenButton](documentation/ExtraData.gif)
 ### Customize your model
 By overriding the rendering method you can customize your model to pass to your view.  This would be useful if some of the data for the token didn't come from content author input.
@@ -238,3 +229,14 @@ By overriding the rendering method you can customize your model to pass to your 
 		return base.Render(model);
 	}
 ```
+### Legacy Sitecore wired tokens
+These tokens are designed primarilly for authors.  They take more development effort to set up, but allows the authors to maintain their own tokens.
+In practice these tokens have not proven to be particularly useful, but they still exist for now.  You can read more about them [here](https://jeffdarchuk.com/2015/10/26/sitecore-tokenmanager/)
++ Basic Token
+	* A simple token that injects content from an RTE.
++ Rendering Token
+	* A token that is configured with a particular rendering which the author is prompted to specify a datasource item on insertion.
++ Rules Token
+	* A token that  has its value resolved based on the rules engine.
++ Shared Link Token
+	* A token that resolves to a link, useful if you have a link used in many places that changes often.

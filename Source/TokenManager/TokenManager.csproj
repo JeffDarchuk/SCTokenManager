@@ -166,11 +166,7 @@
     <Compile Include="Rules\SetTokenValue.cs" />
     <Compile Include="Rules\TokenRuleContext.cs" />
     <Compile Include="TemplateExtensions.cs" />
-    <Compile Include="tokentest.cs" />
-    <Compile Include="tokentest2.cs" />
-    <Compile Include="tokentestbasicmodel.cs" />
     <Compile Include="TokenException.cs" />
-    <Compile Include="tokentest3.cs" />
     <Compile Include="ViewRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
