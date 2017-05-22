@@ -2,19 +2,19 @@
 TokenManager is a framework designed to allow any type of content to be dynamically injected into a RTE field.
 ### Example Usages
 + User name injection:
-	*If you have access to a users name information in your session, you can make that name available for injection into a paragraph allowing the content authors to create personalized pages in a natural language 
+	* If you have access to a users name information in your session, you can make that name available for injection into a paragraph allowing the content authors to create personalized pages in a natural language 
 + Captioned image:
-	*If your images have attribution data that is needed to display, a token can take a sitecore image and a text line to generate the markup needed for an image with caption.
+	* If your images have attribution data that is needed to display, a token can take a sitecore image and a text line to generate the markup needed for an image with caption.
 + Google Map widget:
-	*Collect an address from the author when the token is placed in an RTE and use that data to render a map centered on the address.
+	* Collect an address from the author when the token is placed in an RTE and use that data to render a map centered on the address.
 + Video widget:
-	*Collect a youtube video id from the author when the token is placed in an RTE to render an iframe embed.
+	* Collect a youtube video id from the author when the token is placed in an RTE to render an iframe embed.
 + Search Results:
-	*Execute a search request and store the resulting information about number of results, pages, searched text, etc.. in a model on the session or HttpContext.  You can then expose this information in tokens to allow an author to use a natural language for search results.
+	* Execute a search request and store the resulting information about number of results, pages, searched text, etc.. in a model on the session or HttpContext.  You can then expose this information in tokens to allow an author to use a natural language for search results.
 + Insert PDF link with size:
-	*Collect PDF item from user at token insertion time and use that data to render a PDF link with the PDF size.
+	* Collect PDF item from user at token insertion time and use that data to render a PDF link with the PDF size.
 + Authoring Accelerator:
-	*Add a field to the page level item which can be exposed for component level items to inject.  This can be useful if your content is mostly copy and paste.  
+	* Add a field to the page level item which can be exposed for component level items to inject.  This can be useful if your content is mostly copy and paste.  
 	For example, say you have a healthcare website that has a section about conditions.  Each condition has the same set of 4 links each have the condition name in the text.
 	You can create a token for the condition name and in the standard values of the 4 links insert the tokens.  At this point you can create a much more complete default state.
 ### Token Types	
@@ -115,10 +115,10 @@ This is the cshtml file at /views/DemoViewToken.cshtml
 @model TokenManager.DemoAutoToken2Model
 <div><strong>@Model.MySecretValue</strong></div>
 ```
-###Token Selection
+### Token Selection
 After you have defined your tokens they will appear in the TokenManager dialog that is available in the RTE.
 ![TokenManager TokenButton](documentation/TokenSelection.gif)
-#####Optional token button
+##### Optional token button
 AutoTokens and ViewAutoTokens can have an RTE button automatically applied to inject that particular token without the dialog.
 ```cs
 	/// <summary>
@@ -131,7 +131,7 @@ AutoTokens and ViewAutoTokens can have an RTE button automatically applied to in
 	}
 ```
 ![TokenManager TokenButton](documentation/TokenButton.gif)
-#####Optional token appearance
+##### Optional token appearance
 You have a limited amount of control as to what the token looks like in the RTE.  This is limited by the way the RTE works and how browsers re-arrange invalid markup.
 For example if you try to use a div tag inside a p tag chrome will automatically re-arrange it.  Normally this probably wouldn't cause horrible things to happen, however the modifications that chrome makes will end up being saved and very likely corrupt the token.
 However if you stick to things that are symantically correct to go in a p tag you'll be fine.
@@ -147,7 +147,7 @@ However if you stick to things that are symantically correct to go in a p tag yo
 	}
 ```
 ![TokenManager TokenButton](documentation/CustomRTE.gif)
-#####Limiting token scope
+##### Limiting token scope
 There are a few ways to limit what tokens are available in particular RTE contexts.
 + Override IsCurrentContextValid
 + Override ValidParents
@@ -171,7 +171,7 @@ There are a few ways to limit what tokens are available in particular RTE contex
 		yield return new ID("11111111-1111-1111-1111-111111111111");
 	}
 ```
-###Token Parameters
+### Token Parameters
 There are a number of data types that are available for application to tokens.  These end up prompting the user to enter a particular value when inserted into an RTE.
 + StringTokenData
 	* Request a string from the author.
@@ -229,7 +229,7 @@ These options additionally have attributes for model decoration for the model ba
 	public string MyLink;
 ```
 ![TokenManager TokenButton](documentation/ExtraData.gif)
-#####Customize your model
+##### Customize your model
 By overriding the rendering method you can customize your model to pass to your view.  This would be useful if some of the data for the token didn't come from content author input.
 ```cs
 	public override string Render(DemoAutoToken2Model model)
