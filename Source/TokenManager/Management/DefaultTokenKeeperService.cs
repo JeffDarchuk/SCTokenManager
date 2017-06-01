@@ -537,7 +537,7 @@ namespace TokenManager.Management
 		public ITokenCollection<IToken> RefreshTokenCollection(string category = null)
 		{
 			var autoTokens =
-				AppDomain.CurrentDomain.GetAssemblies()
+				AppDomain.CurrentDomain.GetAssemblies().Where(x => !Constants.BinaryBlacklist.Contains(x.GetName().Name))
 					.SelectMany(GetAutoTokenTypes)
 						.Select(t => (AutoToken)Activator.CreateInstance(t));
 							foreach (AutoToken token in autoTokens)
