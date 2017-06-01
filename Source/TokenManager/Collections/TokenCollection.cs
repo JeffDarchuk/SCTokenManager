@@ -172,17 +172,6 @@ namespace TokenManager.Collections
 		}
 
 		/// <summary>
-		/// gets token value
-		/// </summary>
-		/// <param name="token"></param>
-		/// <returns>value of given token</returns>
-		public virtual string GetTokenValue(string token, NameValueCollection extraData)
-		{
-			var ret = GetToken(token);
-			return ret == null ? string.Empty : ret.Value(new TokenDataCollection(extraData));
-		}
-
-		/// <summary>
 		/// get all token names
 		/// </summary>
 		/// <returns></returns>
