@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Sitecore;
 using Sitecore.Data;
 using Sitecore.Data.Items;
@@ -15,16 +11,21 @@ using TokenManager.Management;
 
 namespace TokenManager.Data.Tokens
 {
-	public abstract class AutoToken : IToken	{
+	public abstract class AutoToken : IToken
+	{
 		protected AutoToken(string collectionName, string tokenIcon, string tokenName)
 		{
-			this.CollectionName = collectionName;
-			this.TokenIcon = tokenIcon;
-			this.Token = tokenName;
+			CollectionName = collectionName;
+			TokenIcon = tokenIcon;
+			Token = tokenName;
 		}
+
 		public string CollectionName { get; }
+
 		public string TokenIcon { get; }
+
 		public string Token { get; }
+
 		public virtual string TokenIdentifierText(TokenDataCollection extraData)
 		{
 			return "{0} > {1}".FormatWith(extraData["Category"], extraData["Token"]);
@@ -55,18 +56,16 @@ namespace TokenManager.Data.Tokens
 			yield break;
 		}
 
-
 		public virtual bool IsCurrentContextValid(Item item = null)
 		{
 			if (item == null)
 			{
 				item = Context.Item;
 			}
-			if (item == null || item.Database.Name != TokenKeeper.CurrentKeeper.GetDatabase().Name)
-				return true;
 
-			if (!IsAllowed(item))
-				return false;
+			if (item == null || item.Database.Name != TokenKeeper.CurrentKeeper.GetDatabase().Name) return true;
+
+			if (!IsAllowed(item)) return false;
 
 			return true;
 		}
@@ -76,11 +75,13 @@ namespace TokenManager.Data.Tokens
 			var validTemplates = ValidTemplates().ToList();
 			var validParents = ValidParents().ToList();
 
-			if (validParents.Any() && !validParents
-					.Any(x => IsAllowedForItem(tokenTarget, tokenTarget.Database.GetItem(x))))
+			if (validParents.Any() &&
+			    !validParents.Any(x => IsAllowedForItem(tokenTarget, tokenTarget.Database.GetItem(x))))
+			{
 				return false;
-			if (validTemplates.Any() && validTemplates.All(x => x != tokenTarget.TemplateID))
-				return false;
+			}
+
+			if (validTemplates.Any() && validTemplates.All(x => x != tokenTarget.TemplateID)) return false;
 				
 			return true;
 		}
@@ -89,9 +90,12 @@ namespace TokenManager.Data.Tokens
 		{
 			var parentFilterPath = "";
 			if (tmp != null)
+			{
 				parentFilterPath = tmp.Paths.Path;
-			if (!string.IsNullOrWhiteSpace(parentFilterPath) && !tokenTarget.Paths.Path.StartsWith(parentFilterPath))
-				return false;
+			}
+
+			if (!string.IsNullOrWhiteSpace(parentFilterPath) && !tokenTarget.Paths.Path.StartsWith(parentFilterPath)) return false;
+
 			return true;
 		}
 		public virtual IEnumerable<ITokenData> ExtraData()

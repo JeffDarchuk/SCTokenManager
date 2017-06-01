@@ -217,8 +217,8 @@ namespace TokenManager.Management
 		public virtual string ParseTokenValueFromTokenIdentifier(string token, Item item = null)
 		{
 			var props = TokenProperties(token);
-			IToken t = ParseITokenFromProps(props, item);
-			return t != null ? t.Value(props) : string.Empty;
+			IToken tokenObject = ParseITokenFromProps(props, item);
+			return tokenObject != null ? tokenObject.Value(props) : string.Empty;
 		}
 
 		public virtual string GetTokenIdentifier(TokenDataCollection data)
@@ -235,10 +235,14 @@ namespace TokenManager.Management
 		{
 			List<ID> ids = new IdList();
 			var ret = new TokenDataCollection();
+
 			ret["Category"] = category;
 			ret["Token"] = token;
+
 			IToken itoken = GetToken(category, token);
+
 			if (fields != null)
+			{
 				foreach (string key in fields.Keys.Where(x => x != "Category" && x != "Token"))
 				{
 					var grouped = (IDictionary<string, object>) (fields[key] as IDictionary<string, object>)?["grouped"];
@@ -271,6 +275,8 @@ namespace TokenManager.Management
 							ret[key] = sb.ToString(0, sb.Length - 3);
 					}
 				}
+			}
+
 			return string.Format("{0}{1}\" {4}>{2}<span style='display:none;'>{5}</span>{3}", TokenPrefix, ret, itoken.TokenIdentifierText(ret).Replace("\n", "").Replace("\r", ""), TokenSuffix, $"style='{itoken.TokenIdentifierStyle(ret)}'", GenerateScLinks(ids));
 		}
 
