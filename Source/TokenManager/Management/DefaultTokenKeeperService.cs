@@ -547,14 +547,13 @@ namespace TokenManager.Management
 		/// <returns>token collection</returns>
 		public ITokenCollection<IToken> RefreshTokenCollection(string category = null)
 		{
-			var autoTokens =
-				AppDomain.CurrentDomain.GetAssemblies()
-					.SelectMany(GetAutoTokenTypes)
-						.Select(t => (AutoToken)Activator.CreateInstance(t));
-							foreach (AutoToken token in autoTokens)
-								TokenKeeper.CurrentKeeper.LoadAutoToken(token);
-			var tokenManagerItems =
-				GetDatabase().SelectItems($"fast:/sitecore/content//*[@@templateid = '{Constants.TokenRootTemplateId}']").Union(Globals.LinkDatabase.GetReferrers(this.GetDatabase().GetItem(Constants.TokenRootTemplateId)).Select(x => this.GetDatabase().GetItem(x.SourceItemID)));
+			RefreshAutoTokens();
+
+			var tokenManagerItems = GetDatabase()
+				.SelectItems($"fast:/sitecore/content//*[@@templateid = '{Constants.TokenRootTemplateId}']")
+				.Union(Globals.LinkDatabase.GetReferrers(GetDatabase().GetItem(Constants.TokenRootTemplateId))
+				.Select(x => GetDatabase().GetItem(x.SourceItemID)));
+
 			HashSet<ID> dups = new HashSet<ID>();
 			ITokenCollection<IToken> collection = category != null && TokenCollections.ContainsKey(category) ? TokenCollections[category] : null;
 
@@ -604,6 +603,43 @@ namespace TokenManager.Management
 			}
 			return null;
 		}
+
+		private void RefreshAutoTokens()
+		{
+			var dependencyResolver = DependencyResolver.Current;
+
+			var autoTokens = AppDomain.CurrentDomain
+				.GetAssemblies()
+				.SelectMany(GetAutoTokenTypes)
+				.Select(t =>
+				{
+					// try dependency resolver (Note: for 8.2.x with MSDI, you must register the autotoken class with the Sitecore container as if it were say a controller - other IoC containers may not require this)
+					if (dependencyResolver != null)
+					{
+						var result = DependencyResolver.Current.GetService(t) as AutoToken;
+
+						// if the IoC container got something valid we return it
+						if (result != null) return result;
+
+						Log.Debug($"AutoToken {t.FullName} was not activated using the MVC DependencyResolver because the dependency resolver returned null for it. It will be activated assuming a parameterless constructor instead.");
+					}
+
+					try
+					{
+						return (AutoToken) Activator.CreateInstance(t);
+					}
+					catch (MissingMethodException mex)
+					{
+						throw new InvalidOperationException($"AutoToken {t.FullName} could not be activated. This may indicate a non-parameterless constructor is being used (explicit values need to be set when calling base()). It can also mean that you have IoC dependencies in the constructor, but have not registered the AutoToken class with your IoC container.", mex);
+					}
+				});
+
+			foreach (AutoToken token in autoTokens)
+			{
+				TokenKeeper.CurrentKeeper.LoadAutoToken(token);
+			}
+		}
+
 		private IEnumerable<Type> GetAutoTokenTypes(Assembly a)
 		{
 			IEnumerable<Type> types = null;
