@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Sitecore.Data.Items;
 using TokenManager.Data.Interfaces;
 using TokenManager.Data.Tokens;
@@ -11,7 +7,8 @@ namespace TokenManager.Collections
 {
 	public class AutoTokenCollection : TokenCollection<IToken>
 	{
-		private string _label;
+		private readonly string _label;
+
 		public AutoTokenCollection(AutoToken token)
 		{
 			_label = token.CollectionName;

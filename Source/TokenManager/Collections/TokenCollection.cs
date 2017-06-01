@@ -16,11 +16,9 @@ namespace TokenManager.Collections
 	public abstract class TokenCollection<T> : ITokenCollection<T>
 		where T : IToken
 	{
-		private string _ancestorPath;
-		private string _templateId;
 		private readonly Dictionary<string, T> _tokens = new Dictionary<string, T>();
-		private readonly Dictionary<ID, DateTime> CacheTime = new Dictionary<ID, DateTime>();
-		private ID _itemID;
+		private readonly Dictionary<ID, DateTime> _cacheTime = new Dictionary<ID, DateTime>();
+		private ID _itemId;
 		private DateTime _itemUpdated;
 
 		/// <summary>
@@ -56,11 +54,11 @@ namespace TokenManager.Collections
 
 		private void InitializeCollection(Item backingItem)
 		{
-			_itemID = backingItem.ID;
+			_itemId = backingItem.ID;
 			var tmp = backingItem.Database.GetItem(backingItem["Item Ancestor"]);
 			if (tmp != null)
-				_ancestorPath = tmp.Paths.Path;
-			_templateId = backingItem["Item Template"];
+			{
+			}
 			_itemUpdated = backingItem.Statistics.Updated;
 		}
 
@@ -104,7 +102,7 @@ namespace TokenManager.Collections
 		/// <returns>token object</returns>
 		public virtual T GetToken(string token)
 		{
-			if ((object)_itemID == null)
+			if ((object)_itemId == null)
 			{
 				if (_tokens.ContainsKey(token))
 					return _tokens[token];
@@ -112,7 +110,7 @@ namespace TokenManager.Collections
 			}
 			else if (_tokens.ContainsKey(token))
 			{
-				var item = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(_itemID);
+				var item = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(_itemId);
 				if (item == null)
 					ResetTokenCache();
 				else if (item.Statistics.Updated > _itemUpdated)
@@ -129,11 +127,11 @@ namespace TokenManager.Collections
 						{
 							var tokenItem = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(t.GetBackingItemId());
 							if (tokenItem != null)
-								if (!CacheTime.ContainsKey(t.GetBackingItemId()) ||
-									tokenItem.Statistics.Updated > CacheTime[t.GetBackingItemId()])
+								if (!_cacheTime.ContainsKey(t.GetBackingItemId()) ||
+									tokenItem.Statistics.Updated > _cacheTime[t.GetBackingItemId()])
 								{
 									_tokens[token] = InitiateToken(token);
-									CacheTime[t.GetBackingItemId()] = tokenItem.Statistics.Updated;
+									_cacheTime[t.GetBackingItemId()] = tokenItem.Statistics.Updated;
 									return _tokens[token];
 								}
 						}
@@ -174,17 +172,6 @@ namespace TokenManager.Collections
 		}
 
 		/// <summary>
-		/// gets token value
-		/// </summary>
-		/// <param name="token"></param>
-		/// <returns>value of given token</returns>
-		public virtual string GetTokenValue(string token, NameValueCollection extraData)
-		{
-			var ret = GetToken(token);
-			return ret == null ? string.Empty : ret.Value(new TokenDataCollection(extraData));
-		}
-
-		/// <summary>
 		/// get all token names
 		/// </summary>
 		/// <returns></returns>
@@ -206,7 +193,7 @@ namespace TokenManager.Collections
 			}
 			if (item == null || item.Database.Name != TokenKeeper.CurrentKeeper.GetDatabase().Name)
 				return true;
-			var collectionItem = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(_itemID);
+			var collectionItem = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(_itemId);
 
 			if (collectionItem != null && !IsAllowed(item, collectionItem))
 				return false;
@@ -265,7 +252,7 @@ namespace TokenManager.Collections
 		/// <returns>backing item id</returns>
 		public virtual ID GetBackingItemId()
 		{
-			return _itemID;
+			return _itemId;
 		}
 	}
 }

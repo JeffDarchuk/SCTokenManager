@@ -1,8 +1,6 @@
-﻿using System.Linq;
-using Sitecore.Data;
+﻿using Sitecore.Data;
 using Sitecore.Data.Items;
 using TokenManager.Data.Interfaces;
-using TokenManager.Data.Tokens;
 using TokenManager.Management;
 
 namespace TokenManager.Collections

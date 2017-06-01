@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.Mvc;
 using Sitecore;
 using Sitecore.Collections;
 using Sitecore.Configuration;
@@ -71,7 +72,9 @@ namespace TokenManager.Management
 			using (new SecurityDisabler())
 			{
 				if (TokenCollections.ContainsKey(token.CollectionName))
+				{
 					TokenCollections[token.CollectionName].AddOrUpdateToken(token.Token, token);
+				}
 				else
 				{
 					TokenCollections[token.CollectionName] = new AutoTokenCollection(token);
@@ -79,17 +82,19 @@ namespace TokenManager.Management
 				}
 				var db = Factory.GetDatabase("core", false);
 				if (db == null) return;
+
 				TokenButton tb = token.TokenButton();
+
 				ID buttonId = GuidUtility.GetId("tokenmanager", $"{token.CollectionName}{token.Token}");
-				Item button = db.DataManager.DataEngine.GetItem(buttonId,
-					LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
+
+				Item button = db.DataManager.DataEngine.GetItem(buttonId, LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
+
 				if (tb != null)
 				{
 					if (button != null)
 					{
 						if (
-							button["Click"] ==
-							$"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}" &&
+							button["Click"] == $"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}" &&
 							button[FieldIDs.DisplayName] == tb.Name &&
 							button["Shortcut"] == $"?Category={token.CollectionName}&Token={token.Token}" &&
 							button[FieldIDs.Sortorder] == tb.SortOrder.ToString() &&
@@ -100,15 +105,15 @@ namespace TokenManager.Management
 					}
 					else
 					{
-						Item parent = db.DataManager.DataEngine.GetItem(new ID(Constants.Core.RteParent),
-							LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
+						Item parent = db.DataManager.DataEngine.GetItem(new ID(Constants.Core.RteParent), LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
+
 						if (parent == null) return;
-						button = db.DataManager.DataEngine.CreateItem(tb.Name, parent,
-							new ID(Constants.Core.ButtonTemplate), buttonId);
+
+						button = db.DataManager.DataEngine.CreateItem(tb.Name, parent, new ID(Constants.Core.ButtonTemplate), buttonId);
 					}
+
 					button.Editing.BeginEdit();
-					button["Click"] =
-						$"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}";
+					button["Click"] = $"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}";
 					button[FieldIDs.DisplayName] = tb.Name;
 					button["Shortcut"] = $"?Category={token.CollectionName}&Token={token.Token}";
 					button[FieldIDs.Sortorder] = tb.SortOrder.ToString();
@@ -145,7 +150,19 @@ namespace TokenManager.Management
 				{
 					string token = sb.ToString(location.Item1, location.Item2);
 					if (Regex.IsMatch(token, TokenRegex))
-						sb.Replace(token, ParseTokenValueFromTokenIdentifier(token, args.Item), location.Item1, location.Item2);
+					{
+						try
+						{
+							var value = ParseTokenValueFromTokenIdentifier(token, args.Item);
+							sb.Replace(token, value, location.Item1, location.Item2);
+						}
+						catch
+						{
+							// error rendering token - still replace the raw value, but do it with an empty string
+							sb.Replace(token, string.Empty, location.Item1, location.Item2);
+							throw;
+						}
+					}
 					else if (!args.WebEditParameters.ContainsKey("reseted"))
 					{
 						ResetTokenLocations(args.Item.ID, current, args.Item.Language, args.Item.Version.Number);
@@ -213,8 +230,8 @@ namespace TokenManager.Management
 		public virtual string ParseTokenValueFromTokenIdentifier(string token, Item item = null)
 		{
 			var props = TokenProperties(token);
-			IToken t = ParseITokenFromProps(props, item);
-			return t != null ? t.Value(props) : string.Empty;
+			IToken tokenObject = ParseITokenFromProps(props, item);
+			return tokenObject != null ? tokenObject.Value(props) : string.Empty;
 		}
 
 		public virtual string GetTokenIdentifier(TokenDataCollection data)
@@ -231,10 +248,14 @@ namespace TokenManager.Management
 		{
 			List<ID> ids = new IdList();
 			var ret = new TokenDataCollection();
+
 			ret["Category"] = category;
 			ret["Token"] = token;
+
 			IToken itoken = GetToken(category, token);
+
 			if (fields != null)
+			{
 				foreach (string key in fields.Keys.Where(x => x != "Category" && x != "Token"))
 				{
 					var grouped = (IDictionary<string, object>) (fields[key] as IDictionary<string, object>)?["grouped"];
@@ -267,6 +288,8 @@ namespace TokenManager.Management
 							ret[key] = sb.ToString(0, sb.Length - 3);
 					}
 				}
+			}
+
 			return string.Format("{0}{1}\" {4}>{2}<span style='display:none;'>{5}</span>{3}", TokenPrefix, ret, itoken.TokenIdentifierText(ret).Replace("\n", "").Replace("\r", ""), TokenSuffix, $"style='{itoken.TokenIdentifierStyle(ret)}'", GenerateScLinks(ids));
 		}
 
@@ -521,11 +544,12 @@ namespace TokenManager.Management
 		/// <returns>boolean for if the token is valid</returns>
 		private bool IsCollectionValid(ITokenCollection<IToken> collection)
 		{
-			if (collection.GetBackingItemId() == (ID)null)
-				return true;
+			if (collection.GetBackingItemId() == (ID)null) return true;
+
 			var item = GetDatabase().GetItem(collection.GetBackingItemId());
-			if (item != null && item.Statistics.Updated <= TokenCacheUpdateTimes[collection.GetCollectionLabel()])
-				return true;
+
+			if (item != null && item.Statistics.Updated <= TokenCacheUpdateTimes[collection.GetCollectionLabel()]) return true;
+
 			return false;
 		}
 
@@ -536,24 +560,27 @@ namespace TokenManager.Management
 		/// <returns>token collection</returns>
 		public ITokenCollection<IToken> RefreshTokenCollection(string category = null)
 		{
-			var autoTokens =
-				AppDomain.CurrentDomain.GetAssemblies().Where(x => !Constants.BinaryBlacklist.Contains(x.GetName().Name))
-					.SelectMany(GetAutoTokenTypes)
-						.Select(t => (AutoToken)Activator.CreateInstance(t));
-							foreach (AutoToken token in autoTokens)
-								TokenKeeper.CurrentKeeper.LoadAutoToken(token);
-			var tokenManagerItems =
-				GetDatabase().SelectItems($"fast:/sitecore/content//*[@@templateid = '{Constants.TokenRootTemplateId}']").Union(Globals.LinkDatabase.GetReferrers(this.GetDatabase().GetItem(Constants.TokenRootTemplateId)).Select(x => this.GetDatabase().GetItem(x.SourceItemID)));
+			RefreshAutoTokens();
+
+			var tokenManagerItems = GetDatabase()
+				.SelectItems($"fast:/sitecore/content//*[@@templateid = '{Constants.TokenRootTemplateId}']")
+				.Union(Globals.LinkDatabase.GetReferrers(GetDatabase().GetItem(Constants.TokenRootTemplateId))
+				.Select(x => GetDatabase().GetItem(x.SourceItemID)));
+
 			HashSet<ID> dups = new HashSet<ID>();
 			ITokenCollection<IToken> collection = category != null && TokenCollections.ContainsKey(category) ? TokenCollections[category] : null;
+
 			foreach (Item tokenManagerItem in tokenManagerItems)
 			{
 				if (tokenManagerItem != null)
 				{
 					if (dups.Contains(tokenManagerItem.ID)) continue;
+
 					dups.Add(tokenManagerItem.ID);
+
 					Stack<Item> curItems = new Stack<Item>();
 					curItems.Push(tokenManagerItem);
+
 					while (curItems.Any())
 					{
 						Item cur = curItems.Pop();
@@ -579,13 +606,54 @@ namespace TokenManager.Management
 									return col;
 							}
 						}
+
 						foreach (Item child in cur.Children)
+						{
 							curItems.Push(child);
+						}
 					}
 				}
 			}
 			return null;
 		}
+
+		private void RefreshAutoTokens()
+		{
+			var dependencyResolver = DependencyResolver.Current;
+
+			var autoTokens = AppDomain.CurrentDomain
+				.GetAssemblies()
+				.Where(x => !Constants.BinaryBlacklist.Contains(x.GetName().Name))
+				.SelectMany(GetAutoTokenTypes)
+				.Select(t =>
+				{
+					// try dependency resolver (Note: for 8.2.x with MSDI, you must register the autotoken class with the Sitecore container as if it were say a controller - other IoC containers may not require this)
+					if (dependencyResolver != null)
+					{
+						var result = DependencyResolver.Current.GetService(t) as AutoToken;
+
+						// if the IoC container got something valid we return it
+						if (result != null) return result;
+
+						Log.Debug($"AutoToken {t.FullName} was not activated using the MVC DependencyResolver because the dependency resolver returned null for it. It will be activated assuming a parameterless constructor instead.");
+					}
+
+					try
+					{
+						return (AutoToken) Activator.CreateInstance(t);
+					}
+					catch (MissingMethodException mex)
+					{
+						throw new InvalidOperationException($"AutoToken {t.FullName} could not be activated. This may indicate a non-parameterless constructor is being used (explicit values need to be set when calling base()). It can also mean that you have IoC dependencies in the constructor, but have not registered the AutoToken class with your IoC container.", mex);
+					}
+				});
+
+			foreach (AutoToken token in autoTokens)
+			{
+				TokenKeeper.CurrentKeeper.LoadAutoToken(token);
+			}
+		}
+
 		private IEnumerable<Type> GetAutoTokenTypes(Assembly a)
 		{
 			IEnumerable<Type> types = null;
@@ -597,9 +665,13 @@ namespace TokenManager.Management
 			{
 				types = e.Types.Where(t => t != null && t.IsSubclassOf(typeof(AutoToken)) && !t.IsAbstract);
 			}
+
 			if (types == null) yield break;
+
 			foreach (var type in types)
+			{
 				yield return type;
+			}
 		}
 	}
 }

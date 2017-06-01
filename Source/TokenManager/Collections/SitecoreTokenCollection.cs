@@ -20,14 +20,18 @@ namespace TokenManager.Collections
 		/// constructs the sitecore token collection based on the specific item
 		/// </summary>
 		/// <param name="tokenCollection"></param>
-		public SitecoreTokenCollection(Item tokenCollection) : base(tokenCollection)
+		protected SitecoreTokenCollection(Item tokenCollection) : base(tokenCollection)
 		{
 			_backingItemId = tokenCollection.ID;
 			_collectionLabel = tokenCollection["Category Label"];
-			var tmp = tokenCollection.Database.GetItem(tokenCollection["Item Ancestor"]);
+
 			if (string.IsNullOrWhiteSpace(_collectionLabel))
+			{
 				throw new ArgumentException("Category labels can not be empty", _backingItemId.ToString());
+			}
+
 			SitecoreIcon = tokenCollection[FieldIDs.Icon];
+
 			if (string.IsNullOrWhiteSpace(SitecoreIcon))
 			{
 				SitecoreIcon = tokenCollection.Template.Icon;
@@ -57,13 +61,17 @@ namespace TokenManager.Collections
 		/// <returns>all tokens</returns>
 		public override IEnumerable<IToken> GetTokens()
 		{
-			Database db = TokenKeeper.CurrentKeeper.GetDatabase(); ;
+			Database db = TokenKeeper.CurrentKeeper.GetDatabase();
 			var item = db.GetItem(_backingItemId);
+
 			if (item != null)
+			{
 				foreach (string key in item.Children.Select(c => c["Token"]))
 				{
 					AddOrUpdateToken(InitiateToken(key));
 				}
+			}
+
 			return base.GetTokens();
 		}
 

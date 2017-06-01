@@ -1,6 +1,8 @@
 # Sitecore TokenManager
 TokenManager is a framework designed to allow any type of content to be dynamically injected into a RTE field.
+
 ## Example Usages
+
 + User name injection:
 	* If you have access to a users name information in your session, you can make that name available for injection into a paragraph allowing the content authors to create personalized pages in a natural language 
 + Captioned image:
@@ -17,26 +19,43 @@ TokenManager is a framework designed to allow any type of content to be dynamica
 	* Add a field to the page level item which can be exposed for component level items to inject.  This can be useful if your content is mostly copy and paste.  
 	For example, say you have a healthcare website that has a section about conditions.  Each condition has the same set of 4 links each have the condition name in the text.
 	You can create a token for the condition name and in the standard values of the 4 links insert the tokens.  At this point you can create a much more complete default state.
+
 ## Token Types	
+
 ### Automatically wired tokens
-These tokens are designed primarilly for developers.  They're quick and easy to use, however are not configurable by authors.
+These tokens are designed primarily for developers.  They're quick and easy to use, however are not configurable by authors.
+
 + AutoToken
 	* General use token, will fit a wide variety of situations with the full array of extra data options.
 + ViewAutoToken
 	* Same as the AutoToken except utilizes cshtml view.
+
 ## Installing TokenManager
+
 The [Nuget package](https://www.nuget.org/packages/TokenManager/) is recommended to use for installation.
 The package contains a config and a DLL.  The Sitecore items are installed by an initialize process that unpacks an embedded sitecore package that contains the templates.
 This Sitecore package is then copied over to the data/packages folder, make sure that your IIS install has access to this folder. 
+
 ## Creating tokens
+
 ### AutoTokens
+
 In any assembly loaded by the web container implement the abstract class AutoToken.
 here is an example of the simplest form of token.
+
 ```cs
 public class DemoAutoToken : AutoToken
 {
-	//Make sure you have a parameterless constructor.
-	public DemoAutoToken() : base( collectionName: "Demo Collection", tokenIcon: "people/16x16/cubes_blue.png", tokenName:"Demo Token")
+	// Tokens may choose between two forms of constructor:
+	// 1) A parameterless constructor, like this:
+	public DemoAutoToken() : base(collectionName: "Demo Collection", tokenIcon: "people/16x16/cubes_blue.png", tokenName:"Demo Token")
+	{
+	}
+
+	// 2) For solutions that have ASP.NET MVC dependency injection set up (including Sitecore 8.2+ out of the box), you may constructor-inject dependencies if desired
+	//    when using IoC, you must register the AutoToken class with your IoC container unless it supports ad-hoc object construction (MS DI, standard in 8.2, does not support this).
+	//    Injection is performed using the MVC DependencyResolver, so it may be wired to a container of your choosing as well.
+	public DemoAutoToken(IFooRepository foo, IBarService bar) : base(collectionName: "Demo Collection", tokenIcon: "people/16x16/cubes_blue.png", tokenName:"Demo Token")
 	{
 	}
 
@@ -51,7 +70,9 @@ public class DemoAutoToken : AutoToken
 	}
 }
 ```
+
 You may also define a model to specify the extra data and to help strongly type your token.  This method is recommended for code clarity and maintenance.
+
 ```cs
 public class DemoAutoToken2 : AutoToken<DemoAutoToken2Model>
 {
@@ -70,7 +91,9 @@ public class DemoAutoToken2 : AutoToken<DemoAutoToken2Model>
 	}
 }
 ```
+
 With this being our decorated model.
+
 ```cs
 	public class DemoAutoToken2Model
 	{
@@ -79,8 +102,11 @@ With this being our decorated model.
 		public string MySecretValue { get; set; }
 	}
 ```
+
 ### ViewAutoTokens
+
 This type is very similar to the AutoToken however it utilizes a cshtml view and model to render.
+
 ```cs
 public class DemoViewToken : ViewAutoToken<DemoAutoToken2Model>
 {
@@ -99,17 +125,22 @@ public class DemoViewToken : ViewAutoToken<DemoAutoToken2Model>
 	}
 }
 ```
+
 Note that this is using the same model from the AutoToken example above.
 This is the cshtml file at /views/DemoViewToken.cshtml
+
 ```cshtml
 @model TokenManager.DemoAutoToken2Model
 <div><strong>@Model.MySecretValue</strong></div>
 ```
+
 ## Token Selection
 After you have defined your tokens they will appear in the TokenManager dialog that is available in the RTE.
 ![TokenManager TokenButton](documentation/TokenSelection.gif)
+
 ### Optional token button
 AutoTokens and ViewAutoTokens can have an RTE button automatically applied to inject that particular token without the dialog.
+
 ```cs
 	/// <summary>
 	/// Assign an RTE button for this token.
@@ -120,12 +151,17 @@ AutoTokens and ViewAutoTokens can have an RTE button automatically applied to in
 		return new TokenButton(name: "Insert a demo snippet", icon: "people/16x16/cubes_blue.png", sortOrder: 250);
 	}
 ```
+
 ![TokenManager TokenButton](documentation/TokenButton.gif)
+
 ### Limiting token scope
+
 There are a few ways to limit what tokens are available in particular RTE contexts.
+
 + Override IsCurrentContextValid
 + Override ValidParents
 + Override ValidTemplates
+
 ```cs		
 	public override bool IsCurrentContextValid(Item item = null)
 	{
@@ -145,11 +181,17 @@ There are a few ways to limit what tokens are available in particular RTE contex
 		yield return new ID("11111111-1111-1111-1111-111111111111");
 	}
 ```
+
 ### Optional token appearance
+
 You have a limited amount of control as to what the token looks like in the RTE.  This is limited by the way the RTE works and how browsers re-arrange invalid markup.
+
 For example if you try to use a div tag inside a p tag chrome will automatically re-arrange it.  Normally this probably wouldn't cause horrible things to happen, however the modifications that chrome makes will end up being saved and very likely corrupt the token.
+
 However if you stick to things that are symantically correct to go in a p tag you'll be fine.  Additionally, in the example below it's outputting some text entered by the authors, This is dangerous too as content authors could attempt to write html and likewise break the token.
+
 A good rule of thumb is to not use this feature unless there is a really great reason to.
+
 ```cs
 	/// <summary>
 	/// Modifies the default way the token is displayed in the RTE
@@ -161,9 +203,13 @@ A good rule of thumb is to not use this feature unless there is a really great r
 		return $"<span style='color:red;font-size:large'>hey</span><span>now</span>{model.MySecretValue}";
 	}
 ```
+
 ![TokenManager TokenButton](documentation/CustomRTE.gif)
+
 ## Token Parameters
+
 There are a number of data types that are available for application to tokens.  These end up prompting the user to enter a particular value when inserted into an RTE.
+
 + StringTokenData
 	* Request a string from the author.
 + IntegerTokenData
@@ -176,7 +222,9 @@ There are a number of data types that are available for application to tokens.  
 	* Request one of several options from the author.
 + GeneralLinkTokenData
 	* Request a Sitecore style general link information from the author.
+
 ##### These Token Data types are applied to a model using attributes.
+
 ```cs
 	[TokenString(label: "Give us a string",placeholder: "Enter string here", required: true)]
 	public string MyString;
@@ -200,7 +248,9 @@ There are a number of data types that are available for application to tokens.  
 	[TokenGeneralLink(label: "Give us a link", required: true, root:"{110D559F-DEA5-42EA-9C1C-8A5DF7E70EF9}")]
 	public string MyLink;
 ```
+
 If not using a model based token, which you should, these are available as an override on the AutoToken class.
+
 ```cs
 	/// <summary>
 	/// Defines what extra data to collect from the user when the token was inserted into the RTE.
@@ -220,8 +270,11 @@ If not using a model based token, which you should, these are available as an ov
 		yield return new GeneralLinkTokenData(label: "Give us a link", name: "mylink", root: "{51C9E0EB-C6C8-45B0-A646-7B6E78C286B6}", required: true);
 	}
 ```
+
 ![TokenManager TokenButton](documentation/ExtraData.gif)
+
 ### Customize your model
+
 By overriding the rendering method you can customize your model to pass to your view.  This would be useful if some of the data for the token didn't come from content author input.
 ```cs
 	public override string Render(DemoAutoToken2Model model)
@@ -230,9 +283,13 @@ By overriding the rendering method you can customize your model to pass to your 
 		return base.Render(model);
 	}
 ```
+
 ### Legacy Sitecore wired tokens
+
 These tokens are designed primarily for authors.  They take more development effort to set up, but allows the authors to maintain their own tokens.
+
 In practice these tokens have not proven to be particularly useful, but they still exist for now.  You can read more about them [here](https://jeffdarchuk.com/2015/10/26/sitecore-tokenmanager/)
+
 + Basic Token
 	* A simple token that injects content from an RTE.
 + Rendering Token
