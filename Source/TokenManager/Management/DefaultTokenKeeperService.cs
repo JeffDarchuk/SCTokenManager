@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.Mvc;
 using Sitecore;
 using Sitecore.Collections;
 using Sitecore.Configuration;
@@ -149,7 +150,19 @@ namespace TokenManager.Management
 				{
 					string token = sb.ToString(location.Item1, location.Item2);
 					if (Regex.IsMatch(token, TokenRegex))
-						sb.Replace(token, ParseTokenValueFromTokenIdentifier(token, args.Item), location.Item1, location.Item2);
+					{
+						try
+						{
+							var value = ParseTokenValueFromTokenIdentifier(token, args.Item);
+							sb.Replace(token, value, location.Item1, location.Item2);
+						}
+						catch
+						{
+							// error rendering token - still replace the raw value, but do it with an empty string
+							sb.Replace(token, string.Empty, location.Item1, location.Item2);
+							throw;
+						}
+					}
 					else if (!args.WebEditParameters.ContainsKey("reseted"))
 					{
 						ResetTokenLocations(args.Item.ID, current, args.Item.Language, args.Item.Version.Number);
