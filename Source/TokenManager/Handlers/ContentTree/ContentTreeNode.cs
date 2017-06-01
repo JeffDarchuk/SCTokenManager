@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Sitecore;
-using Sitecore.Data;
 using Sitecore.Data.Items;
 using Sitecore.Data.Managers;
-using Sitecore.StringExtensions;
 
 namespace TokenManager.Handlers.ContentTree
 {
@@ -28,7 +25,9 @@ namespace TokenManager.Handlers.ContentTree
 			DisplayName = item.DisplayName;
 			Id = item.ID.ToString();
 			if (Open)
+			{
 				Nodes = item.Children.Select(c => new ContentTreeNode(c)).ToList();
+			}
 		}
 
 		public void SetIcon(Item item)
@@ -37,12 +36,8 @@ namespace TokenManager.Handlers.ContentTree
 			{
 				Icon = GetSrc(ThemeManager.GetIconImage(item, 32, 32, "", ""));
 			}
-			//if (!string.IsNullOrWhiteSpace(Icon))
-			//{
-			//	string[] parts = Icon.Split('/');
-			//	Icon = string.Join("/", parts.Skip(parts.Length - 3));
-			//}
 		}
+
 		private string GetSrc(string imgTag)
 		{
 			int i1 = imgTag.IndexOf("src=\"", StringComparison.Ordinal) + 5;

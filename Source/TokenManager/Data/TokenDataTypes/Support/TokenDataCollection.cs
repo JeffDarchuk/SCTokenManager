@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using Sitecore;
 using Sitecore.Configuration;
 using Sitecore.Data;
@@ -15,13 +13,15 @@ namespace TokenManager.Data.TokenDataTypes.Support
 {
 	public class TokenDataCollection
 	{
+		private const string Base64Prefix = "TMB64-";
+
 		private readonly NameValueCollection _source;
 
 		public string[] AllKeys => _source.AllKeys;
 
 		public void Add(string name, string value)
 		{
-			_source.Add(name, System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(value)));
+			_source.Add(name, System.Convert.ToBase64String(Encoding.UTF8.GetBytes(value)));
 		}
 
 		public void Remove(string name)
@@ -33,17 +33,22 @@ namespace TokenManager.Data.TokenDataTypes.Support
 		{
 			return _source.Cast<T>();
 		}
+
 		public string this[string tokenDataName]
 		{
 			get
 			{
 				string ret = _source[tokenDataName];
-				if (string.IsNullOrWhiteSpace(ret))
-					return ret;
+
+				if (string.IsNullOrWhiteSpace(ret)) return ret;
+
 				try
 				{
-					if (ret.StartsWith("TMB64-"))
+					if (ret.StartsWith(Base64Prefix, StringComparison.Ordinal))
+					{
 						return Encoding.UTF8.GetString(System.Convert.FromBase64String(ret.Substring(6)));
+					}
+
 					return ret;
 				}
 				catch (Exception e)
@@ -52,7 +57,7 @@ namespace TokenManager.Data.TokenDataTypes.Support
 					return "";
 				}
 			}
-			set { _source[tokenDataName] = $"TMB64-{System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(value))}"; }
+			set { _source[tokenDataName] = $"{Base64Prefix}{System.Convert.ToBase64String(Encoding.UTF8.GetBytes(value))}"; }
 		}
 
 		public TokenDataCollection()

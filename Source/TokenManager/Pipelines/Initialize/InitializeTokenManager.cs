@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,7 +11,6 @@ using System.Web.Routing;
 using System.Xml;
 using Sitecore;
 using Sitecore.Configuration;
-using Sitecore.ContentSearch.FieldReaders;
 using Sitecore.Data;
 using Sitecore.Data.Engines;
 using Sitecore.Data.Fields;
@@ -26,7 +24,6 @@ using Sitecore.Install.Utils;
 using Sitecore.Pipelines;
 using Sitecore.SecurityModel;
 using TokenManager.Data.Interfaces;
-using TokenManager.Data.Tokens;
 using TokenManager.Handlers;
 using TokenManager.Management;
 
@@ -52,9 +49,13 @@ namespace TokenManager.Pipelines.Initialize
 			{
 				TokenKeeper.TokenSingleton = Tokens;
 			}
+
 			Assert.ArgumentNotNull(args, "args");
+
 			RegisterRoutes("tokenManager");
+
 			TokenKeeper._isSc8 = IsSc8();
+
 			if (RequiredSitecoreItemsMissing())
 			{
 				var filepath = "";
@@ -99,9 +100,10 @@ namespace TokenManager.Pipelines.Initialize
 									}
 								}
 							}
-							else
-								Thread.Sleep(1000);
+
+							Thread.Sleep(1000);
 						}
+
 						RegisterSitecoreTokens();
 						ValidateInsertOptions();
 					});
@@ -117,6 +119,7 @@ namespace TokenManager.Pipelines.Initialize
 				ValidateInsertOptions();
 			}
 		}
+
 		private static bool IsSc8()
 		{
 			XmlDocument doc = new XmlDocument();
@@ -124,11 +127,14 @@ namespace TokenManager.Pipelines.Initialize
 			var selectSingleNode = doc.SelectSingleNode("/information/version/major");
 			return selectSingleNode != null && selectSingleNode.InnerText == "8";
 		}
+
 		private static void ValidateInsertOptions()
 		{
 			Item sv = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(Constants.TokenCollectionStandardValuesId);
 			if (sv == null)
+			{
 				_needRebuild = true;
+			}
 			else
 			{
 				MultilistField fld = sv.Fields[FieldIDs.Branches];
@@ -138,12 +144,22 @@ namespace TokenManager.Pipelines.Initialize
 				{
 					StringBuilder sb = new StringBuilder();
 					if (sb.Length == 0)
+					{
 						sb.Append(string.Join("|", fld.TargetIDs.Select(x => x.ToString())));
+					}
+
 					foreach (ID needsToBeAdded in missingTokens)
+					{
 						sb.Append("|").Append(needsToBeAdded);
+					}
+
 					using (new SecurityDisabler())
-					using (new EditContext(sv))
-						sv[FieldIDs.Branches] = sb.ToString();
+					{
+						using (new EditContext(sv))
+						{
+							sv[FieldIDs.Branches] = sb.ToString();
+						}
+					}
 				}
 			}
 		}
@@ -154,7 +170,10 @@ namespace TokenManager.Pipelines.Initialize
 		private static bool RequiredSitecoreItemsMissing()
 		{
 			if (_needRebuild)
+			{
 				return true;
+			}
+
 			return typeof(Constants)
 				.GetFields(BindingFlags.Static | BindingFlags.Public).Where(x => x.FieldType == typeof(string))
 				.Any(f => TokenKeeper.CurrentKeeper.GetDatabase().GetItem(f.GetValue(null).ToString()) == null);
@@ -204,10 +223,11 @@ namespace TokenManager.Pipelines.Initialize
 		/// <param name="route"></param>
 		public static void RegisterRoutes(string route)
 		{
-			if (Factory.GetDatabase("master", false) == null)
-				return;
+			if (Factory.GetDatabase("master", false) == null) return;
+
 			var routes = RouteTable.Routes;
 			var handler = new TokenManagerHandler(route);
+
 			using (routes.GetWriteLock())
 			{
 				var defaultRoute = new Route(route + "/", handler)
