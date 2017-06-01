@@ -71,7 +71,9 @@ namespace TokenManager.Management
 			using (new SecurityDisabler())
 			{
 				if (TokenCollections.ContainsKey(token.CollectionName))
+				{
 					TokenCollections[token.CollectionName].AddOrUpdateToken(token.Token, token);
+				}
 				else
 				{
 					TokenCollections[token.CollectionName] = new AutoTokenCollection(token);
@@ -79,17 +81,19 @@ namespace TokenManager.Management
 				}
 				var db = Factory.GetDatabase("core", false);
 				if (db == null) return;
+
 				TokenButton tb = token.TokenButton();
+
 				ID buttonId = GuidUtility.GetId("tokenmanager", $"{token.CollectionName}{token.Token}");
-				Item button = db.DataManager.DataEngine.GetItem(buttonId,
-					LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
+
+				Item button = db.DataManager.DataEngine.GetItem(buttonId, LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
+
 				if (tb != null)
 				{
 					if (button != null)
 					{
 						if (
-							button["Click"] ==
-							$"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}" &&
+							button["Click"] == $"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}" &&
 							button[FieldIDs.DisplayName] == tb.Name &&
 							button["Shortcut"] == $"?Category={token.CollectionName}&Token={token.Token}" &&
 							button[FieldIDs.Sortorder] == tb.SortOrder.ToString() &&
@@ -100,15 +104,15 @@ namespace TokenManager.Management
 					}
 					else
 					{
-						Item parent = db.DataManager.DataEngine.GetItem(new ID(Constants.Core.RteParent),
-							LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
+						Item parent = db.DataManager.DataEngine.GetItem(new ID(Constants.Core.RteParent), LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
+
 						if (parent == null) return;
-						button = db.DataManager.DataEngine.CreateItem(tb.Name, parent,
-							new ID(Constants.Core.ButtonTemplate), buttonId);
+
+						button = db.DataManager.DataEngine.CreateItem(tb.Name, parent, new ID(Constants.Core.ButtonTemplate), buttonId);
 					}
+
 					button.Editing.BeginEdit();
-					button["Click"] =
-						$"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}";
+					button["Click"] = $"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}";
 					button[FieldIDs.DisplayName] = tb.Name;
 					button["Shortcut"] = $"?Category={token.CollectionName}&Token={token.Token}";
 					button[FieldIDs.Sortorder] = tb.SortOrder.ToString();
@@ -521,11 +525,12 @@ namespace TokenManager.Management
 		/// <returns>boolean for if the token is valid</returns>
 		private bool IsCollectionValid(ITokenCollection<IToken> collection)
 		{
-			if (collection.GetBackingItemId() == (ID)null)
-				return true;
+			if (collection.GetBackingItemId() == (ID)null) return true;
+
 			var item = GetDatabase().GetItem(collection.GetBackingItemId());
-			if (item != null && item.Statistics.Updated <= TokenCacheUpdateTimes[collection.GetCollectionLabel()])
-				return true;
+
+			if (item != null && item.Statistics.Updated <= TokenCacheUpdateTimes[collection.GetCollectionLabel()]) return true;
+
 			return false;
 		}
 
@@ -546,14 +551,18 @@ namespace TokenManager.Management
 				GetDatabase().SelectItems($"fast:/sitecore/content//*[@@templateid = '{Constants.TokenRootTemplateId}']").Union(Globals.LinkDatabase.GetReferrers(this.GetDatabase().GetItem(Constants.TokenRootTemplateId)).Select(x => this.GetDatabase().GetItem(x.SourceItemID)));
 			HashSet<ID> dups = new HashSet<ID>();
 			ITokenCollection<IToken> collection = category != null && TokenCollections.ContainsKey(category) ? TokenCollections[category] : null;
+
 			foreach (Item tokenManagerItem in tokenManagerItems)
 			{
 				if (tokenManagerItem != null)
 				{
 					if (dups.Contains(tokenManagerItem.ID)) continue;
+
 					dups.Add(tokenManagerItem.ID);
+
 					Stack<Item> curItems = new Stack<Item>();
 					curItems.Push(tokenManagerItem);
+
 					while (curItems.Any())
 					{
 						Item cur = curItems.Pop();
@@ -579,8 +588,11 @@ namespace TokenManager.Management
 									return col;
 							}
 						}
+
 						foreach (Item child in cur.Children)
+						{
 							curItems.Push(child);
+						}
 					}
 				}
 			}
@@ -597,9 +609,13 @@ namespace TokenManager.Management
 			{
 				types = e.Types.Where(t => t != null && t.IsSubclassOf(typeof(AutoToken)) && !t.IsAbstract);
 			}
+
 			if (types == null) yield break;
+
 			foreach (var type in types)
+			{
 				yield return type;
+			}
 		}
 	}
 }
