@@ -361,7 +361,7 @@ namespace TokenManager.Management
 			{
 				RefreshTokenCollection(collectionName);
 				var collection = TokenCollections.ContainsKey(collectionName) &&
-								 !IsCollectionValid(TokenCollections[collectionName])
+								 IsCollectionValid(TokenCollections[collectionName])
 					? TokenCollections[collectionName]
 					: null;
 				if (collection != null)

@@ -206,7 +206,7 @@ namespace TokenManager.Handlers
 			var db = TokenKeeper.CurrentKeeper.GetDatabase();
 			Item current = db.GetItem(new ID(data.currentId));
 			Item selected = db.GetItem(new ID(data.selectedId));
-			return selected.Paths.FullPath.StartsWith(current.Paths.FullPath);
+			return selected?.Paths.FullPath.StartsWith(current?.Paths.FullPath ?? "") ?? false;
 		}
 
 		/// <summary>

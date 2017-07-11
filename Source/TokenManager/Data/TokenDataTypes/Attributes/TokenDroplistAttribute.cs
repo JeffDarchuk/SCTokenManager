@@ -53,7 +53,7 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 			if (t == typeof(string))
 				return collection.GetString(name);
 			if (t == typeof(Item))
-				return (Sitecore.Context.ContentDatabase ?? Sitecore.Context.Database ?? Factory.GetDatabase("master")).GetItem(collection.GetId(name));
+				return (Sitecore.Context.ContentDatabase ?? Sitecore.Context.Database ?? Factory.GetDatabase("master")).GetItem(collection.GetId(name) ?? ID.Null);
 			if (t == typeof(ID))
 				return collection.GetId(name);
 			throw new TokenCastException($"Unable to cast type {t.Namespace}.{t.Name} for TokenDroplistAttribute on property/field {name}.  Acceptable type is string.");

@@ -40,14 +40,23 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 
 		public virtual object GetObject(TokenDataCollection collection, string name, Type t)
 		{
+			var link = collection.GetLink(name);
 			if (t == typeof(GeneralLink))
-				return collection.GetLink(name);
+				return link;
 			if (t == typeof(string))
-				return collection.GetLink(name).Href;
+				return link?.Href;
 			if (t == typeof(Item))
-				return (Sitecore.Context.ContentDatabase ?? Sitecore.Context.Database ?? Factory.GetDatabase("master")).GetItem(collection.GetLink(name).InternalLinkId);
+			{
+				if (link?.InternalLinkId == null) return null;
+				return
+					(Sitecore.Context.ContentDatabase ?? Sitecore.Context.Database ?? Factory.GetDatabase("master")).GetItem(
+						link.InternalLinkId);
+			}
 			if (t == typeof(ID))
+			{
+				if (link?.InternalLinkId == null) return ID.Null;
 				return new ID(collection.GetLink(name).InternalLinkId);
+			}
 			throw new TokenCastException($"Unable to cast type {t.Namespace}.{t.Name} for TokenGeneralLinkAttribute on property/field {name}.  Acceptable types are TokenManager.Data.TokenDataTypes.Support.GeneralLink, string.");
 
 		}
