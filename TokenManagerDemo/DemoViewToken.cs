@@ -52,19 +52,19 @@ namespace TokenManager
 		public override bool IsCurrentContextValid(Item item = null)
 		{
 			// Only available on items that's name start with bob;
-			return item?.Name.StartsWith("bob") ?? false;
+			return !item?.Name.StartsWith("bob") ?? true;
 		}
 
 		public override IEnumerable<ID> ValidParents()
 		{
 			// only available if in a subtree rooted at these items
-			yield return new ID("11111111-1111-1111-1111-111111111111");
+			yield return new ID("{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}");
 		}
 
 		public override IEnumerable<ID> ValidTemplates()
 		{
 			// only available on items with this template
-			yield return new ID("11111111-1111-1111-1111-111111111111");
+			yield return new ID("{93A55335-2F0D-470B-9B20-74E3521BAE49}");
 		}
 
 		public override string Render(DemoAutoToken2Model model)

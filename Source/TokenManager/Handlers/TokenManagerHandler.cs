@@ -105,19 +105,7 @@ namespace TokenManager.Handlers
 				}
 				if (string.IsNullOrWhiteSpace(file))
 				{
-					_userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value] =
-						context.Request.QueryString["token"];
-					string preset = context.Request.QueryString["preset"];
 					string html = GetResource("index.html").Replace("<datasource></datasource>", $"<script>var tmDatasource='{context.Request.QueryString["sc_itemid"]}';</script>");
-					if (!string.IsNullOrWhiteSpace(preset))
-					{
-						var selectedToken =
-							TokenKeeper.CurrentKeeper.TokenProperties(_userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value]);
-						var presetToken =
-							TokenKeeper.CurrentKeeper.TokenProperties(preset);
-						if (selectedToken["Category"] != presetToken["Category"] || selectedToken["Token"] != presetToken["Token"])
-							_userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value] = preset;
-					}
 					if (!string.IsNullOrWhiteSpace(_userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value]))
 						html = html.Replace("<preset></preset>", "<script>var tmPreset=true;</script>");
 					ReturnResponse(context, html, "text/html");
@@ -167,6 +155,8 @@ namespace TokenManager.Handlers
 					ReturnJson(context, TokenKeeper.CurrentKeeper.GetTokenCollections().Any(x => x.IsCurrentContextValid(TokenKeeper.CurrentKeeper.GetDatabase().GetItem(context.Request.QueryString["sc_itemid"]))));
 				else if (file == "tokenvalid.json")
 					ReturnJson(context, IsTokenValid(context));
+				else if (file == "tokensetup.json")
+					ReturnJson(context, SetupTokenTracking(context));
 				else
 					NotFound(context);
 			}
@@ -176,6 +166,25 @@ namespace TokenManager.Handlers
 				Error(context, e);
 			}
 		}
+
+		private object SetupTokenTracking(HttpContextBase context)
+		{
+			var data = GetPostData(context);
+			data.token = data.token.Replace("lttt", "<").Replace("gttt", ">").Replace("amppp", "&");
+			data.preset = data.preset.Replace("lttt", "<").Replace("gttt", ">").Replace("amppp", "&");
+			_userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value] = data.token;
+			if (!string.IsNullOrWhiteSpace(data.preset))
+			{
+				var selectedToken =
+					TokenKeeper.CurrentKeeper.TokenProperties(_userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value]);
+				var presetToken =
+					TokenKeeper.CurrentKeeper.TokenProperties(data.preset);
+				if (selectedToken["Category"] != presetToken["Category"] || selectedToken["Token"] != presetToken["Token"])
+					_userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value] = data.preset;
+			}
+			return true;
+		}
+
 		/// <summary>
 		/// returns true if the requested token is valid in this instance
 		/// </summary>

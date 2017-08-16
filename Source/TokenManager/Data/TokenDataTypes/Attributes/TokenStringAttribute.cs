@@ -21,9 +21,10 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 		/// <param name="label">The description given to content authors filling in the field</param>
 		/// <param name="placeholder">The example text that shadows in the textbox</param>
 		/// <param name="required">Is this value required or not</param>
-		public TokenStringAttribute(string label, string placeholder,  bool required)
+		/// <param name="defaultValue">The starting value of the token data</param>
+		public TokenStringAttribute(string label, string placeholder,  bool required, string defaultValue = "")
 		{
-			Data = new StringTokenData(label, "", placeholder, required);
+			Data = new StringTokenData(label, "", placeholder, required, defaultValue);
 		}
 		public ITokenData TokenData => Data;
 
@@ -32,7 +33,7 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 			if (t == typeof(string))
 				return collection.GetString(name);
 
-			throw new TokenCastException($"Unable to cast type {t.Namespace}.{t.Name} for TokenGeneralLinkAttribute on property/field {name}.  Acceptable types are ID, Item or string.");
+			throw new TokenCastException($"Unable to cast type {t.Namespace}.{t.Name} for TokenStringAttribute on property/field {name}.  Acceptable types are ID, Item or string.");
 
 		}
 	}

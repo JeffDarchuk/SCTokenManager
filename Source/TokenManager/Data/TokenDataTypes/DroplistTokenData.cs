@@ -11,6 +11,7 @@ namespace TokenManager.Data.TokenDataTypes
 	public class DroplistTokenData : ITokenData
 	{
 		private string _options;
+
 		/// <summary>
 		/// Creates a field that gathers a string value from a list of options in the form of a dropdown
 		/// </summary>
@@ -18,7 +19,8 @@ namespace TokenManager.Data.TokenDataTypes
 		/// <param name="name">The key that's used when placing/retrieving information into the token definition</param>
 		/// <param name="required">If true, the user will not be able to leave this field blank</param>
 		/// <param name="options">Inumerable of key value pairs to use in creation of the dropdown list, the keys are used as the labels, and the values are the option values</param>
-		public DroplistTokenData(string label, string name, bool required, IEnumerable<KeyValuePair<string, string>> options)
+		/// <param name="defaultValue">The starting value of the token data</param>
+		public DroplistTokenData(string label, string name, bool required, IEnumerable<KeyValuePair<string, string>> options, string defaultValue = "")
 		{
 			Name = name;
 			Label = label;
@@ -27,6 +29,7 @@ namespace TokenManager.Data.TokenDataTypes
 			foreach (var option in options)
 				sb.Append($"<option name=\"{option.Value}\" value=\"{option.Value}\">{option.Key}</option>");
 			_options = sb.ToString();
+			DefaultValue = defaultValue;
 		}
 		/// <summary>
 		/// Creates a field that gathers a string value from a list of options in the form of a dropdown
@@ -41,10 +44,11 @@ namespace TokenManager.Data.TokenDataTypes
 		public string Name { get; set; }
 		public string Label { get; set; }
 		public bool Required { get; set; }
+		public string DefaultValue { get; set; }
 		public string AngularMarkup => $@"
 	<div class=""field-row {{{{field.class}}}}"">
 		<span class=""field-label"">{{{{field.Label}}}} </span>
-		<div class=""field-data"">
+		<div ng-init=""token.data[field.Name]= token.data[field.Name] ? token.data[field.Name] : '{DefaultValue}';"" class=""field-data"">
 			<select ng-model=""token.data[field.Name]"">
 				{_options}
 			</select>

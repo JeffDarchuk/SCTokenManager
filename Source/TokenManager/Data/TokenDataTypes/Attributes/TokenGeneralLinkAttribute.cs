@@ -17,25 +17,19 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 	public class TokenGeneralLinkAttribute : Attribute, ITokenDataAttribute
 	{
 		private GeneralLinkTokenData Data;
+
 		/// <summary>
 		/// Marks this property or field as being a general link token value, this is applicable to a TokenManager.Data.TokenDataTypes.Support.GeneralLink, ID, Item or string type.
 		/// </summary>
 		/// <param name="label">The description given to content authors filling in the field</param>
 		/// <param name="required">Is this value required or not</param>
 		/// <param name="root">The Sitecore ID that will be used for the internal link root</param>
-		public TokenGeneralLinkAttribute(string label, bool required, string root)
+		/// <param name="defaultValue">The starting value of the token data</param>
+		public TokenGeneralLinkAttribute(string label, bool required, string root = "{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}", string defaultValue = "")
 		{
-			Data = new GeneralLinkTokenData(label, "", required, root);
+			Data = new GeneralLinkTokenData(label, "", required, root, defaultValue);
 		}
-		/// <summary>
-		/// Marks this property or field as being a general link token value, this is applicable to a TokenManager.Data.TokenDataTypes.Support.GeneralLink, ID, Item or string type.
-		/// </summary>
-		/// <param name="label">The description given to content authors filling in the field</param>
-		/// <param name="required">Is this value required or not</param>
-		public TokenGeneralLinkAttribute(string label, bool required)
-		{
-			Data = new GeneralLinkTokenData(label, "", required);
-		}
+
 		public ITokenData TokenData => Data;
 
 		public virtual object GetObject(TokenDataCollection collection, string name, Type t)

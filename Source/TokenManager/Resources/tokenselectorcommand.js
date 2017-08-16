@@ -16,19 +16,24 @@ RadEditorCommandList["TokenSelector"] = function (commandName, editor, args) {
 	if (!usingTokenElement)
 		tokenElement = null;
 	var token = getToken(editor);
-	editor.showExternalDialog(
-        "/TokenManager?sc_itemid=" + scItemID + "&token=" + encodeURIComponent(token) + "&preset=" + encodeURIComponent(tmPreset[commandName]),
-        null, //argument
-        600,
-        500,
-        scTokenSelectorCallback,
-        null,
-        "Insert Token",
-        true, //modal
-        Telerik.Web.UI.WindowBehaviors.Close, // behaviors
-        false, //showStatusBar
-        false //showTitleBar
-        );
+	jQuery.post("/tokenmanager/tokensetup.json", "{'token' : '" + token.replace(/</g, "lttt").replace(/>/g, "gttt").replace(/\&/g, 'amppp') + "', 'preset' : '" + tmPreset[commandName].replace(/</g, "lttt").replace(/>/g, "gttt").replace(/\&/g, 'amppp')  + "'}").done(function (data) {
+		if (data) {
+			editor.showExternalDialog(
+				"/TokenManager?sc_itemid=" + scItemID,
+				"bannana", //argument
+				600,
+				500,
+				scTokenSelectorCallback,
+				null,
+				"Insert Token",
+				true, //modal
+				Telerik.Web.UI.WindowBehaviors.Close, // behaviors
+				false, //showStatusBar
+				false //showTitleBar
+			);
+		}
+	});
+
 };
 setInterval(function() {
 	var els = document.getElementById("Editor_contentIframe").contentWindow.document.getElementsByClassName("token-manager-token");

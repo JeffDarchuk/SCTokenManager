@@ -14,20 +14,23 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 	public class TokenDroplistAttribute : Attribute, ITokenDataAttribute
 	{
 		private DroplistTokenData Data;
+
 		/// <summary>
 		/// Marks this property or field as being a droplist token value, this is applicable to a string, ID, or Item type.
 		/// </summary>
 		/// <param name="label">The description given to content authors filling in the field</param>
 		/// <param name="required">Is this value required or not</param>
-		/// <param name="options">Array of options that correspond to key/value pairs, each odd index is the key and the following even index is the value</param>
-		public TokenDroplistAttribute(string label, bool required, string[] options)
+		/// <param name="options">Array of options that correspond to key/value pairs, each odd index is the key which is used as the label and the following even index is the value which is the hidden value that will be passed to your model</param>
+		/// <param name="defaultValue">The starting value of the token data</param>
+		public TokenDroplistAttribute(string label, bool required, string[] options, string defaultValue = "")
 		{
 			List<KeyValuePair<string, string>> ops = new List<KeyValuePair<string, string>>();
 			for (int i = 0; i + 1 < options.Length; i += 2) {
 				ops.Add(new KeyValuePair<string,string>(options[i], options[i + 1]));
 			}
-			Data = new DroplistTokenData(label, "", required, ops);
+			Data = new DroplistTokenData(label, "", required, ops, defaultValue);
 		}
+
 		/// <summary>
 		/// Marks this property or field as being a droplist token value, this is applicable to a string, ID, or Item type.
 		/// </summary>
@@ -35,7 +38,8 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 		/// <param name="required">Is this value required or not</param>
 		/// <param name="id">Sitecore ID for which the child elements will be made into the options</param>
 		/// <param name="valueAsId">True: items Sitecore id False: items name</param>
-		public TokenDroplistAttribute(string label, bool required, string id, bool valueAsId = true)
+		/// <param name="defaultValue">The starting value of the token data</param>
+		public TokenDroplistAttribute(string label, bool required, string id, bool valueAsId = true, string defaultValue = "")
 		{
 			List<KeyValuePair<string, string>> ops = new List<KeyValuePair<string, string>>();
 			Item item = (Sitecore.Context.ContentDatabase ?? Sitecore.Context.Database ?? Factory.GetDatabase("master")).GetItem(id);
@@ -43,7 +47,7 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 			{
 				ops.Add(new KeyValuePair<string, string>(child.DisplayName, valueAsId ? child.ID.ToString() : child.Name));
 			}
-			Data = new DroplistTokenData(label, "", required, ops);
+			Data = new DroplistTokenData(label, "", required, ops, defaultValue);
 		}
 
 		public ITokenData TokenData => Data;

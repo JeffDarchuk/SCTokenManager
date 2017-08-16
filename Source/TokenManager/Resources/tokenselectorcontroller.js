@@ -80,7 +80,7 @@
 		vm.submit = function () {
 			var valid = true;
 			for (var i = 0; i < vm.fields.length; i++) {
-				if (vm.fields[i].Required && typeof (vm.data[vm.fields[i].Name]) === "undefined") {
+				if (vm.fields[i].Required && (typeof (vm.data[vm.fields[i].Name]) === "undefined" || vm.data[vm.fields[i].Name] === '')) {
 					valid = false;
 					vm.fields[i].class = "token-data-invalid";
 				} else

@@ -20,9 +20,10 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 		/// </summary>
 		/// <param name="label">The description given to content authors filling in the field</param>
 		/// <param name="required">Is this value required or not</param>
-		public TokenIntegerAttribute(string label, bool required)
+		/// <param name="defaultValue">The starting value of the token data</param>
+		public TokenIntegerAttribute(string label, bool required, int defaultValue = 0)
 		{
-			Data = new IntegerTokenData(label, "", required);
+			Data = new IntegerTokenData(label, "", required, defaultValue);
 		}
 		public ITokenData TokenData => Data;
 
@@ -33,7 +34,7 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 			if (t == typeof(int))
 				return collection.GetInt(name);
 
-			throw new TokenCastException($"Unable to cast type {t.Namespace}.{t.Name} for TokenGeneralLinkAttribute on property/field {name}.  Acceptable types are ID, Item or string.");
+			throw new TokenCastException($"Unable to cast type {t.Namespace}.{t.Name} for TokenIntegerAttribute on property/field {name}.  Acceptable types are ID, Item or string.");
 
 		}
 	}

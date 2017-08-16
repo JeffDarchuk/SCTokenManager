@@ -1,4 +1,5 @@
-﻿using System.Dynamic;
+﻿using System;
+using System.Dynamic;
 using TokenManager.Data.Interfaces;
 using TokenManager.Data.TokenDataTypes.Support;
 
@@ -6,6 +7,8 @@ namespace TokenManager.Data.TokenDataTypes
 {
 	public class GeneralLinkTokenData : ITokenData
 	{
+		private readonly string _initValue = "";
+
 		/// <summary>
 		/// Adds an analog of a general link field into a token's data fields. The link is tracked by the links database.
 		/// </summary>
@@ -13,23 +16,37 @@ namespace TokenManager.Data.TokenDataTypes
 		/// <param name="name">The key in the token data collection this will be stored in (use this when getting the value out of the NameValueCollection; use the <see cref="GeneralLink" /> class to parse the retrieved string)</param>
 		/// <param name="required">Whether this token field is required or not</param>
 		/// <param name="root">For internal links, this sets the item ID of the root item in the content tree to choose an item from</param>
-		public GeneralLinkTokenData(string label, string name, bool required, string root = "{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}")
+		/// <param name="defaultValue">The starting value of the token data</param>
+		public GeneralLinkTokenData(string label, string name, bool required, string root = "{0DE95AE4-41AB-4D01-9EB0-67441B7C2450}", string defaultValue = "")
 		{
 			Name = name;
 			Label = label;
 			Required = required;
 			Data = new ExpandoObject();
 			Data.root = root;
+			DefaultValue = defaultValue;
+			if (!string.IsNullOrWhiteSpace(defaultValue))
+			{
+				Guid tmp;
+
+				if (Guid.TryParse(defaultValue, out tmp))
+					_initValue =
+						$"token.data[field.Name].grouped.id = token.data[field.Name].grouped.id ? token.data[field.Name].grouped.id : '{DefaultValue}'; token.data[field.Name].grouped.type = 'internal'";
+				else
+					_initValue =
+						$"token.data[field.Name].grouped.url = token.data[field.Name].grouped.url ? token.data[field.Name].grouped.url : '{DefaultValue}'; token.data[field.Name].grouped.type = 'external'";
+			}
 		}
 		public string Name { get; set; }
 		public string Label { get; set; }
 		public bool Required { get; set; }
+		public string DefaultValue { get; set; }
 
 		public string AngularMarkup
 		{
 			get { return $@"<div class=""field-row {{{{ field.class}}}}"">
 				<span class=""field-label"">{{{{field.Label}}}} </span>
-				<div class=""field-data"">
+				<div ng-init=""{_initValue}"" class=""field-data"">
 					<label><input type=""radio"" ng-model=""token.data[field.Name].grouped.type"" value=""external""><span style='position:relative;top:-2px'>External Link</span></label><br/>
 					<label style=""margin-bottom:4px""><input type=""radio"" ng-model=""token.data[field.Name].grouped.type"" value=""internal""><span style='position:relative;top:-2px'>Internal Link</span></label><br/>
 					<div ng-if=""token.data[field.Name].grouped.type == 'internal'"">

@@ -17,31 +17,29 @@ namespace TokenManager.Data.TokenDataTypes
 		/// <param name="name">The key that's used when placing/retrieving information into the token definition</param>
 		/// <param name="placeholder">The text that appears in light gray that is over the top of the input field guiding users suggested input</param>
 		/// <param name="required">If true, the user will not be able to leave this field blank</param>
-
-		public StringTokenData(string label, string name, string placeholder, bool required)
+		/// <param name="defaultValue">The starting value of the token data</param>
+		public StringTokenData(string label, string name, string placeholder, bool required, string defaultValue = "")
 		{
 			Name = name;
 			Label = label;
 			Data = new ExpandoObject();
 			Data.Placeholder = placeholder;
 			Required = required;
+			DefaultValue = defaultValue;
 		}
 		public string Name { get; set; }
 		public string Label { get; set; }
 		public bool Required { get; set; }
+		public string DefaultValue { get; set; }
 
-		public string AngularMarkup
-		{
-			get { return @"
-    <div class=""field-row {{field.class}}"">
-        <span class=""field-label"">{{field.Label}} </span>
-        <div class=""field-data"">
-            <input ng-model=""token.data[field.Name]"" size=""50"" placeholder=""{{field.Data.Placeholder}}"" />
+		public string AngularMarkup => $@"
+    <div class=""field-row {{{{field.class}}}}"">
+        <span class=""field-label"">{{{{field.Label}}}} </span>
+        <div ng-init=""token.data[field.Name]= token.data[field.Name] ? token.data[field.Name] : '{DefaultValue}';"" class=""field-data"">
+            <input ng-model=""token.data[field.Name]"" size=""50"" placeholder=""{{{{field.Data.Placeholder}}}}"" />
         </div>
     </div>
 ";
-			}
-		}
 
 		public dynamic Data { get; set; }
 		public object GetValue(string value)

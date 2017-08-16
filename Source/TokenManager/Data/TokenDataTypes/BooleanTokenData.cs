@@ -15,26 +15,26 @@ namespace TokenManager.Data.TokenDataTypes
 		/// </summary>
 		/// <param name="label">The label displayed to the authors describing what the field is for</param>
 		/// <param name="name">The key that's used when placing/retrieving information into the token definition</param>
-		public BooleanTokenData(string label, string name)
+		/// <param name="defaultValue">The starting value of the token data</param>
+		public BooleanTokenData(string label, string name, bool defaultValue = false)
 		{
 			Name = name;
 			Label = label;
 			Required = false;
+			DefaultValue = defaultValue;
 		}
 		public string Name { get; set; }
 		public string Label { get; set; }
 		public bool Required { get; set; }
-		public string AngularMarkup
-		{
-			get { return @"
-<div class=""field-row {{field.class}}"">
-		<span class=""field-label"">{{field.Label}} </span>
-		<div class=""field-data"">
+		public bool DefaultValue { get; set; }
+		public string AngularMarkup => $@"
+	<div class=""field-row {{{{field.class}}}}"">
+		<span class=""field-label"">{{{{field.Label}}}} </span>
+		<div ng-init=""token.data[field.Name]= token.data[field.Name] ? token.data[field.Name] : {(DefaultValue ? "true" : "false")};"" class=""field-data"">
 			<input type=""checkbox"" ng-model=""token.data[field.Name]""/>
 		</div>
 	</div>
-"; }
-		}
+";
 
 		public dynamic Data { get; }
 		public object GetValue(string value)

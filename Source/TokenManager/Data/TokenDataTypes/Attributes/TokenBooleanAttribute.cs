@@ -11,13 +11,15 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 	public class TokenBooleanAttribute : Attribute, ITokenDataAttribute
 	{
 		private BooleanTokenData Data;
+
 		/// <summary>
 		/// Marks this property or field as being a checkbox token value, this is applicable to a boolean, int, or string type.
 		/// </summary>
 		/// <param name="label">The description given to content authors filling in the field</param>
-		public TokenBooleanAttribute(string label)
+		/// <param name="defaultValue">The starting value of the token data</param>
+		public TokenBooleanAttribute(string label, bool defaultValue = false)
 		{
-			Data = new BooleanTokenData(label, "");
+			Data = new BooleanTokenData(label, "", defaultValue);
 		}
 		public ITokenData TokenData => Data;
 
