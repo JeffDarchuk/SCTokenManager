@@ -20,6 +20,9 @@ namespace TokenManager
 		public const string TokenRootTemplateId = "{D48A879D-2142-4DFB-A773-C8AF686AE779}";
 		public const string TokenStripOuterPTagsFieldId = "{01038533-5010-4BD2-A2E5-C08D263CCC7A}";
 
+		public const string TokenDividerId = "{110669A7-8A48-478F-AC7B-7D8AEC7F8F7D}";
+		public const string TokenButtonId = "{AFA8831E-F5DD-4DF2-A96A-8E223A68D4EB}";
+
 		public static readonly Guid IdGenerationId = new Guid("{9068084E-CB06-450D-90AC-DB9CCE2B2F0D}");
 	#region Token Types
 	//Method Token

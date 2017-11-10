@@ -25,8 +25,9 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 		public TokenDroplistAttribute(string label, bool required, string[] options, string defaultValue = "")
 		{
 			List<KeyValuePair<string, string>> ops = new List<KeyValuePair<string, string>>();
-			for (int i = 0; i + 1 < options.Length; i += 2) {
-				ops.Add(new KeyValuePair<string,string>(options[i], options[i + 1]));
+			for (int i = 0; i + 1 < options.Length; i += 2)
+			{
+				ops.Add(new KeyValuePair<string, string>(options[i], options[i + 1]));
 			}
 			Data = new DroplistTokenData(label, "", required, ops, defaultValue);
 		}
@@ -43,10 +44,11 @@ namespace TokenManager.Data.TokenDataTypes.Attributes
 		{
 			List<KeyValuePair<string, string>> ops = new List<KeyValuePair<string, string>>();
 			Item item = (Sitecore.Context.ContentDatabase ?? Sitecore.Context.Database ?? Factory.GetDatabase("master")).GetItem(id);
-			foreach (Item child in item.Children)
-			{
-				ops.Add(new KeyValuePair<string, string>(child.DisplayName, valueAsId ? child.ID.ToString() : child.Name));
-			}
+			if (item != null)
+				foreach (Item child in item.Children)
+				{
+					ops.Add(new KeyValuePair<string, string>(child.DisplayName, valueAsId ? child.ID.ToString() : child.Name));
+				}
 			Data = new DroplistTokenData(label, "", required, ops, defaultValue);
 		}
 

@@ -237,10 +237,5 @@
     <EmbeddedResource Include="Resources\dialog_close.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="AfterBuild">
-    <Copy SourceFiles="$(TargetPath)" Condition="Exists('C:\inetpub\wwwroot\Debut\Source\Debut.Web\bin')" DestinationFolder="C:\inetpub\wwwroot\Debut\Source\Debut.Web\bin" />
-    <Copy SourceFiles="$(TargetPath)" Condition="Exists('C:\inetpub\wwwroot\connectivedx.com\Source\Connective.Web\bin')" DestinationFolder="C:\inetpub\wwwroot\connectivedx.com\Source\Connective.Web\bin" />
-    <Copy SourceFiles="$(TargetPath)" Condition="Exists('C:\inetpub\wwwroot\KNOW\Source\KNOW.Web\bin')" DestinationFolder="C:\inetpub\wwwroot\KNOW\Source\KNOW.Web\bin" />
-    <Copy SourceFiles="C:\Development\TokenManager\Source\TokenManager\Tokens.config" Condition="Exists('C:\inetpub\wwwroot\Debut\Source\Debut.Web\App_Config\Include')" DestinationFolder="C:\inetpub\wwwroot\Debut\Source\Debut.Web\App_Config\Include" />
-  </Target>
+
 </Project>

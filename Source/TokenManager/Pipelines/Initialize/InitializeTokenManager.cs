@@ -68,45 +68,46 @@ namespace TokenManager.Pipelines.Initialize
 							   @"\packages\TokenManager.TokenManagerPackage.zip";
 				try
 				{
-					var manifestResourceStream = GetType().Assembly
-						.GetManifestResourceStream(TokenKeeper.IsSc8 ? "TokenManager.Resources.TokenManagerPackage.zip" : "TokenManager.Resources.TokenManagerSc7.zip");
-					manifestResourceStream?.CopyTo(new FileStream(filepath, FileMode.Create));
-					Task.Run(() =>
+					using (var manifestResourceStream = GetType().Assembly
+						.GetManifestResourceStream(TokenKeeper.IsSc8
+							? "TokenManager.Resources.TokenManagerPackage.zip"
+							: "TokenManager.Resources.TokenManagerSc7.zip"))
+					using (var file = new FileStream(filepath, FileMode.Create))
 					{
+						manifestResourceStream?.CopyTo(file);
+					}
 
-						while (true)
+					int count = 0;
+					while (true)
+					{
+						if (!IsFileLocked(new FileInfo(filepath)))
 						{
-							if (!IsFileLocked(new FileInfo(filepath)))
+							using (new SecurityDisabler())
+							using (new SyncOperationContext())
 							{
+								IProcessingContext context = new SimpleProcessingContext();
+								IItemInstallerEvents events =
+									new DefaultItemInstallerEvents(
+										new BehaviourOptions(InstallMode.Overwrite, MergeMode.Undefined));
+								context.AddAspect(events);
+								IFileInstallerEvents events1 = new DefaultFileInstallerEvents(true);
+								context.AddAspect(events1);
 
-								using (new SecurityDisabler())
-								{
-									using (new ProxyDisabler())
-									{
-										using (new SyncOperationContext())
-										{
-											IProcessingContext context = new SimpleProcessingContext();
-											IItemInstallerEvents events =
-												new DefaultItemInstallerEvents(
-													new BehaviourOptions(InstallMode.Overwrite, MergeMode.Undefined));
-											context.AddAspect(events);
-											IFileInstallerEvents events1 = new DefaultFileInstallerEvents(true);
-											context.AddAspect(events1);
-
-											Sitecore.Install.Installer installer = new Sitecore.Install.Installer();
-											installer.InstallPackage(MainUtil.MapPath(filepath), context);
-											break;
-										}
-									}
-								}
+								Sitecore.Install.Installer installer = new Sitecore.Install.Installer();
+								installer.InstallPackage(MainUtil.MapPath(filepath), context);
+								break;
 							}
-
-							Thread.Sleep(1000);
 						}
 
-						RegisterSitecoreTokens();
-						ValidateInsertOptions();
-					});
+
+						Thread.Sleep(1000);
+						count++;
+						if (count > 15)
+							break;
+					}
+
+					RegisterSitecoreTokens();
+					ValidateInsertOptions();
 				}
 				catch (Exception e)
 				{
@@ -125,7 +126,9 @@ namespace TokenManager.Pipelines.Initialize
 			XmlDocument doc = new XmlDocument();
 			doc.Load(HttpRuntime.AppDomainAppPath + "/sitecore/shell/sitecore.version.xml");
 			var selectSingleNode = doc.SelectSingleNode("/information/version/major");
-			return selectSingleNode != null && selectSingleNode.InnerText == "8";
+			int version;
+			int.TryParse(selectSingleNode.InnerText, out version);
+			return selectSingleNode != null && version > 7;
 		}
 
 		private static void ValidateInsertOptions()
