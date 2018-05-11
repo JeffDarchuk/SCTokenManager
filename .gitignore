@@ -16,6 +16,7 @@ obj/
 # Ignore user-scoped solution and project settings
 *.user
 *.suo
+.vs
 
 # NuGet packages
 Packages/*

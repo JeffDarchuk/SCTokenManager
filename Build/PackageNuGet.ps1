@@ -17,6 +17,7 @@ function Resolve-MsBuild {
 	}
 
 	Write-Host "Found MSBuild 2015."
+	
 	Write-Host $msBuild2015
 
 	return $msBuild2015

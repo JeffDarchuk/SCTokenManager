@@ -18,7 +18,7 @@ namespace TokenManager.Handlers.ContentTree
 		{
 		}
 
-		public ContentTreeNode(Item item, bool open = true)
+		public ContentTreeNode(Item item, bool open = false)
 		{
 			Open = open;
 			SetIcon(item);

@@ -106,7 +106,7 @@ namespace TokenManager.Handlers
 				if (string.IsNullOrWhiteSpace(file))
 				{
 					string html = GetResource("index.html").Replace("<datasource></datasource>", $"<script>var tmDatasource='{context.Request.QueryString["sc_itemid"]}';</script>");
-					if (!string.IsNullOrWhiteSpace(_userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value]))
+					if (_userCurrentToken.ContainsKey(context.Request.Cookies["ASP.NET_SessionId"].Value) && !string.IsNullOrWhiteSpace(_userCurrentToken[context.Request.Cookies["ASP.NET_SessionId"].Value]))
 						html = html.Replace("<preset></preset>", "<script>var tmPreset=true;</script>");
 					ReturnResponse(context, html, "text/html");
 				}
@@ -277,7 +277,7 @@ namespace TokenManager.Handlers
 		private static object GetContentTree(HttpContextBase context)
 		{
 			var data = GetPostData(context);
-			return new ContentTreeNode(Factory.GetDatabase(data.database).GetItem(new ID(data.id)));
+			return new ContentTreeNode(Factory.GetDatabase(data.database).GetItem(new ID(data.id)), true);
 		}
 
 		/// <summary>
