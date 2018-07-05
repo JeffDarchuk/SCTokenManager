@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Routing;
 using System.Xml;
@@ -15,7 +14,6 @@ using Sitecore.Data;
 using Sitecore.Data.Engines;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
-using Sitecore.Data.Proxies;
 using Sitecore.Diagnostics;
 using Sitecore.Install.Files;
 using Sitecore.Install.Framework;
@@ -58,61 +56,7 @@ namespace TokenManager.Pipelines.Initialize
 
 			if (RequiredSitecoreItemsMissing())
 			{
-				var filepath = "";
-				if (System.Text.RegularExpressions.Regex.IsMatch(Settings.DataFolder, @"^(([a-zA-Z]:\\)|(//)).*"))
-					//if we have an absolute path, rather than relative to the site root
-					filepath = Settings.DataFolder +
-							   @"\packages\TokenManager.TokenManagerPackage.zip";
-				else
-					filepath = HttpRuntime.AppDomainAppPath + Settings.DataFolder.Substring(1) +
-							   @"\packages\TokenManager.TokenManagerPackage.zip";
-				try
-				{
-					using (var manifestResourceStream = GetType().Assembly
-						.GetManifestResourceStream(TokenKeeper.IsSc8
-							? "TokenManager.Resources.TokenManagerPackage.zip"
-							: "TokenManager.Resources.TokenManagerSc7.zip"))
-					using (var file = new FileStream(filepath, FileMode.Create))
-					{
-						manifestResourceStream?.CopyTo(file);
-					}
-
-					int count = 0;
-					while (true)
-					{
-						if (!IsFileLocked(new FileInfo(filepath)))
-						{
-							using (new SecurityDisabler())
-							using (new SyncOperationContext())
-							{
-								IProcessingContext context = new SimpleProcessingContext();
-								IItemInstallerEvents events =
-									new DefaultItemInstallerEvents(
-										new BehaviourOptions(InstallMode.Overwrite, MergeMode.Undefined));
-								context.AddAspect(events);
-								IFileInstallerEvents events1 = new DefaultFileInstallerEvents(true);
-								context.AddAspect(events1);
-
-								Sitecore.Install.Installer installer = new Sitecore.Install.Installer();
-								installer.InstallPackage(MainUtil.MapPath(filepath), context);
-								break;
-							}
-						}
-
-
-						Thread.Sleep(1000);
-						count++;
-						if (count > 15)
-							break;
-					}
-
-					RegisterSitecoreTokens();
-					ValidateInsertOptions();
-				}
-				catch (Exception e)
-				{
-					Log.Error("TokenManager was unable to initialize", e, this);
-				}
+				InstallSitecorePackage();
 			}
 			else
 			{
@@ -121,17 +65,78 @@ namespace TokenManager.Pipelines.Initialize
 			}
 		}
 
-		private static bool IsSc8()
+		protected virtual void InstallSitecorePackage()
+		{
+			string filepath;
+			if (System.Text.RegularExpressions.Regex.IsMatch(Settings.DataFolder, @"^(([a-zA-Z]:\\)|(//)).*"))
+				//if we have an absolute path, rather than relative to the site root
+				filepath = Settings.DataFolder +
+				           @"\packages\TokenManager.TokenManagerPackage.zip";
+			else
+				filepath = HttpRuntime.AppDomainAppPath + Settings.DataFolder.Substring(1) +
+				           @"\packages\TokenManager.TokenManagerPackage.zip";
+			try
+			{
+				using (var manifestResourceStream = GetType().Assembly
+					.GetManifestResourceStream(TokenKeeper.IsSc8
+						? "TokenManager.Resources.TokenManagerPackage.zip"
+						: "TokenManager.Resources.TokenManagerSc7.zip"))
+				using (var file = new FileStream(filepath, FileMode.Create))
+				{
+					manifestResourceStream?.CopyTo(file);
+				}
+
+				int count = 0;
+				while (true)
+				{
+					if (!IsFileLocked(new FileInfo(filepath)))
+					{
+						using (new SecurityDisabler())
+						using (new SyncOperationContext())
+						{
+							IProcessingContext context = new SimpleProcessingContext();
+							IItemInstallerEvents events =
+								new DefaultItemInstallerEvents(
+									new BehaviourOptions(InstallMode.Overwrite, MergeMode.Undefined));
+							context.AddAspect(events);
+							IFileInstallerEvents events1 = new DefaultFileInstallerEvents(true);
+							context.AddAspect(events1);
+
+							Sitecore.Install.Installer installer = new Sitecore.Install.Installer();
+							installer.InstallPackage(MainUtil.MapPath(filepath), context);
+							break;
+						}
+					}
+
+
+					Thread.Sleep(1000);
+					count++;
+					if (count > 15)
+						break;
+				}
+
+				RegisterSitecoreTokens();
+				ValidateInsertOptions();
+			}
+			catch (Exception e)
+			{
+				Log.Error("TokenManager was unable to initialize", e, this);
+			}
+		}
+
+		protected virtual bool IsSc8()
 		{
 			XmlDocument doc = new XmlDocument();
 			doc.Load(HttpRuntime.AppDomainAppPath + "/sitecore/shell/sitecore.version.xml");
 			var selectSingleNode = doc.SelectSingleNode("/information/version/major");
+			Assert.IsNotNull(selectSingleNode, "malformed sitecore version file");
 			int version;
+			// ReSharper disable once PossibleNullReferenceException
 			int.TryParse(selectSingleNode.InnerText, out version);
-			return selectSingleNode != null && version > 7;
+			return version > 7;
 		}
 
-		private static void ValidateInsertOptions()
+		protected virtual void ValidateInsertOptions()
 		{
 			Item sv = TokenKeeper.CurrentKeeper.GetDatabase().GetItem(Constants.TokenCollectionStandardValuesId);
 			if (sv == null)
@@ -170,7 +175,7 @@ namespace TokenManager.Pipelines.Initialize
 		/// Detects if a required sitecore item is missing.
 		/// </summary>
 		/// <returns></returns>
-		private static bool RequiredSitecoreItemsMissing()
+		protected virtual bool RequiredSitecoreItemsMissing()
 		{
 			if (_needRebuild)
 			{
