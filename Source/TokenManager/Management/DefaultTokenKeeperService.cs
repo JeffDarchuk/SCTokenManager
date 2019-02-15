@@ -67,7 +67,7 @@ namespace TokenManager.Management
 			}
 		}
 
-		public void LoadAutoToken(AutoToken token)
+		public IEnumerable<ID> LoadAutoToken(AutoToken token)
 		{
 			using (new SecurityDisabler())
 			{
@@ -81,50 +81,52 @@ namespace TokenManager.Management
 					TokenCollections[token.CollectionName].AddOrUpdateToken(token.Token, token);
 				}
 				var db = Factory.GetDatabase("core", false);
-				if (db == null) return;
+				if (db == null) yield break;
 
 				TokenButton tb = token.TokenButton();
-
-				ID buttonId = GuidUtility.GetId("tokenmanager", $"{token.CollectionName}{token.Token}");
-
-				Item button = db.DataManager.DataEngine.GetItem(buttonId, LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
-
-				if (tb != null)
+				foreach (Item parent in db.DataManager.DataEngine
+					.GetItem(new ID(Constants.Core.RteParent), LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest).Axes
+					.GetDescendants().Where(x =>
+						x.Name == "Toolbar 1" && x.TemplateID.ToString() == "{0E0DA701-BC94-4855-A0C3-92063E64BA1F}"))
 				{
-					if (button != null)
+					ID buttonId = GuidUtility.GetId("tokenmanager", $"{token.CollectionName}{token.Token}{parent.ID}");
+
+					Item button = db.DataManager.DataEngine.GetItem(buttonId, LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
+
+					if (tb != null)
 					{
-						if (
-							button["Click"] == $"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}" &&
-							button[FieldIDs.DisplayName] == tb.Name &&
-							button["Shortcut"] == $"?Category={token.CollectionName}&Token={token.Token}" &&
-							button[FieldIDs.Sortorder] == tb.SortOrder.ToString() &&
-							button[FieldIDs.Icon] == (string.IsNullOrWhiteSpace(tb.Icon) ? token.TokenIcon : tb.Icon))
+						yield return buttonId;
+						if (button != null)
 						{
-							return;
+							if (
+								button["Click"] == $"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}" &&
+								button[FieldIDs.DisplayName] == tb.Name &&
+								button["Shortcut"] == $"?Category={token.CollectionName}&Token={token.Token}" &&
+								button[FieldIDs.Sortorder] == tb.SortOrder.ToString() &&
+								button[FieldIDs.Icon] == (string.IsNullOrWhiteSpace(tb.Icon) ? token.TokenIcon : tb.Icon))
+							{
+								continue;
+							}
 						}
+						else
+						{
+							button = db.DataManager.DataEngine.CreateItem(tb.Name, parent, new ID(Constants.Core.ButtonTemplate), buttonId);
+						}
+
+						button.Editing.BeginEdit();
+						button["Click"] = $"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}";
+						button[FieldIDs.DisplayName] = tb.Name;
+						button["Shortcut"] = $"?Category={token.CollectionName}&Token={token.Token}";
+						button[FieldIDs.Sortorder] = tb.SortOrder.ToString();
+						button[FieldIDs.Icon] = string.IsNullOrWhiteSpace(tb.Icon) ? token.TokenIcon : tb.Icon;
+						button.Editing.EndEdit(false, true);
+						button.Database.Caches.ItemCache.RemoveItem(buttonId);
+						button.Database.Caches.DataCache.RemoveItemInformation(buttonId);
 					}
 					else
 					{
-						Item parent = db.DataManager.DataEngine.GetItem(new ID(Constants.Core.RteParent), LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
-
-						if (parent == null) return;
-
-						button = db.DataManager.DataEngine.CreateItem(tb.Name, parent, new ID(Constants.Core.ButtonTemplate), buttonId);
+						button?.Recycle();
 					}
-
-					button.Editing.BeginEdit();
-					button["Click"] = $"TokenSelector{Regex.Replace(token.CollectionName, "[^A-Za-z0-9_]", "")}{Regex.Replace(token.Token, "[^A-Za-z0-9_]", "")}";
-					button[FieldIDs.DisplayName] = tb.Name;
-					button["Shortcut"] = $"?Category={token.CollectionName}&Token={token.Token}";
-					button[FieldIDs.Sortorder] = tb.SortOrder.ToString();
-					button[FieldIDs.Icon] = string.IsNullOrWhiteSpace(tb.Icon) ? token.TokenIcon : tb.Icon;
-					button.Editing.EndEdit(false, true);
-					button.Database.Caches.ItemCache.RemoveItem(buttonId);
-					button.Database.Caches.DataCache.RemoveItemInformation(buttonId);
-				}
-				else if (button != null)
-				{
-					button.Recycle();
 				}
 			}
 		}
@@ -436,6 +438,26 @@ namespace TokenManager.Management
 			return args.Collection;
 		}
 
+		public void CleanOldTokenButtons(HashSet<ID> ValidTokenButtons)
+		{
+			using (new SecurityDisabler())
+			{
+				var db = Factory.GetDatabase("core", false);
+				if (db == null) return;
+
+				foreach (Item tokenButton in db.DataManager.DataEngine
+					.GetItem(new ID(Constants.Core.RteParent), LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest).Axes
+					.GetDescendants().Where(x =>
+						x["Click"].StartsWith("TokenSelector") && x.TemplateID.ToString() == "{3C8BD8A1-280B-4278-BB8B-21FA3B87AF0F}"))
+				{
+					if (!ValidTokenButtons.Contains(tokenButton.ID))
+					{
+						tokenButton.Recycle();
+					}
+				}
+			}
+		}
+
 		public virtual TokenDataCollection TokenProperties(string tokenIdentifier)
 		{
 			if (string.IsNullOrWhiteSpace(tokenIdentifier))
@@ -647,11 +669,15 @@ namespace TokenManager.Management
 						throw new InvalidOperationException($"AutoToken {t.FullName} could not be activated. This may indicate a non-parameterless constructor is being used (explicit values need to be set when calling base()). It can also mean that you have IoC dependencies in the constructor, but have not registered the AutoToken class with your IoC container.", mex);
 					}
 				});
-
+			HashSet<ID> validTokenButtons = new HashSet<ID>();
 			foreach (AutoToken token in autoTokens)
 			{
-				TokenKeeper.CurrentKeeper.LoadAutoToken(token);
+				foreach (ID tokenButton in TokenKeeper.CurrentKeeper.LoadAutoToken(token))
+				{
+					validTokenButtons.Add(tokenButton);
+				}
 			}
+			TokenKeeper.CurrentKeeper.CleanOldTokenButtons(validTokenButtons);
 		}
 
 		private IEnumerable<Type> GetAutoTokenTypes(Assembly a)

@@ -14,6 +14,7 @@ using Sitecore.Data;
 using Sitecore.Data.Engines;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
+using Sitecore.Data.Managers;
 using Sitecore.Diagnostics;
 using Sitecore.Install.Files;
 using Sitecore.Install.Framework;
@@ -63,6 +64,7 @@ namespace TokenManager.Pipelines.Initialize
 				RegisterSitecoreTokens();
 				ValidateInsertOptions();
 			}
+			AddTokenManagerMainRteButtons();
 		}
 
 		protected virtual void InstallSitecorePackage()
@@ -121,6 +123,48 @@ namespace TokenManager.Pipelines.Initialize
 			catch (Exception e)
 			{
 				Log.Error("TokenManager was unable to initialize", e, this);
+			}
+		}
+
+		protected virtual void AddTokenManagerMainRteButtons()
+		{
+			using (new SecurityDisabler())
+			{
+				var db = Factory.GetDatabase("core", false);
+
+				foreach (Item parent in db.DataManager.DataEngine
+					.GetItem(new ID(Constants.Core.RteParent), LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest).Axes
+					.GetDescendants().Where(x =>
+						x.Name == "Toolbar 1" && x.TemplateID.ToString() == "{0E0DA701-BC94-4855-A0C3-92063E64BA1F}"))
+				{
+					ID buttonId = GuidUtility.GetId("tokenmanager", $"tokenmanager{parent.ID}");
+					Item button = db.DataManager.DataEngine.GetItem(buttonId, LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest);
+
+					if (button != null)
+					{
+						if (
+							button["Click"] == "TokenSelector" &&
+							button[FieldIDs.DisplayName] == "Insert A Token" &&
+							button[FieldIDs.Sortorder] == "5" &&
+							button[FieldIDs.Icon] == "Office/32x32/registry.png")
+						{
+							continue;
+						}
+					}
+					else
+					{
+						button = db.DataManager.DataEngine.CreateItem("Insert A Token", parent, new ID(Constants.Core.ButtonTemplate), buttonId);
+					}
+
+					button.Editing.BeginEdit();
+					button["Click"] = "TokenSelector";
+					button[FieldIDs.DisplayName] = "Insert A Token";
+					button[FieldIDs.Sortorder] = "5";
+					button[FieldIDs.Icon] = "Office/32x32/registry.png";
+					button.Editing.EndEdit(false, true);
+					button.Database.Caches.ItemCache.RemoveItem(buttonId);
+					button.Database.Caches.DataCache.RemoveItemInformation(buttonId);
+				}
 			}
 		}
 

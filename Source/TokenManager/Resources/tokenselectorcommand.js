@@ -5,6 +5,7 @@
 	var tokenElement = null;
 	var usingTokenElement = false;
 	var tmPreset = new Object();
+	var command = null;
 //Set the Id of your button into the RadEditorCommandList[]
 	if (typeof RadEditorCommandList == "undefined")
 		RadEditorCommandList = Telerik.Web.UI.Editor.CommandList;
@@ -17,6 +18,7 @@
 		if (!usingTokenElement)
 			tokenElement = null;
 		var token = getToken(editor);
+		command = commandName;
 		jQuery.post("/tokenmanager/tokensetup.json",
 			"{'token' : '" +
 			token.replace(/</g, "lttt").replace(/>/g, "gttt").replace(/\&/g, 'amppp') +
@@ -25,7 +27,7 @@
 			"'}").done(function(data) {
 			if (data) {
 				editor.showExternalDialog(
-					"/TokenManager?sc_itemid=" + scItemID,
+					"/TokenManager?command="+command+"&sc_itemid=" + scItemID,
 					"bannana", //argument
 					600,
 					500,

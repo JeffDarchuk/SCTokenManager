@@ -40,11 +40,8 @@ namespace TokenManager
 
 		public static class Core
 		{
-			public const string RteParent = "{7E9759CA-21FC-4091-ABE1-931D6BCA4615}";
+			public const string RteParent = "{C0EB664B-4DC7-4A7C-98F0-9884EAA2F1E6}";
 			public const string ButtonTemplate = "{3C8BD8A1-280B-4278-BB8B-21FA3B87AF0F}";
-
-			public const string TokenDividerId = "{110669A7-8A48-478F-AC7B-7D8AEC7F8F7D}";
-			public const string TokenButtonId = "{AFA8831E-F5DD-4DF2-A96A-8E223A68D4EB}";
 		}
 		public static readonly HashSet<string> BinaryBlacklist = new HashSet<string>(new []{
 			"Antlr3.Runtime",

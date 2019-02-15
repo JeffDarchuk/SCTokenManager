@@ -15,6 +15,8 @@
 	function tokenselectorcontroller($http, tokenfactory, $sce) {
 
 		var vm = this;
+		vm.category = "";
+		vm.token = "";
 		vm.tokens = [];
 		vm.data = new Object();
 		vm.events = {
@@ -40,6 +42,8 @@
 					vm.category = category;
 					if (!vm.fields)
 						vm.token = "";
+					else if (vm.preset && vm.fields.length === 0 && vm.category !== "" && vm.token !== "")
+						vm.returnToken(vm.category, vm.token);
 				}, function (response) {
 					vm.error = response.data;
 				});
@@ -48,6 +52,7 @@
 		vm.reset = function () {
 			vm.selectedToken = "";
 			vm.category = "";
+			vm.token = "";
 			vm.tokens = [];
 			tokenfactory.tokenCategories().then(function (response) {
 				vm.categories = response.data;
@@ -60,7 +65,7 @@
 			if (typeof (window.parent.scTokenSelectorCallback) != "undefined") {
 				tokenfactory.tokenIdentifier(category, token).then(function (response) {
 					if (response.data.Fields === null || response.data.Fields.length === 0) {
-						window.parent.scTokenSelectorCallback(null, response.data.TokenIdentifier);
+						window.parent.scTokenSelectorCallback(null, response.data.TokenIdentifier+"&nbsp;");
 						scCloseRadWindow();
 					} else {
 						vm.fields = response.data.Fields;
@@ -98,14 +103,15 @@
 			tokenfactory.getSelectedToken().then(function (response) {
 				if (typeof (tmPreset) !== "undefined" && tmPreset) {
 					document.getElementById("tmtitle").innerText = document.getElementById("tmtitle").innerText.replace("Token Manager",response.data.Category + " " +  response.data.Token);
-					vm.preset = true;
+					if (window.location.href.indexOf("?command=TokenSelector&") === -1)
+						vm.preset = true;
 				}
-				if (response.data.Category !== null)
+				if (response.data.Category)
 					vm.loadTokens(response.data.Category);
 				vm.fields = response.data.Fields;
 				vm.token = response.data.Token;
 				vm.data = response.data.FieldValues;
-				if (vm.data == null)
+				if (!vm.data)
 					vm.data = new Object();
 			}, function (response) {
 				vm.error = response.data;

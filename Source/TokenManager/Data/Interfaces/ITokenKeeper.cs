@@ -30,7 +30,7 @@ namespace TokenManager.Data.Interfaces
 		/// Loads up a self contained token instance
 		/// </summary>
 		/// <param name="token">The token reference</param>
-		void LoadAutoToken(AutoToken token);
+		IEnumerable<ID> LoadAutoToken(AutoToken token);
 
 		/// <summary>
 		/// handles replacing the text from a render field pipeline
@@ -235,6 +235,11 @@ namespace TokenManager.Data.Interfaces
 		/// <param name="item"></param>
 		/// <returns>token collection</returns>
 		ITokenCollection<IToken> GetCollectionFromItem(Item item);
+
+		/// <summary>
+		/// Cleans out old unused token buttons
+		/// </summary>
+		void CleanOldTokenButtons(HashSet<ID> ValidTokenButtons);
 
 		/// <summary>
 		/// Extracts the token properties out of the token identifier

@@ -1,4 +1,4 @@
-$Webroot = "C:\inetpub\wwwroot\demo1.local"
+$Webroot = "C:\inetpub\wwwroot\dh9.local"
 
 Copy-Item "$PSScriptRoot\Source\TokenManager\Tokens.config" "$(New-Item "$Webroot\App_Config\Include\TokenManagerTest" -ItemType directory -Force)/Tokens.config" -Force
 Get-ChildItem "$PSScriptRoot\Source\TokenManager\bin\Debug" | Foreach-Object{

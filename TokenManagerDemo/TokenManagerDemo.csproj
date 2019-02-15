@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddDemoTokens.cs" />
+    <Compile Include="DemoBasicAutoToken.cs" />
     <Compile Include="DemoAutoToken.cs" />
     <Compile Include="DemoAutoToken2.cs" />
     <Compile Include="DemoAutoToken2Model.cs" />
