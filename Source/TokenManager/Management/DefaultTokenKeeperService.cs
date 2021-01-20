@@ -448,7 +448,11 @@ namespace TokenManager.Management
 				foreach (Item tokenButton in db.DataManager.DataEngine
 					.GetItem(new ID(Constants.Core.RteParent), LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest).Axes
 					.GetDescendants().Where(x =>
-						x["Click"].StartsWith("TokenSelector") && x.TemplateID.ToString() == "{3C8BD8A1-280B-4278-BB8B-21FA3B87AF0F}"))
+						x["Click"].StartsWith("TokenSelector")
+						&& x.TemplateID.ToString() == "{3C8BD8A1-280B-4278-BB8B-21FA3B87AF0F}"
+						&& x[FieldIDs.ReadOnly] != "1" // allow to protect non autotoken buttons and keep them
+						)
+					)
 				{
 					if (!ValidTokenButtons.Contains(tokenButton.ID))
 					{
