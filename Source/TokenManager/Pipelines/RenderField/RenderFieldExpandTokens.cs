@@ -32,10 +32,6 @@ namespace TokenManager.Pipelines.RenderField
 			{
 				args.Result.FirstPart = TokenKeeper.CurrentKeeper.ReplaceRTETokens(args, args.Result.FirstPart);
 			}
-			WordFieldValue wordFieldValue = WordFieldValue.Parse(args.Result.FirstPart);
-			if (wordFieldValue.BlobId == ID.Null)
-				return;
-			args.Result.FirstPart = wordFieldValue.GetHtmlWithStyles();
 		}
 	}
 }

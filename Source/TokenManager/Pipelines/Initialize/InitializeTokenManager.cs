@@ -48,7 +48,9 @@ namespace TokenManager.Pipelines.Initialize
 			{
 				TokenKeeper.TokenSingleton = Tokens;
 			}
-
+			var db = Factory.GetDatabase("master", false);
+			if (db == null)
+				return;
 			Assert.ArgumentNotNull(args, "args");
 
 			RegisterRoutes("tokenManager");
@@ -131,6 +133,8 @@ namespace TokenManager.Pipelines.Initialize
 			using (new SecurityDisabler())
 			{
 				var db = Factory.GetDatabase("core", false);
+				if (db == null)
+					return;
 
 				foreach (Item parent in db.DataManager.DataEngine
 					.GetItem(new ID(Constants.Core.RteParent), LanguageManager.DefaultLanguage, Sitecore.Data.Version.Latest).Axes
