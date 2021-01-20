@@ -290,6 +290,8 @@ These tokens are designed primarily for authors.  They take more development eff
 
 In practice these tokens have not proven to be particularly useful, but they still exist for now.  You can read more about them [here](https://jeffdarchuk.com/2015/10/26/sitecore-tokenmanager/)
 
+If you are using these tokens and don't want the TokenManager to delete and restore the RTE buttons on startup, simply protect the button items and the TokenManager won't recreate them.
+
 + Basic Token
 	* A simple token that injects content from an RTE.
 + Rendering Token
